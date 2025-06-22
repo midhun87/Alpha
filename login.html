@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login to AWSPrepZone</title> <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom right, #e0f2f7, #c1e4f4);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Custom Message Box styles (copy from Admin.html or ensure it's in a shared CSS) */
+        .custom-message-box {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .custom-message-box.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-message-box .message-content-wrapper {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .custom-message-box .message-content {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .custom-message-box .close-btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .custom-message-box .close-btn:hover {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+
+    <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 max-w-md w-full">
+        <div class="flex flex-col items-center justify-center mb-6">
+            <img src="./ChatGPT Image Jun 15, 2025, 03_58_04 PM.png" alt="AWSPrepZone - TestPortal" class="h-16 mb-4"> <h1 class="text-3xl font-bold text-blue-700 text-center">Login</h1>
+        </div>
+        
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                <input type="email" id="email" name="email" required
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <div>
+                <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                <input type="password" id="password" name="password" required
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline w-full transition-colors">
+                Login
+            </button>
+        </form>
+        <p class="text-center text-gray-600 text-sm mt-4">
+            Don't have an account? <a href="/Signup" class="text-blue-600 hover:underline">Sign up here</a>.
+        </p>
+    </div>
+
+    <div id="custom-message-box" class="custom-message-box">
+        <div class="message-content-wrapper">
+            <p class="message-content" id="message-box-content"></p>
+            <button class="close-btn" id="message-box-close-btn">OK</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin; // Dynamically get base URL
+
+        // Custom Message Box Elements
+        const customMessageBox = document.getElementById('custom-message-box');
+        const messageBoxContent = document.getElementById('message-box-content');
+        const messageBoxCloseBtn = document.getElementById('message-box-close-btn');
+
+        /**
+         * Displays a custom message box.
+         * @param {string} message - The message to display.
+         * @param {function} [callback] - Optional callback function to execute when OK is clicked.
+         */
+        function showCustomMessage(message, callback = null) {
+            messageBoxContent.textContent = message;
+            customMessageBox.classList.add('show');
+            messageBoxCloseBtn.onclick = () => {
+                customMessageBox.classList.remove('show');
+                if (callback) callback();
+            };
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent default form submission
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            console.log("CLIENT DEBUG (Login.html): Attempting login for email:", email); // Log login attempt
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    console.log("CLIENT DEBUG (Login.html): Login successful. Received response data:", data); // Log full successful response
+                    console.log("CLIENT DEBUG (Login.html): Received token (first 20 chars):", data.token ? data.token.substring(0, 20) + '...' : 'No token!');
+                    console.log("CLIENT DEBUG (Login.html): Received user role:", data.role);
+
+                    // Ensure token and role are present before setting localStorage
+                    if (!data.token) {
+                        console.error("CLIENT ERROR (Login.html): Backend did not return a token. Cannot proceed.");
+                        showCustomMessage('Login failed: Token missing from server response.');
+                        return;
+                    }
+
+                    try {
+                        localStorage.setItem('jwtToken', data.token);
+                        localStorage.setItem('username', data.username);
+                        localStorage.setItem('userId', data.userId);
+                        localStorage.setItem('userEmail', data.email);
+                        localStorage.setItem('userMobile', data.mobile);
+                        localStorage.setItem('userRole', data.role);
+
+                        console.log("CLIENT DEBUG (Login.html): localStorage after setItem: jwtToken =", localStorage.getItem('jwtToken') ? 'PRESENT' : 'MISSING', ", userRole =", localStorage.getItem('userRole'));
+
+                        if (localStorage.getItem('userRole') === 'admin') { // Use localStorage value for consistency
+                            console.log("CLIENT DEBUG (Login.html): Redirecting to admin page...");
+                            showCustomMessage('Login successful. Redirecting to admin dashboard...', () => {
+                                window.location.href = '/admin'; // Redirect to admin page
+                            });
+                        } else {
+                            console.log("CLIENT DEBUG (Login.html): Redirecting to home page...");
+                            showCustomMessage('Login successful. Redirecting to home page...', () => {
+                                window.location.href = '/home'; // Redirect to user home page
+                            });
+                        }
+                    } catch (e) {
+                        console.error("CLIENT ERROR (Login.html): Error storing data in localStorage:", e);
+                        showCustomMessage("Could not save login session. Please try again.", null);
+                    }
+
+                } else {
+                    console.error("CLIENT DEBUG (Login.html): Login failed with status:", response.status, "Response data:", data); // Log full failed response
+                    showCustomMessage(`Login failed: ${data.message || 'Invalid credentials.'}`);
+                }
+            } catch (error) {
+                console.error('CLIENT ERROR (Login.html): Network error during login:', error); // Log network errors
+                showCustomMessage('Network error. Please try again later.');
+            }
+        });
+    </script>
+</body>
+</html>

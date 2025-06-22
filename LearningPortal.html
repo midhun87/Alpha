@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Learning Portal</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #0056b3;
+            text-align: center;
+        }
+        .course-topics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .topic-card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease-in-out;
+        }
+        .topic-card:hover {
+            transform: translateY(-5px);
+        }
+        .topic-card.completed {
+            background-color: #e6ffe6; /* Light green for completed */
+            border-color: #4CAF50;
+        }
+        .topic-card h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.2em;
+        }
+        .topic-card p {
+            font-size: 0.9em;
+            color: #666;
+            flex-grow: 1; /* Allows description to take up available space */
+        }
+        .topic-card .actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        .topic-card button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+        .topic-card .view-ppt-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .topic-card .view-ppt-btn:hover {
+            background-color: #0056b3;
+        }
+        .topic-card .mark-complete-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .topic-card .mark-complete-btn:hover {
+            background-color: #218838;
+        }
+        .topic-card.completed .mark-complete-btn {
+            background-color: #6c757d; /* Grey out if already completed */
+            cursor: not-allowed;
+        }
+        .topic-card .completion-status {
+            font-size: 0.85em;
+            color: #4CAF50;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 5px;
+        }
+        .loading-message {
+            text-align: center;
+            font-style: italic;
+            color: #888;
+        }
+        .ppt-viewer-section {
+            margin-top: 40px;
+            border-top: 1px solid #eee;
+            padding-top: 30px;
+            text-align: center;
+        }
+        .ppt-viewer-section h2 {
+            margin-bottom: 20px;
+        }
+        #pptViewer {
+            width: 100%;
+            height: 600px; /* Adjust height as needed */
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        #message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: none;
+        }
+        #message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        #message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Course Learning Modules</h1>
+        <p class="loading-message" id="loadingMessage">Loading topics and your progress...</p>
+        <div class="course-topics" id="courseTopics">
+            </div>
+
+        <div class="ppt-viewer-section">
+            <h2>PPT Viewer</h2>
+            <p id="viewerInstructions">Select a topic to view its presentation.</p>
+            <iframe id="pptViewer" src="" frameborder="0" allowfullscreen></iframe>
+        </div>
+
+        <div id="message"></div>
+    </div>
+
+    <script>
+        const backendUrl = 'http://localhost:5000'; // Make sure this matches your backend URL
+        const courseTopicsContainer = document.getElementById('courseTopics');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const pptViewer = document.getElementById('pptViewer');
+        const viewerInstructions = document.getElementById('viewerInstructions');
+        const messageDiv = document.getElementById('message');
+
+        let allTopics = []; // To store the fetched topics
+        let userCompletedPpts = []; // To store the filenames of completed PPTs
+
+        // Function to show messages
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000); // Hide after 5 seconds
+        }
+
+        // Check for authentication token
+        async function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/Login'; // Redirect to login if no token
+                return false;
+            }
+            try {
+                const response = await fetch(`${backendUrl}/validate-token`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Token validation failed');
+                }
+                const data = await response.json();
+                console.log('Token valid:', data.user);
+                return true;
+            } catch (error) {
+                console.error('Authentication error:', error);
+                localStorage.removeItem('token'); // Clear invalid token
+                window.location.href = '/Login'; // Redirect to login
+                return false;
+            }
+        }
+
+        async function fetchTopicsAndProgress() {
+            const token = localStorage.getItem('token');
+            try {
+                // Fetch all topics
+                const topicsResponse = await fetch(`${backendUrl}/api/topics`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!topicsResponse.ok) throw new Error('Failed to fetch topics');
+                const topicsData = await topicsResponse.json();
+                allTopics = topicsData.topics;
+
+                // Fetch user's progress
+                const progressResponse = await fetch(`${backendUrl}/api/user-progress`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!progressResponse.ok) throw new Error('Failed to fetch user progress');
+                const progressData = await progressResponse.json();
+                userCompletedPpts = progressData.completedPpts || [];
+
+                displayTopics();
+                loadingMessage.style.display = 'none'; // Hide loading message
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                loadingMessage.textContent = 'Failed to load course content. Please try again.';
+                showMessage('Failed to load course content: ' + error.message, 'error');
+            }
+        }
+
+        function displayTopics() {
+            courseTopicsContainer.innerHTML = ''; // Clear previous topics
+            allTopics.forEach(topic => {
+                const isCompleted = userCompletedPpts.includes(topic.filename);
+                const topicCard = document.createElement('div');
+                topicCard.className = `topic-card ${isCompleted ? 'completed' : ''}`;
+                topicCard.innerHTML = `
+                    <h3>${topic.title}</h3>
+                    <p>${topic.description}</p>
+                    <div class="actions">
+                        <button class="view-ppt-btn" data-ppt-url="${topic.pptUrl}">View PPT</button>
+                        <button class="mark-complete-btn" data-topic-id="${topic.id}" data-filename="${topic.filename}" ${isCompleted ? 'disabled' : ''}>
+                            ${isCompleted ? 'Completed' : 'Mark as Complete'}
+                        </button>
+                    </div>
+                    ${isCompleted ? '<div class="completion-status">Topic Completed! &#10003;</div>' : ''}
+                `;
+                courseTopicsContainer.appendChild(topicCard);
+            });
+
+            // Add event listeners after topics are rendered
+            document.querySelectorAll('.view-ppt-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const pptUrl = event.target.dataset.pptUrl;
+                    const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(pptUrl)}`;
+                    pptViewer.src = viewerUrl;
+                    viewerInstructions.style.display = 'none'; // Hide instructions once a PPT is loaded
+                    console.log('Loading PPT:', viewerUrl);
+                });
+            });
+
+            document.querySelectorAll('.mark-complete-btn').forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    if (event.target.disabled) return; // Prevent clicking if already disabled
+
+                    const topicId = event.target.dataset.topicId;
+                    const filename = event.target.dataset.filename;
+                    const token = localStorage.getItem('token');
+
+                    try {
+                        const response = await fetch(`${backendUrl}/api/mark-topic-complete`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ topicId, filename })
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.message || 'Failed to mark topic complete');
+                        }
+
+                        const result = await response.json();
+                        showMessage(result.message, 'success');
+
+                        // Update local progress and re-render topics
+                        userCompletedPpts.push(filename); // Add to local array
+                        displayTopics(); // Re-render to update UI
+                    } catch (error) {
+                        console.error('Error marking topic complete:', error);
+                        showMessage('Error marking topic complete: ' + error.message, 'error');
+                    }
+                });
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (await checkAuth()) {
+                fetchTopicsAndProgress();
+            }
+        });
+    </script>
+</body>
+</html>

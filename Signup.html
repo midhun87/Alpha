@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up - AWSPrepZone | Test Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .input-field:focus {
+      border-color: #2563eb;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-tr from-blue-100 to-blue-200 flex flex-col">
+
+  <header class="bg-white shadow-sm py-4 px-6 w-full">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <img src="./ChatGPT Image Jun 15, 2025, 03_58_04 PM.png" alt="Logo" class="w-10 h-10 rounded-full shadow-md" />
+      <h1 class="text-2xl font-bold text-blue-700">
+        AWSPrep<span class="text-blue-500">Zone</span><span class="text-gray-700"> – TestPortal</span>
+      </h1>
+    </div>
+  </div>
+</header>
+  <!-- Sign Up Form Section -->
+  <main class="flex-1 flex flex-col items-center justify-center px-4 py-10">
+    <section class="w-full max-w-md bg-white rounded-xl shadow-md p-8">
+      <h2 class="text-3xl font-bold text-center text-blue-700 mb-1">Sign Up</h2>
+      <p class="text-center text-sm text-gray-500 mb-6">Create your account to get started</p>
+
+      <div id="message" class="hidden"></div>
+
+      <form id="signupForm" class="space-y-5">
+        <div>
+          <label for="username" class="block text-gray-700 font-medium mb-1">Username</label>
+          <input type="text" id="username" name="username"
+                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-md"
+                 placeholder="Choose a username" required />
+        </div>
+        <div>
+          <label for="email" class="block text-gray-700 font-medium mb-1">Email</label>
+          <input type="email" id="email" name="email"
+                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-md"
+                 placeholder="you@example.com" required />
+        </div>
+        <div>
+          <label for="mobile" class="block text-gray-700 font-medium mb-1">Mobile Number</label>
+          <input type="tel" id="mobile" name="mobile"
+                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-md"
+                 placeholder="e.g., 9876543210" pattern="[0-9]{10}" required />
+        </div>
+        <div>
+          <label for="password" class="block text-gray-700 font-medium mb-1">Password</label>
+          <input type="password" id="password" name="password"
+                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-md"
+                 placeholder="••••••••" required />
+        </div>
+        <button type="submit"
+                class="w-full bg-blue-600 text-white font-semibold py-3 rounded-md hover:bg-blue-700 transition transform hover:-translate-y-0.5">
+          Register
+        </button>
+      </form>
+
+      <p class="text-center text-sm text-gray-600 mt-5">
+        Already have an account?
+        <a href="/login" class="text-blue-600 hover:underline font-medium">Login</a>
+      </p>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const mobile = document.getElementById('mobile').value;
+      const password = document.getElementById('password').value;
+      const messageDiv = document.getElementById('message');
+
+      messageDiv.className = 'hidden';
+
+      try {
+        const response = await fetch('/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, mobile, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          messageDiv.className = 'text-green-700 bg-green-100 rounded p-3 mt-4 text-center';
+          messageDiv.textContent = data.message || 'Registration successful! Redirecting to login...';
+          setTimeout(() => { window.location.href = '/Login'; }, 2000);
+        } else {
+          messageDiv.className = 'text-red-700 bg-red-100 rounded p-3 mt-4 text-center';
+          messageDiv.textContent = data.message || 'Registration failed. Please try again.';
+        }
+      } catch (err) {
+        console.error('Signup error:', err);
+        messageDiv.className = 'text-red-700 bg-red-100 rounded p-3 mt-4 text-center';
+        messageDiv.textContent = 'Network error or server unavailable.';
+      }
+    });
+  </script>
+
+</body>
+</html>

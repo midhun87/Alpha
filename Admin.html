@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom right, #f0f9ff, #dcf0fb);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #1e3a8a;
+            font-weight: 700;
+        }
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0e7ff;
+        }
+        .filter-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .filter-item label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .filter-item select, .filter-item input[type="date"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            background-color: #fff;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .filter-item select:focus, .filter-item input[type="date"]:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+        .table-container {
+            overflow-x: auto;
+            border: 1px solid #e0e7ff;
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            min-width: 800px; /* Ensure table doesn't get too narrow */
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 1rem 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e7ff;
+        }
+        th {
+            background-color: #ebf5ff;
+            font-weight: 700;
+            color: #2563eb;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tbody tr:hover {
+            background-color: #f5f9ff;
+        }
+        .action-button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .action-button:hover {
+            background-color: #2563eb;
+        }
+        .logout-button {
+            background-color: #ef4444;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .logout-button:hover {
+            background-color: #dc2626;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .flex-end {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 1rem;
+        }
+        /* Custom Message Box styles */
+        .custom-message-box {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .custom-message-box.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-message-box .message-content-wrapper {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .custom-message-box .message-content {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .custom-message-box .close-btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .custom-message-box .close-btn:hover {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <h1 class="text-3xl">AWSPrepZone Admin Dashboard</h1>
+            <button id="logout-button" class="logout-button">Logout</button>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-item">
+                <label for="college-filter">College:</label>
+                <select id="college-filter">
+                    <option value="">All Colleges</option>
+                    </select>
+            </div>
+            <div class="filter-item">
+                <label for="module-filter">Module:</label>
+                <select id="module-filter">
+                    <option value="">All Modules</option>
+                    <script>
+                        // Hardcode module options here (adjust NUMBER_OF_MODULES as per backend)
+                        const numberOfModules = 14; // Must match backend's NUMBER_OF_MODULES
+                        const moduleFilterSelect = document.getElementById('module-filter');
+                        for (let i = 1; i <= numberOfModules; i++) {
+                            const option = document.createElement('option');
+                            option.value = `Module ${i}`;
+                            option.textContent = `Module ${i}`;
+                            moduleFilterSelect.appendChild(option);
+                        }
+                    </script>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label for="start-date-filter">Start Date:</label>
+                <input type="date" id="start-date-filter">
+            </div>
+            <div class="filter-item">
+                <label for="end-date-filter">End Date:</label>
+                <input type="date" id="end-date-filter">
+            </div>
+            <div class="filter-item flex items-end">
+                <button id="apply-filters-button" class="action-button w-full">Apply Filters</button>
+            </div>
+        </div>
+
+        <h2 class="text-2xl mb-4">Test Attempts</h2>
+        <div class="table-container">
+            <table id="attempts-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>College</th>
+                        <th>Module</th>
+                        <th>Score</th>
+                        <th>Total Questions</th>
+                        <th>Result</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+            <p id="no-data-message" class="text-center text-gray-500 py-4 hidden">No data found for the selected filters.</p>
+        </div>
+    </div>
+
+    <div id="custom-message-box" class="custom-message-box">
+        <div class="message-content-wrapper">
+            <p class="message-content" id="message-box-content"></p>
+            <button class="close-btn" id="message-box-close-btn">OK</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin;
+
+        // Custom Message Box Elements
+        const customMessageBox = document.getElementById('custom-message-box');
+        const messageBoxContent = document.getElementById('message-box-content');
+        const messageBoxCloseBtn = document.getElementById('message-box-close-btn');
+
+        /**
+         * Displays a custom message box.
+         * @param {string} message - The message to display.
+         * @param {function} [callback] - Optional callback function to execute when OK is clicked.
+         */
+        function showCustomMessage(message, callback = null) {
+            messageBoxContent.textContent = message;
+            customMessageBox.classList.add('show');
+            messageBoxCloseBtn.onclick = () => {
+                customMessageBox.classList.remove('show');
+                if (callback) callback();
+            };
+        }
+
+        // Helper to get JWT token from local storage
+        function getToken() {
+            const token = localStorage.getItem('jwtToken');
+            console.log("CLIENT DEBUG (Admin.html - getToken): Token status:", token ? "Token FOUND" : "Token NOT FOUND");
+            if (token) {
+                console.log("CLIENT DEBUG (Admin.html - getToken): Token starts with:", token.substring(0, 20) + '...');
+            }
+            return token;
+        }
+
+        // --- Check Authentication and Authorization on Page Load ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = getToken();
+            const userRole = localStorage.getItem('userRole'); // Retrieve role from localStorage
+
+            console.log("CLIENT DEBUG (Admin.html - DOMContentLoaded): User role from localStorage:", userRole);
+
+            if (!token || userRole !== 'admin') {
+                console.warn("CLIENT DEBUG (Admin.html - DOMContentLoaded): Unauthorized access attempt. No token or not admin.");
+                showCustomMessage('You are not authorized to view this page. Please log in as an admin.', () => {
+                    window.location.href = '/Login'; // Redirect to login if not authorized
+                });
+                return; // Stop execution
+            }
+
+            // If authorized, proceed to fetch data
+            fetchDropdownData();
+            fetchTestAttempts(); // Fetch initial data without filters
+        });
+
+        // --- Fetch Dropdown Data (Colleges) ---
+        async function fetchDropdownData() {
+            const token = getToken(); // This function call now logs its status
+            if (!token) {
+                console.error("CLIENT DEBUG (Admin.html - fetchDropdownData): No token found. This should have been caught earlier.");
+                return; // Should be handled by DOMContentLoaded check
+            }
+
+            try {
+                console.log("CLIENT DEBUG (Admin.html - fetchDropdownData): Attempting to fetch colleges.");
+                const collegeResponse = await fetch(`${API_BASE_URL}/admin/unique-colleges`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!collegeResponse.ok) {
+                    const errorData = await collegeResponse.json();
+                    console.error("CLIENT ERROR (Admin.html - fetchDropdownData): Failed to fetch colleges:", errorData.message);
+                    showCustomMessage(`Failed to load colleges: ${errorData.message}`);
+                    return;
+                }
+
+                const data = await collegeResponse.json();
+                const collegeFilter = document.getElementById('college-filter');
+                collegeFilter.innerHTML = '<option value="">All Colleges</option>'; // Reset options
+                data.colleges.forEach(college => {
+                    const option = document.createElement('option');
+                    option.value = college;
+                    option.textContent = college;
+                    collegeFilter.appendChild(option);
+                });
+                console.log("CLIENT DEBUG (Admin.html - fetchDropdownData): Colleges loaded successfully.");
+
+            } catch (error) {
+                console.error('CLIENT ERROR (Admin.html - fetchDropdownData): Network error fetching dropdown data:', error);
+                showCustomMessage('Network error fetching filter options.');
+            }
+        }
+
+
+        // --- Fetch Test Attempts Data ---
+        async function fetchTestAttempts() {
+            const token = getToken(); // This function call now logs its status
+            if (!token) {
+                console.error("CLIENT DEBUG (Admin.html - fetchTestAttempts): No token found. This should have been caught earlier.");
+                return; // Should be handled by DOMContentLoaded check
+            }
+
+            const college = document.getElementById('college-filter').value;
+            const module = document.getElementById('module-filter').value;
+            const startDate = document.getElementById('start-date-filter').value;
+            const endDate = document.getElementById('end-date-filter').value;
+
+            const queryParams = new URLSearchParams();
+            if (college) queryParams.append('college', college);
+            if (module) queryParams.append('module', module);
+            if (startDate) queryParams.append('startDate', startDate);
+            if (endDate) queryParams.append('endDate', endDate);
+
+            console.log("CLIENT DEBUG (Admin.html - fetchTestAttempts): Fetching attempts with filters:", { college, module, startDate, endDate });
+            console.log("CLIENT DEBUG (Admin.html - fetchTestAttempts): Requesting URL:", `${API_BASE_URL}/admin/test-attempts?${queryParams.toString()}`);
+            console.log("CLIENT DEBUG (Admin.html - fetchTestAttempts): Using token (first 20 chars):", token.substring(0, 20) + '...');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/test-attempts?${queryParams.toString()}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error("CLIENT ERROR (Admin.html - fetchTestAttempts): Failed to fetch test attempts:", errorData.message);
+                    showCustomMessage(`Failed to load test attempts: ${errorData.message}`);
+                    return;
+                }
+
+                const data = await response.json();
+                const tbody = document.querySelector('#attempts-table tbody');
+                const noDataMessage = document.getElementById('no-data-message');
+                tbody.innerHTML = ''; // Clear previous data
+
+                if (data.attempts && data.attempts.length > 0) {
+                    noDataMessage.classList.add('hidden');
+                    data.attempts.forEach(attempt => {
+                        const row = tbody.insertRow();
+                        row.insertCell().textContent = attempt.UserLoginUsername;
+                        row.insertCell().textContent = attempt.CollegeName;
+                        row.insertCell().textContent = attempt.ModuleTested;
+                        row.insertCell().textContent = attempt.Score;
+                        row.insertCell().textContent = attempt.TotalQuestions;
+                        row.insertCell().textContent = attempt.IsPass ? 'Pass' : 'Fail';
+                        row.insertCell().textContent = new Date(attempt.AttemptDate).toLocaleDateString();
+                    });
+                    console.log(`CLIENT DEBUG (Admin.html - fetchTestAttempts): Loaded ${data.attempts.length} test attempts.`);
+                } else {
+                    noDataMessage.classList.remove('hidden');
+                    console.log("CLIENT DEBUG (Admin.html - fetchTestAttempts): No test attempts found for filters.");
+                }
+
+            } catch (error) {
+                console.error('CLIENT ERROR (Admin.html - fetchTestAttempts): Network error fetching test attempts:', error);
+                showCustomMessage('Network error. Could not load data.');
+            }
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('apply-filters-button').addEventListener('click', fetchTestAttempts);
+
+        document.getElementById('logout-button').addEventListener('click', () => {
+            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('username');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userMobile');
+            localStorage.removeItem('userRole'); // Clear role on logout
+            showCustomMessage('You have been logged out.', () => {
+                window.location.href = '/Login'; // Redirect to login page
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AWS Cloud Practitioner Mock Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom right, #e0f2f7, #c1e4f4);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fullscreen-exit-overlay, .quiz-stopped-overlay, .custom-message-box {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000; /* Default z-index for all overlays */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            box-sizing: border-box; /* Ensure padding is included in dimensions */
+        }
+
+        /* Specific styles for fullscreen exit overlay */
+        .fullscreen-exit-overlay {
+            background-color: rgba(0, 0, 0, 0.9); /* Darker to obscure content */
+            z-index: 1000;
+        }
+
+        .fullscreen-exit-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .fullscreen-exit-modal {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        /* Specific styles for quiz stopped overlay */
+        .quiz-stopped-overlay {
+            background-color: rgba(255, 255, 255, 0.95); /* Semi-transparent white to cover everything */
+            z-index: 1002; /* Higher than other overlays for critical stop */
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        .quiz-stopped-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .quiz-stopped-overlay .message-content {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #d32f2f; /* Red color for warning */
+            margin-bottom: 20px;
+        }
+
+        .quiz-stopped-overlay .restart-button {
+            background-color: #f44336;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .quiz-stopped-overlay .restart-button:hover {
+            background-color: #d32f2f;
+        }
+
+
+        /* Specific styles for custom message box */
+        .custom-message-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 1001; /* Between normal content and critical overlays */
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .custom-message-box.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-message-box .message-content {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .custom-message-box .close-btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .custom-message-box .close-btn:hover {
+            background-color: #2563eb;
+        }
+
+        .question-number-btn {
+            background-color: #cbd5e1;
+            color: #4a5568;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .question-number-btn.answered {
+            background-color: #90cdf4;
+            color: #2b6cb0;
+        }
+
+        .question-number-btn.marked-for-review {
+            background-color: #f6ad55;
+            color: #8b5420;
+        }
+
+        .question-number-btn.current {
+            background-color: #3182ce;
+            color: white;
+            font-weight: bold;
+            border: 2px solid #a0aec0;
+        }
+
+        .color-swatch {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            vertical-align: middle;
+            margin-right: 6px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .swatch-unanswered { background-color: #cbd5e1; }
+        .swatch-answered { background-color: #90cdf4; }
+        .swatch-marked { background-color: #f6ad55; }
+        .swatch-current { background-color: #3182ce; }
+
+        /* Styling for the options on the review screen */
+        .questions-review-area .p-2.rounded-md.text-sm {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Spacing between icon and text */
+            padding: 10px;
+            border: 1px solid; /* For border highlighting */
+        }
+        
+        .questions-review-area .p-2.rounded-md.text-sm::before {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            font-size: 16px;
+            line-height: 20px;
+            text-align: center;
+            border-radius: 50%;
+            flex-shrink: 0; /* Prevent icon from shrinking */
+        }
+
+        .questions-review-area .bg-green-100.text-green-800.font-medium.border-green-300::before {
+            content: '✔';
+            background-color: #4CAF50; /* Green checkmark background */
+            color: white;
+        }
+
+        .questions-review-area .bg-red-100.text-red-800.font-medium.border-red-300::before {
+            content: '✖';
+            background-color: #F44336; /* Red crossmark background */
+            color: white;
+        }
+
+        .questions-review-area .bg-green-50.text-green-700.border-green-200::before {
+            content: '✔';
+            background-color: #8BC34A; /* Lighter green checkmark background for correct answer */
+            color: white;
+        }
+        
+        .questions-review-area .bg-white.text-gray-700.border-gray-200::before {
+            content: ''; /* No icon for other options */
+        }
+
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4">
+
+    <header class="w-full flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2 sm:gap-4 py-2 sm:py-4 px-4 sm:px-6 bg-white shadow-md rounded-xl mb-4 sm:mb-6 max-w-5xl">
+        <img src="./ChatGPT Image Jun 15, 2025, 03_58_04 PM.png" alt="AWS Logo" class="w-12 h-12 sm:w-16 sm:h-16 object-contain" />
+        <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-blue-700 text-center sm:text-left">
+            AWS Cloud Practitioner Mock Test
+        </h1>
+    </header>
+
+    <div class="bg-white rounded-xl shadow-2xl p-4 sm:p-8 max-w-5xl w-full flex flex-col flex-grow items-center justify-center">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 hidden md:block w-full text-center">
+            AWS Cloud Practitioner Mock Test
+        </h1>
+
+        <div id="start-screen" class="w-full flex flex-col items-center justify-center p-4 text-center">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-700 mb-6 animate-fade-in">
+                Welcome to the AWS Mock Test!
+            </h2>
+            <p class="text-gray-700 text-base sm:text-lg mb-8">
+                Prepare for your certification by taking this practice exam.
+            </p>
+            <div class="w-full max-w-md mb-8 px-2">
+                <label for="college-select" class="block text-gray-700 text-sm font-bold mb-2">
+                    Select Your College:
+                </label>
+                <select
+                    id="college-select"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
+                    aria-label="Select College"
+                >
+                    <option value="">-- Select Your College --</option>
+                    <option value="GMRIT">GMRIT</option>
+                    <option value="MBU">MBU</option>
+                    <option value="LBRCE">LBRCE</option>
+                    <option value="KHIT">KHIT</option>
+                    <option value="AITAM">AITAM</option>
+                </select>
+            </div>
+            <div class="w-full max-w-md mb-8 px-2">
+                <label for="module-select" class="block text-gray-700 text-sm font-bold mb-2">
+                    Select Module:
+                </label>
+                <select
+                    id="module-select"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
+                    aria-label="Select Module"
+                >
+                    <option value="">-- Select Test Module --</option>
+                     <option value="All Modules">All Modules</option>
+                    <option value="Module 1">Module 1</option>
+                    <option value="Module 2">Module 2</option>
+                    <option value="Module 3">Module 3</option>
+                    <option value="Module 4">Module 4</option>
+                    <option value="Module 5">Module 5</option>
+                    <option value="Module 6">Module 6</option>
+                    <option value="Module 7">Module 7</option>
+                    <option value="Module 8">Module 8</option>
+                    <option value="Module 9">Module 9</option>
+                    <option value="Module 10">Module 10</option>
+                    <option value="Module 11">Module 11</option>
+                    <option value="Module 12">Module 12</option>
+                    <option value="Module 13">Module 13</option>
+                    <option value="Module 14">Module 14</option>
+                </select>
+            </div>
+            <button
+                id="start-quiz-button"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg sm:text-xl transition-all duration-300 transform hover:scale-105 shadow-lg w-auto"
+            >
+                Start Quiz
+            </button>
+        </div>
+
+
+        <div id="quiz-container" class="flex-grow flex flex-col md:flex-row hidden w-full">
+            <div class="md:w-2/3 p-3 sm:p-4 md:border-r md:border-b-0 border-b border-gray-200 order-first md:order-none">
+                <div class="mb-4 sm:mb-6">
+                    <p class="text-sm text-gray-600 mb-2">
+                        Question <span id="current-question-number"></span> of <span id="total-questions"></span>
+                    </p>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-500 ease-out" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <h2 id="question-text" class="text-base sm:text-xl font-semibold text-gray-800 mb-4 sm:mb-6"></h2>
+
+                <div id="options-container" class="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                    <button id="clear-response-button" class="py-2 px-3 sm:px-4 rounded-lg font-semibold bg-red-100 text-red-700 border border-red-300 hover:bg-red-200 transition-colors shadow-sm text-sm sm:text-base">
+                        Clear Response
+                    </button>
+                    <button id="mark-for-review-button" class="py-2 px-3 sm:px-4 rounded-lg font-semibold bg-yellow-100 text-yellow-700 border border-yellow-300 hover:bg-yellow-200 transition-colors shadow-sm text-sm sm:text-base">
+                        Mark for Review
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                    <button id="prev-button" class="py-2 sm:py-3 px-4 sm:px-6 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform shadow-md bg-gray-300 text-gray-600 cursor-not-allowed" disabled>
+                        Previous
+                    </button>
+                    <button id="next-button" class="py-2 sm:py-3 px-4 sm:px-6 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 transform shadow-md bg-blue-600 text-white hover:bg-blue-700 hover:scale-105" disabled>
+                        Next Question
+                    </button>
+                </div>
+            </div>
+
+            <div class="md:w-1/3 p-3 sm:p-4 flex flex-col items-center order-last md:order-none border-t md:border-t-0 border-gray-200 pt-4 md:pt-0">
+                <h3 class="text-base sm:text-lg font-bold text-gray-700 mb-3 sm:mb-4">Question Progress</h3>
+                <div id="question-navigation-grid" class="grid grid-cols-6 sm:grid-cols-5 md:grid-cols-4 gap-1 sm:gap-2 w-full max-w-md">
+                </div>
+                <div class="mt-4 sm:mt-6 p-2 sm:p-3 bg-gray-100 rounded-lg text-xs sm:text-sm text-gray-700 w-full max-w-md">
+                    <p class="font-semibold mb-1 sm:mb-2">Legend:</p>
+                    <div class="flex items-center mb-1">
+                        <span class="color-swatch swatch-current"></span> Current Question
+                    </div>
+                    <div class="flex items-center mb-1">
+                        <span class="color-swatch swatch-answered"></span> Answered
+                    </div>
+                    <div class="flex items-center mb-1">
+                        <span class="color-swatch swatch-marked"></span> Marked for Review
+                    </div>
+                    <div class="flex items-center">
+                        <span class="color-swatch swatch-unanswered"></span> Not Answered
+                    </div>
+                </div>
+                <button id="final-submit-button" class="w-full mt-4 sm:mt-6 bg-green-600 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg text-base sm:text-lg font-semibold hover:bg-green-700 transition-all duration-300 transform hover:scale-105 shadow-md">
+                    Final Submit
+                </button>
+            </div>
+        </div>
+
+        <div id="review-results-container" class="hidden bg-white rounded-xl shadow-2xl p-4 sm:p-8 max-w-5xl w-full flex flex-col items-center justify-center">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-700 mb-6">Quiz Results Review</h2>
+            <p id="final-score-display" class="text-2xl font-semibold text-gray-800 mb-8"></p>
+
+            <div id="questions-review-area" class="w-full space-y-6">
+                </div>
+
+            <button id="return-home-button" class="mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg sm:text-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+                Return to Home
+            </button>
+        </div>
+    </div>
+
+    <div id="fullscreen-exit-overlay" class="fullscreen-exit-overlay">
+        <div class="fullscreen-exit-modal">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Full Screen Mode Exited!</h3>
+            <p class="text-gray-700 mb-6">
+                Exiting full screen will reset your exam progress. Please click "Restart Exam" to begin again.
+            </p>
+            <button id="overlay-restart-button" class="bg-red-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <div id="custom-message-box" class="custom-message-box">
+        <p class="message-content" id="message-box-content"></p>
+        <button class="close-btn" id="message-box-close-btn">OK</button>
+    </div>
+
+    <div id="quiz-stopped-overlay" class="quiz-stopped-overlay">
+        <p class="message-content">
+            Your exam has been stopped due to a violation.<br>
+            Please contact the administrator.
+        </p>
+        <button id="quiz-stopped-restart-button" class="restart-button">
+            Return to Home
+        </button>
+    </div>
+
+
+    <footer class="w-full mt-4 py-4 bg-white shadow-inner text-center text-gray-600 text-xs sm:text-sm rounded-t-xl">
+        <p>&copy; 2025 AWS Mock Test Platform. All rights reserved.</p>
+        <p>Designed & Developed by YourName</p>
+    </footer>
+
+    <script>
+        const API_BASE_URL = window.location.origin; // Dynamically get base URL
+        const NUMBER_OF_QUESTIONS_PER_TEST = 25; // Define the number of questions per test
+
+        // Global state variables
+        let questions = []; // This will hold the 25 randomly selected questions
+        let currentQuestionIndex = 0;
+        let userSelections = []; // Stores selected option index for the current test's questions
+        let markedForReview = []; // Stores boolean for marked questions for the current test's questions
+        let score = 0;
+        let quizCompleted = false;
+        let userName = ''; // To store the user's selected college name
+        let selectedModule = ''; // NEW: To store the user's selected module
+        let quizViolationDetected = false; // Flag to indicate if a violation occurred
+
+        // Get DOM elements
+        const startScreen = document.getElementById('start-screen');
+        const collegeSelect = document.getElementById('college-select');
+        const moduleSelect = document.getElementById('module-select'); // NEW: Get module select element
+        const startQuizButton = document.getElementById('start-quiz-button');
+
+        const quizContainer = document.getElementById('quiz-container');
+        const currentQuestionNumberSpan = document.getElementById('current-question-number');
+        const totalQuestionsSpan = document.getElementById('total-questions');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+        const clearResponseButton = document.getElementById('clear-response-button');
+        const markForReviewButton = document.getElementById('mark-for-review-button');
+        const progressBar = document.getElementById('progress-bar');
+        const fullscreenExitOverlay = document.getElementById('fullscreen-exit-overlay');
+        const overlayRestartButton = document.getElementById('overlay-restart-button');
+        const questionNavigationGrid = document.getElementById('question-navigation-grid');
+        const finalSubmitButton = document.getElementById('final-submit-button');
+
+        const customMessageBox = document.getElementById('custom-message-box');
+        const messageBoxContent = document.getElementById('message-box-content');
+        const messageBoxCloseBtn = document.getElementById('message-box-close-btn');
+        
+        // Get the quiz stopped overlay elements
+        const quizStoppedOverlay = document.getElementById('quiz-stopped-overlay');
+        const quizStoppedRestartButton = document.getElementById('quiz-stopped-restart-button');
+
+        // NEW: Get Review Results elements
+        const reviewResultsContainer = document.getElementById('review-results-container');
+        const finalScoreDisplay = document.getElementById('final-score-display');
+        const questionsReviewArea = document.getElementById('questions-review-area');
+        const returnHomeButton = document.getElementById('return-home-button');
+
+
+        /**
+         * Displays a custom message box instead of alert.
+         * @param {string} message - The message to display.
+         * @param {function} [callback] - Optional callback function to execute when OK is clicked.
+         * @param {boolean} [showCancel=false] - If true, displays a cancel button.
+         * @param {function} [cancelCallback] - Optional callback for cancel button.
+         */
+        function showCustomMessage(message, callback = null, showCancel = false, cancelCallback = null) {
+            messageBoxContent.textContent = message;
+            customMessageBox.classList.add('show');
+
+            // Clear previous event listeners
+            messageBoxCloseBtn.onclick = null;
+            // Remove any existing cancel button if recreating
+            let cancelButton = document.getElementById('message-box-cancel-btn');
+            if (cancelButton) {
+                cancelButton.remove();
+                cancelButton = null;
+            }
+
+            // Create and add cancel button if requested
+            if (showCancel) {
+                cancelButton = document.createElement('button');
+                cancelButton.id = 'message-box-cancel-btn';
+                cancelButton.classList.add('close-btn', 'ml-3', 'bg-gray-500', 'hover:bg-gray-600');
+                cancelButton.textContent = 'Cancel';
+                messageBoxCloseBtn.parentNode.appendChild(cancelButton); // Append next to OK button
+                cancelButton.onclick = () => {
+                    customMessageBox.classList.remove('show');
+                    if (cancelCallback) cancelCallback();
+                };
+            }
+
+            messageBoxCloseBtn.onclick = () => {
+                customMessageBox.classList.remove('show');
+                if (callback) callback();
+            };
+        }
+
+
+        /**
+         * Enters full-screen mode for the document body.
+         */
+        function enterFullScreen() {
+            const element = document.documentElement;
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.mozRequestFullScreen) { /* Firefox */
+                element.mozRequestFullScreen();
+            } else if (element.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+                element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) { /* IE/Edge */
+                element.msRequestFullscreen();
+            }
+        }
+
+        /**
+         * Exits full-screen mode.
+         */
+        function exitFullScreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) { /* Firefox */
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { /* IE/Edge */
+                document.msExitFullscreen();
+            }
+        }
+
+        /**
+         * Stops the quiz, shows a persistent overlay, and reports to backend.
+         * @param {string} reason - The reason for stopping the quiz (e.g., "Tab Switch", "Fullscreen Exit").
+         */
+        async function stopQuizDueToViolation(reason) {
+            if (quizCompleted || quizViolationDetected) {
+                return; // Prevent multiple calls or stopping after completion
+            }
+
+            quizViolationDetected = true;
+            exitFullScreen(); // Try to exit full screen if still in it
+
+            // Hide the main quiz container and show the "quiz stopped" overlay
+            quizContainer.classList.add('hidden');
+            fullscreenExitOverlay.classList.remove('show'); // Hide the other overlay if it was showing
+            reviewResultsContainer.classList.add('hidden'); // Ensure review screen is hidden
+            quizStoppedOverlay.classList.add('show'); // Show the violation overlay
+
+            // Disable all interactive elements within the quiz container
+            const quizInteractiveElements = quizContainer.querySelectorAll('button, input, select, textarea');
+            quizInteractiveElements.forEach(el => el.disabled = true);
+
+            // Report the violation to the backend
+            const jwtToken = localStorage.getItem('jwtToken');
+            if (jwtToken) {
+                try {
+                    await fetch(`${API_BASE_URL}/record-violation`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${jwtToken}`
+                        },
+                        body: JSON.stringify({
+                            violationType: reason,
+                            timestamp: new Date().toISOString(),
+                            questionIndex: currentQuestionIndex,
+                            userName: userName, // Include user name (college name)
+                            module: selectedModule // Include the module
+                        })
+                    });
+                    console.warn(`Violation reported to backend: ${reason}`);
+                } catch (error) {
+                    console.error('Failed to report violation to backend:', error);
+                }
+            } else {
+                console.warn('No JWT token found, cannot report violation to backend.');
+            }
+            
+            // Immediately navigate to home after a brief delay for user to read message
+            setTimeout(() => {
+                window.location.href = '/home';
+            }, 5000); // Redirect after 5 seconds
+        }
+
+
+        /**
+         * Fetches questions and initializes the quiz.
+         * @param {string} moduleName - The name of the module to fetch questions for.
+         */
+        async function initializeQuiz(moduleName) {
+            const jwtToken = localStorage.getItem('jwtToken');
+            if (!jwtToken) {
+                showCustomMessage('You are not logged in. Please log in to start a test.', () => {
+                    window.location.href = '/Login'; // Redirect to login if not authenticated
+                });
+                return;
+            }
+            if (!moduleName) {
+                 showCustomMessage('No module selected. Please select a module to start the quiz.');
+                 // Re-show start screen if module is not selected
+                 startScreen.classList.remove('hidden');
+                 quizContainer.classList.add('hidden');
+                 return;
+            }
+
+            // Enter full screen as soon as quiz loads
+            enterFullScreen();
+
+            // Fetch questions from backend
+            try {
+                // Pass the selected module as a query parameter
+                const response = await fetch(`${API_BASE_URL}/start-test?module=${encodeURIComponent(moduleName)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${jwtToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Ensure the backend sends an array of questions, each with options and correctAnswerIndex
+                    if (!data.questions || !Array.isArray(data.questions) || data.questions.length === 0) {
+                        showCustomMessage('Failed to load questions: No questions received from server for this module.', () => {
+                            window.location.href = '/home';
+                        });
+                        return;
+                    }
+                    if (data.questions.length !== NUMBER_OF_QUESTIONS_PER_TEST) {
+                        console.warn(`Expected ${NUMBER_OF_QUESTIONS_PER_TEST} questions but received ${data.questions.length}. Proceeding with available questions.`);
+                    }
+                    questions = data.questions;
+                    userSelections = Array(questions.length).fill(null); // Initialize selections for new test
+                    markedForReview = Array(questions.length).fill(false); // Initialize marked for review
+                    renderQuestion(); // Render the first question
+                } else if (response.status === 401) {
+                    showCustomMessage('Your session has expired. Please log in again.', () => {
+                        localStorage.clear();
+                        window.location.href = '/Login';
+                    });
+                } else {
+                    const errorData = await response.json();
+                    showCustomMessage(`Failed to load questions: ${errorData.message || response.statusText}`, () => {
+                        window.location.href = '/home';
+                    });
+                }
+            } catch (error) {
+                console.error('Network error during question fetch:', error);
+                showCustomMessage('Network error. Could not load questions. Please check your connection and try again.', () => {
+                    window.location.href = '/home';
+                });
+            }
+        }
+
+
+        /**
+         * Renders the current question and its options, along with navigation grid.
+         */
+        function renderQuestion() {
+            if (quizViolationDetected || questions.length === 0) {
+                // If violation detected or no questions, don't render anything, just show relevant overlay
+                if (questions.length === 0 && !quizViolationDetected) {
+                     showCustomMessage('Error: Questions not loaded. Please return to dashboard and try again.', () => {
+                        window.location.href = '/home';
+                    });
+                }
+                return; 
+            }
+
+            const currentQuestion = questions[currentQuestionIndex];
+            currentQuestionNumberSpan.textContent = currentQuestionIndex + 1;
+            totalQuestionsSpan.textContent = questions.length;
+            questionText.textContent = currentQuestion.question;
+
+            optionsContainer.innerHTML = ''; // Clear previous options
+
+            // Create radio buttons for options
+            currentQuestion.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.classList.add('relative', 'flex', 'items-start');
+
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.id = `option-${index}`;
+                input.name = 'quiz-option';
+                input.value = index;
+                input.classList.add('h-4', 'w-4', 'sm:h-5', 'sm:w-5', 'text-blue-600', 'focus:ring-blue-500', 'border-gray-300', 'rounded-full', 'mt-1');
+                input.addEventListener('change', (e) => {
+                    if (quizViolationDetected) return; // Do not allow interaction if stopped
+                    userSelections[currentQuestionIndex] = parseInt(e.target.value);
+                    updateNavigationButtons(); // Enable next button when an option is selected
+                    renderQuestionNavigationGrid(); // Update grid for "answered" status
+                });
+
+                const label = document.createElement('label');
+                label.htmlFor = `option-${index}`;
+                label.textContent = option;
+                label.classList.add('ml-3', 'block', 'text-sm', 'sm:text-base', 'font-medium', 'text-gray-700', 'p-2', 'w-full', 'rounded-lg', 'border', 'border-gray-300', 'cursor-pointer', 'hover:bg-gray-50', 'transition-colors');
+
+                // Pre-select if an answer exists for this question
+                if (userSelections[currentQuestionIndex] === index) {
+                    input.checked = true;
+                    label.classList.add('bg-blue-50', 'border-blue-500'); // Highlight selected
+                } else {
+                    label.classList.remove('bg-blue-50', 'border-blue-500');
+                }
+
+                optionDiv.appendChild(input);
+                optionDiv.appendChild(label);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            // Update navigation buttons (prev/next/submit)
+            updateNavigationButtons();
+            // Render the question navigation grid (right pane)
+            renderQuestionNavigationGrid();
+            updateProgressBar();
+            updateMarkForReviewButtonState(); // Update Mark for Review button state
+        }
+
+        /**
+         * Updates the progress bar based on answered questions.
+         */
+        function updateProgressBar() {
+            const answeredCount = userSelections.filter(selection => selection !== null).length;
+            const progressPercentage = (answeredCount / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        /**
+         * Updates the state of the navigation buttons (Previous, Next, Submit).
+         */
+        function updateNavigationButtons() {
+            // Previous Button
+            if (currentQuestionIndex > 0 && !quizViolationDetected) {
+                prevButton.disabled = false;
+                prevButton.classList.remove('bg-gray-300', 'text-gray-600', 'cursor-not-allowed');
+                prevButton.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700', 'hover:scale-105');
+            } else {
+                prevButton.disabled = true;
+                prevButton.classList.add('bg-gray-300', 'text-gray-600', 'cursor-not-allowed');
+                prevButton.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700', 'hover:scale-105');
+            }
+
+            // Next Button
+            if (currentQuestionIndex < questions.length - 1 && !quizViolationDetected) {
+                nextButton.disabled = false;
+                nextButton.classList.remove('bg-gray-300', 'text-gray-600', 'cursor-not-allowed');
+                nextButton.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700', 'hover:scale-105');
+                nextButton.textContent = 'Next Question';
+            } else {
+                nextButton.disabled = true; // No next question if it's the last one
+                nextButton.classList.add('bg-gray-300', 'text-gray-600', 'cursor-not-allowed');
+                nextButton.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700', 'hover:scale-105');
+                nextButton.textContent = 'End of Test'; // Text for the last question
+            }
+
+            // Final Submit Button visibility
+            if (currentQuestionIndex === questions.length - 1 && !quizViolationDetected) {
+                finalSubmitButton.classList.remove('hidden');
+                finalSubmitButton.disabled = false;
+            } else {
+                finalSubmitButton.classList.add('hidden');
+                finalSubmitButton.disabled = true;
+            }
+        }
+
+        /**
+         * Renders the grid of question numbers for navigation.
+         */
+        function renderQuestionNavigationGrid() {
+            questionNavigationGrid.innerHTML = ''; // Clear previous grid
+
+            questions.forEach((_, index) => {
+                const qNumBtn = document.createElement('button');
+                qNumBtn.textContent = index + 1;
+                qNumBtn.classList.add(
+                    'p-1', 'sm:p-2', 'rounded-lg', 'text-xs', 'sm:text-sm', 'font-semibold', 'transition-colors', 'duration-200', 'flex', 'items-center', 'justify-center', 'question-number-btn'
+                );
+
+                // Apply colors based on status
+                if (index === currentQuestionIndex) {
+                    qNumBtn.classList.add('current');
+                } else if (markedForReview[index]) {
+                    qNumBtn.classList.add('marked-for-review');
+                } else if (userSelections[index] !== null) {
+                    qNumBtn.classList.add('answered');
+                }
+                
+                // Disable navigation buttons if a violation occurred
+                if (quizViolationDetected) {
+                    qNumBtn.disabled = true;
+                } else {
+                    qNumBtn.addEventListener('click', () => goToQuestion(index));
+                }
+                questionNavigationGrid.appendChild(qNumBtn);
+            });
+        }
+
+        /**
+         * Navigates to a specific question.
+         * @param {number} index - The index of the question to navigate to.
+         */
+        function goToQuestion(index) {
+            if (quizViolationDetected) return; // Do not allow navigation if stopped
+            currentQuestionIndex = index;
+            renderQuestion();
+        }
+
+        /**
+         * Handles clearing the selected response for the current question.
+         */
+        function handleClearResponse() {
+            if (quizViolationDetected) return; // Do not allow interaction if stopped
+            userSelections[currentQuestionIndex] = null;
+            // Uncheck the radio button
+            const radioButtons = document.querySelectorAll('input[name="quiz-option"]');
+            radioButtons.forEach(radio => radio.checked = false);
+            updateNavigationButtons(); // Update buttons since selection is cleared
+            renderQuestionNavigationGrid(); // Update grid color
+        }
+
+        /**
+         * Handles marking/unmarking the current question for review.
+         */
+        function handleMarkForReview() {
+            if (quizViolationDetected) return; // Do not allow interaction if stopped
+            markedForReview[currentQuestionIndex] = !markedForReview[currentQuestionIndex];
+            updateMarkForReviewButtonState();
+            renderQuestionNavigationGrid(); // Update grid to show/hide mark
+        }
+
+        /**
+         * Updates the styling of the 'Mark for Review' button based on current question's status.
+         */
+        function updateMarkForReviewButtonState() {
+            if (quizViolationDetected) {
+                markForReviewButton.disabled = true;
+                markForReviewButton.classList.add('bg-gray-300', 'text-gray-600', 'cursor-not-allowed');
+                markForReviewButton.classList.remove('bg-yellow-400', 'text-white', 'border-yellow-500', 'bg-yellow-100', 'text-yellow-700', 'border-yellow-300');
+                markForReviewButton.textContent = 'Mark for Review'; // Reset text
+                return;
+            }
+
+            markForReviewButton.disabled = false;
+            if (markedForReview[currentQuestionIndex]) {
+                markForReviewButton.classList.add('bg-yellow-400', 'text-white', 'border-yellow-500');
+                markForReviewButton.classList.remove('bg-yellow-100', 'text-yellow-700', 'border-yellow-300');
+                markForReviewButton.textContent = 'Unmark for Review';
+            } else {
+                markForReviewButton.classList.remove('bg-yellow-400', 'text-white', 'border-yellow-500');
+                markForReviewButton.classList.add('bg-yellow-100', 'text-yellow-700', 'border-yellow-300');
+                markForReviewButton.textContent = 'Mark for Review';
+            }
+        }
+
+
+        /**
+         * Calculates final score and saves to DB, then redirects.
+         */
+        async function finalizeQuiz() {
+            if (quizViolationDetected) {
+                showCustomMessage('Cannot submit. Your exam was stopped due to a violation.', () => {
+                    window.location.href = '/home'; // Immediately redirect to home
+                });
+                return;
+            }
+
+            score = 0; // Reset score before final calculation
+            questions.forEach((q, index) => {
+                if (userSelections[index] !== null && userSelections[index] === q.correctAnswerIndex) {
+                    score++;
+                }
+            });
+
+            const totalQuestions = questions.length;
+            const isPass = score > 20; // Pass if score is greater than 20 (Adjust as needed for 25 questions)
+
+            const jwtToken = localStorage.getItem('jwtToken');
+            if (!jwtToken) {
+                showCustomMessage('You are not logged in. Please log in.', () => {
+                    localStorage.clear();
+                    window.location.href = '/Login';
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/save-test-result`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwtToken}`
+                    },
+                    body: JSON.stringify({ 
+                        score, 
+                        totalQuestions, 
+                        isPass,
+                        userName: userName, // Ensure college name is sent
+                        module: selectedModule // NEW: Send the selected module to backend
+                    })
+                });
+
+                if (response.ok) {
+                    localStorage.setItem('finalScore', score);
+                    localStorage.setItem('testPassed', isPass);
+                    localStorage.setItem('totalTestQuestions', totalQuestions);
+                    localStorage.setItem('userName', userName); // Store college name locally as well
+                    localStorage.setItem('selectedModule', selectedModule); // NEW: Store module locally
+                    quizCompleted = true; // Mark quiz as completed
+                    exitFullScreen(); // Exit full screen gracefully
+
+                    // Hide the quiz container and show the review screen
+                    quizContainer.classList.add('hidden');
+                    startScreen.classList.add('hidden'); // Ensure start screen is also hidden
+                    reviewResultsContainer.classList.remove('hidden'); // Show the review screen
+                    displayQuizReview(); // Call function to populate review screen
+
+                } else if (response.status === 401) {
+                    showCustomMessage('Your session has expired. Please log in again.', () => {
+                        localStorage.clear();
+                        window.location.href = '/Login';
+                    });
+                } else {
+                    const errorData = await response.json();
+                    showCustomMessage(`Failed to save test result: ${errorData.message || response.statusText}`, () => {
+                        window.location.href = '/home';
+                    });
+                }
+            } catch (error) {
+                console.error('Network error during finalization:', error);
+                showCustomMessage('Network error. Could not save test result. Please check your connection and try again.', () => {
+                    window.location.href = '/home';
+                });
+            }
+        }
+
+        /**
+         * Displays the quiz results showing correct/incorrect answers.
+         */
+        function displayQuizReview() {
+            finalScoreDisplay.textContent = `Your Score: ${score} out of ${questions.length}`;
+            questionsReviewArea.innerHTML = ''; // Clear previous content
+
+            questions.forEach((q, index) => {
+                const userChoiceIndex = userSelections[index];
+                const correctChoiceIndex = q.correctAnswerIndex;
+                const isCorrect = userChoiceIndex === correctChoiceIndex;
+
+                const questionReviewDiv = document.createElement('div');
+                questionReviewDiv.classList.add('bg-gray-50', 'p-4', 'rounded-lg', 'shadow-sm', 'mb-4', 'border');
+
+                // Question Number and Text
+                const qTitle = document.createElement('p');
+                qTitle.classList.add('font-semibold', 'text-gray-800', 'mb-2');
+                qTitle.innerHTML = `Q${index + 1}: ${q.question}`;
+                questionReviewDiv.appendChild(qTitle);
+
+                // Options
+                const optionsList = document.createElement('div');
+                optionsList.classList.add('space-y-2', 'mb-3');
+                q.options.forEach((option, optIndex) => {
+                    const optionP = document.createElement('p');
+                    optionP.classList.add('p-2', 'rounded-md', 'text-sm');
+
+                    // Determine prefix and styling based on correctness and user choice
+                    let prefixText = '';
+                    let additionalClasses = [];
+
+                    if (optIndex === userChoiceIndex && optIndex === correctChoiceIndex) {
+                        // User chose correctly
+                        additionalClasses.push('bg-green-100', 'text-green-800', 'font-medium', 'border-green-300');
+                        prefixText = 'Your Answer (Correct)';
+                    } else if (optIndex === userChoiceIndex && optIndex !== correctChoiceIndex) {
+                        // User chose incorrectly
+                        additionalClasses.push('bg-red-100', 'text-red-800', 'font-medium', 'border-red-300');
+                        prefixText = 'Your Answer (Incorrect)';
+                    } else if (optIndex === correctChoiceIndex) {
+                        // This is the correct answer, but user didn't choose it
+                        additionalClasses.push('bg-green-50', 'text-green-700', 'border-green-200');
+                        prefixText = 'Correct Answer';
+                    } else {
+                        // Other unselected options
+                        additionalClasses.push('bg-white', 'text-gray-700', 'border-gray-200');
+                    }
+                    
+                    optionP.classList.add(...additionalClasses);
+                    optionP.textContent = `${prefixText ? prefixText + ': ' : ''}${option}`; // Add prefix if exists
+                    optionsList.appendChild(optionP);
+                });
+                questionReviewDiv.appendChild(optionsList);
+
+                questionsReviewArea.appendChild(questionReviewDiv);
+            });
+        }
+
+
+        /**
+         * Handles restarting the quiz from scratch (e.g., from overlay).
+         */
+        function handleRestartQuiz() {
+            // This function is for the "Full Screen Mode Exited" overlay
+            // and simply redirects to home/login.
+            // It assumes the quiz was not completed and is being aborted.
+            exitFullScreen();
+            currentQuestionIndex = 0;
+            score = 0;
+            quizCompleted = false;
+            quizViolationDetected = false; // Reset violation flag
+            userName = ''; // Clear college name on restart
+            selectedModule = ''; // Clear selected module on restart
+
+            questions = [];
+            userSelections = [];
+            markedForReview = [];
+
+            const jwtToken = localStorage.getItem('jwtToken');
+            if (jwtToken) {
+                window.location.href = '/home';
+            } else {
+                window.location.href = '/Login';
+            }
+        }
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check for JWT token on initial load and redirect if not present
+            const jwtTokenOnLoad = localStorage.getItem('jwtToken');
+            if (!jwtTokenOnLoad) {
+                window.location.href = '/Login'; 
+                return; 
+            }
+
+            // Event listener for the "Start Quiz" button
+            startQuizButton.addEventListener('click', () => {
+                userName = collegeSelect.value; // Get selected college from dropdown
+                selectedModule = moduleSelect.value; // NEW: Get selected module from dropdown
+
+                if (!userName) { // Check if a college was selected
+                    showCustomMessage('Please select your college to start the quiz.');
+                    return;
+                }
+                if (!selectedModule) { // NEW: Check if a module was selected
+                    showCustomMessage('Please select a module to start the quiz.');
+                    return;
+                }
+
+                // Hide the start screen and show the quiz container
+                startScreen.classList.add('hidden');
+                quizContainer.classList.remove('hidden');
+
+                initializeQuiz(selectedModule); // Now, initialize the quiz (fetch questions, enter fullscreen)
+            });
+
+            // Add other existing event listeners that are not related to the start button
+            prevButton.addEventListener('click', () => goToQuestion(currentQuestionIndex - 1));
+            nextButton.addEventListener('click', () => goToQuestion(currentQuestionIndex + 1));
+            clearResponseButton.addEventListener('click', handleClearResponse);
+            markForReviewButton.addEventListener('click', handleMarkForReview);
+            finalSubmitButton.addEventListener('click', () => {
+                showCustomMessage('Are you sure you want to submit the test?', finalizeQuiz, true, () => {
+                    console.log("Submission cancelled.");
+                });
+            });
+            overlayRestartButton.addEventListener('click', handleRestartQuiz);
+            
+            // NEW: Event listener for the "Return to Home" button on the quiz stopped overlay
+            quizStoppedRestartButton.addEventListener('click', () => {
+                window.location.href = '/home'; // Always redirect to home if quiz was stopped by violation
+            });
+
+            // NEW: Event listener for the "Return to Home" button on the review screen
+            returnHomeButton.addEventListener('click', () => {
+                window.location.href = '/home';
+            });
+
+
+            // --- Fullscreen Change Listeners (Unified and Enhanced) ---
+            const fullscreenChangeEventNames = [
+                'fullscreenchange',
+                'webkitfullscreenchange',
+                'mozfullscreenchange',
+                'MSFullscreenChange'
+            ];
+
+            fullscreenChangeEventNames.forEach(eventName => {
+                document.addEventListener(eventName, () => {
+                    // Check if *any* fullscreen element exists for cross-browser compatibility
+                    const isInFullScreen = document.fullscreenElement || 
+                                           document.webkitFullscreenElement || 
+                                           document.mozFullScreenElement || 
+                                           document.msFullscreenElement;
+
+                    if (!isInFullScreen) { // If exited full screen
+                        if (!quizCompleted && !quizViolationDetected) { 
+                            // If quiz was in progress and no violation was already detected
+                            stopQuizDueToViolation('Fullscreen Exit');
+                        }
+                    } else {
+                        // Entered full screen - clear any previous overlay if it was due to exit
+                        fullscreenExitOverlay.classList.remove('show');
+                        quizStoppedOverlay.classList.remove('show'); // Ensure this is hidden if somehow shown
+                        // Optionally, if you want to ensure focus, you can request it
+                        // window.focus(); 
+                    }
+                });
+            });
+
+            // --- Visibility Change Listener (for tab switching/minimizing) ---
+            document.addEventListener('visibilitychange', () => {
+                // Only act if the document is becoming hidden, and quiz is active, not completed, and no violation yet
+                if (document.hidden && !quizCompleted && !quizViolationDetected && quizContainer.classList.contains('hidden') === false) {
+                    // Check if quizContainer is actually visible before flagging a violation
+                    stopQuizDueToViolation('Tab/Window Switch (Hidden)');
+                } else if (!document.hidden && quizViolationDetected) {
+                    // User came back after a violation, keep the overlay if it was due to violation
+                    quizStoppedOverlay.classList.add('show');
+                }
+            });
+
+            // --- Blur/Focus Listeners (Alternative/Complementary to visibilitychange) ---
+            window.addEventListener('blur', () => {
+                // Only act if the quiz is active, not completed, and no violation yet
+                if (!quizCompleted && !quizViolationDetected && quizContainer.classList.contains('hidden') === false) {
+                    stopQuizDueToViolation('Window Blur');
+                }
+            });
+
+            // --- OPTIONAL: Disable Right-Click and Common Dev Tool Shortcuts ---
+            // document.addEventListener('contextmenu', e => {
+            //     e.preventDefault(); 
+            //     console.log("Right-click prevented during test."); 
+            // });
+
+            // document.addEventListener('keydown', e => {
+            //     // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U (view source), Command+Option+I (Mac)
+            //     if (
+            //         (e.key === 'F12') ||
+            //         (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+            //         (e.ctrlKey && e.key === 'U') ||
+            //         (e.metaKey && e.altKey && e.key === 'I') // Mac: Cmd+Opt+I
+            //     ) {
+            //         e.preventDefault(); 
+            //         console.log("Developer tool shortcut prevented."); 
+            //     }
+            // });
+        });
+    </script>
+</body>
+</html>
