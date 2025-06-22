@@ -9,6 +9,7 @@ const { v4: uuidv4 } = require('uuid');
 const AWS = require('aws-sdk');
 require('dotenv').config(); // Add this line to load environment variables from .env file
 
+
 AWS.config.update({
     region: 'ap-south-1', // IMPORTANT: This region must match where your DynamoDB tables are located.
     accessKeyId: 'AKIAVEP3EDM5K3LA5J47', // Replace with your actual Access Key ID (securely!)
@@ -21,13 +22,11 @@ const dynamodb = new AWS.DynamoDB.DocumentClient();
 const SECRET_KEY = 'jwt_secret_key_54742384238423_ahfgrdtTFHHYJNMP[]yigfgfjdfjd=-+&+pqiel;,,dkvntegdv/cv,mbkzmbzbhsbha#&$^&(#_enD';
 const PORT = 5000;
 const USER_TABLE_NAME = 'Usertable'; // Your existing user table
-//const TEST_ATTEMPTS_TABLE_NAME = 'TestAttempts'; // New table for test results
-//const COURSE_PROGRESS_TABLE = 'CourseProgress'; // New DynamoDB tableLE_NAME = 'Usertable';
-const TEST_ATTEMPTS_TABLE_NAME = 'TestAttempts';
-const COURSE_PROGRESS_TABLE = 'CourseProgress';
+const TEST_ATTEMPTS_TABLE_NAME = 'TestAttempts'; // New table for test results
+const COURSE_PROGRESS_TABLE = 'CourseProgress'; // New DynamoDB table
 const VIOLATIONS_TABLE_NAME = 'ViolationsTable';
 
-const ALL_QUESTIONS_DATA = require('./questions.json');
+const ALL_QUESTIONS_DATA = require('./questions.json'); // Ensure this file exists and is correctly formatted
 
 const NUMBER_OF_QUESTIONS_PER_TEST = 25;
 const NUMBER_OF_MODULES = 25;
@@ -50,7 +49,6 @@ app.get('/test', (req, res) => res.sendFile(path.join(__dirname, 'Test.html')));
 app.get('/certificate', (req, res) => res.sendFile(path.join(__dirname, 'Certificate.html')));
 app.get('/welcome', (req, res) => res.sendFile(path.join(__dirname, 'welcome.html')));
 app.get('/Course', (req, res) => res.sendFile(path.join(__dirname, 'Course.html')));
-// Admin page now requires both authentication AND authorization
 // Admin page is now served directly. Frontend JS will handle auth/redirect.
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'Admin.html')));
 app.use('/pdfs', express.static(path.join(__dirname, 'PPts')));
@@ -90,7 +88,7 @@ app.get('/get-topic-progress', authenticateUser, async (req, res) => {
 
     const params = {
         TableName: COURSE_PROGRESS_TABLE,
-        IndexName: 'UserId-index',
+        IndexName: 'UserId-index', // Ensure this index exists in DynamoDB
         KeyConditionExpression: 'UserId = :userId',
         ExpressionAttributeValues: {
             ':userId': userId
@@ -113,7 +111,7 @@ app.get('/get-topic-progress', authenticateUser, async (req, res) => {
 async function checkIfAttributeExists(tableName, indexName, attributeName, value) {
     const params = {
         TableName: tableName,
-        IndexName: indexName,
+        IndexName: indexName, // Ensure this index exists in DynamoDB
         KeyConditionExpression: `${attributeName} = :value`,
         ExpressionAttributeValues: { ':value': value },
         ProjectionExpression: attributeName,
@@ -131,16 +129,16 @@ async function checkIfAttributeExists(tableName, indexName, attributeName, value
 // --- User Authentication Middleware ---
 function authenticateUser(req, res, next) {
     const authHeader = req.headers.authorization;
-    console.log('SERVER DEBUG: authenticateUser called. Authorization header:', authHeader); // Log full header
+    // console.log('SERVER DEBUG: authenticateUser called. Authorization header:', authHeader); // Log full header
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         console.warn('SERVER DEBUG: Auth header missing or malformed.');
         return res.status(401).json({ message: 'Authorization token not provided or malformed.' });
     }
     const token = authHeader.replace('Bearer ', '');
-    console.log('SERVER DEBUG: Token extracted (first 20 chars):', token.substring(0, 20) + '...'); // Log partial token
+    // console.log('SERVER DEBUG: Token extracted (first 20 chars):', token.substring(0, 20) + '...'); // Log partial token
     try {
         const decoded = jwt.verify(token, SECRET_KEY, { algorithms: ['HS512'] });
-        console.log('SERVER DEBUG: Token decoded successfully. User ID:', decoded.userId, 'Role:', decoded.role); // Log decoded info
+        // console.log('SERVER DEBUG: Token decoded successfully. User ID:', decoded.userId, 'Role:', decoded.role); // Log decoded info
         req.user = decoded;
         next();
     } catch (error) {
@@ -157,7 +155,7 @@ function authenticateUser(req, res, next) {
 
 // --- Admin Authorization Middleware ---
 function authorizeAdmin(req, res, next) {
-    console.log('SERVER DEBUG: authorizeAdmin called. User role from token:', req.user ? req.user.role : 'N/A (req.user missing)'); // Log role check
+    // console.log('SERVER DEBUG: authorizeAdmin called. User role from token:', req.user ? req.user.role : 'N/A (req.user missing)'); // Log role check
     if (req.user && req.user.role === 'admin') {
         next(); // User is an admin, proceed
     } else {
@@ -176,6 +174,7 @@ app.post('/signup', async (req, res) => {
     }
 
     try {
+        // These index names must match your DynamoDB secondary indexes
         if (await checkIfAttributeExists(USER_TABLE_NAME, 'Username-index', 'Username', username.toLowerCase())) {
             return res.status(400).json({ message: 'Username already in use.' });
         }
@@ -191,7 +190,7 @@ app.post('/signup', async (req, res) => {
             UserId: uuidv4(),
             Email: email,
             Mobile: mobile,
-            password: hashedPassword,
+            password: hashedPassword, // Store hashed password
             Username: username.toLowerCase(),
             role: 'user', // Default role for new signups
             createdAt: new Date().toISOString(),
@@ -220,7 +219,7 @@ app.post('/login', async (req, res) => {
     try {
         const result = await dynamodb.query({
             TableName: USER_TABLE_NAME,
-            IndexName: 'Email-index',
+            IndexName: 'Email-index', // Ensure this index exists in DynamoDB
             KeyConditionExpression: 'Email = :email',
             ExpressionAttributeValues: { ':email': email }
         }).promise();
@@ -248,8 +247,8 @@ app.post('/login', async (req, res) => {
             SECRET_KEY,
             { expiresIn: '1h', algorithm: 'HS512' }
         );
-        console.log('SERVER DEBUG: Login successful. Generated JWT token (first 20 chars):', token.substring(0, 20) + '...');
-        console.log('SERVER DEBUG: User role included in token:', user.role || 'user');
+        // console.log('SERVER DEBUG: Login successful. Generated JWT token (first 20 chars):', token.substring(0, 20) + '...');
+        // console.log('SERVER DEBUG: User role included in token:', user.role || 'user');
 
         res.status(200).json({
             token,
@@ -307,12 +306,11 @@ app.get('/start-test', authenticateUser, (req, res) => {
         const shuffledQuestions = [...questionsToUse].sort(() => 0.5 - Math.random());
         const finalQuestions = shuffledQuestions.slice(0, NUMBER_OF_QUESTIONS_PER_TEST);
 
-        const clientQuestions = finalQuestions.map(q => {
-            const { correctAnswerIndex, ...rest } = q;
-            return rest;
-        });
+        // --- MODIFIED SECTION: Send the full question objects including correctAnswerIndex ---
+        // The frontend Test.html needs correctAnswerIndex for scoring and review.
+        res.status(200).json({ questions: finalQuestions, moduleTested: moduleName });
+        // --- END MODIFIED SECTION ---
 
-        res.status(200).json({ questions: clientQuestions, moduleTested: moduleName });
     } catch (error) {
         console.error('Error selecting questions:', error);
         res.status(500).json({ message: 'Failed to retrieve test questions.' });
@@ -333,7 +331,7 @@ app.post('/save-test-result', authenticateUser, async (req, res) => {
             TestAttemptId : uuidv4(),
             UserId: userId,
             UserLoginUsername: loggedInUsername,
-            CollegeName: userName,
+            CollegeName: userName, // Assuming 'userName' from frontend is college name
             ModuleTested: module,
             Score: score,
             TotalQuestions: totalQuestions,
@@ -362,10 +360,10 @@ app.get('/get-test-history', authenticateUser, async (req, res) => {
     try {
         const params = {
             TableName: TEST_ATTEMPTS_TABLE_NAME,
-            IndexName: 'UserId-AttemptDate-index',
+            IndexName: 'UserId-AttemptDate-index', // Ensure this index exists in DynamoDB
             KeyConditionExpression: 'UserId = :userId',
             ExpressionAttributeValues: { ':userId': userId },
-            ScanIndexForward: false
+            ScanIndexForward: false // Latest attempts first
         };
         const result = await dynamodb.query(params).promise();
         res.status(200).json({ history: result.Items || [] });
@@ -395,14 +393,14 @@ app.get('/get-certificate-data', authenticateUser, async (req, res) => {
 
         const testAttemptParams = {
             TableName: TEST_ATTEMPTS_TABLE_NAME,
-            IndexName: 'UserId-AttemptDate-index',
+            IndexName: 'UserId-AttemptDate-index', // Ensure this index exists in DynamoDB
             KeyConditionExpression: 'UserId = :userId',
             FilterExpression: 'IsPass = :isPass',
             ExpressionAttributeValues: {
                 ':userId': userId,
                 ':isPass': true
             },
-            ScanIndexForward: false,
+            ScanIndexForward: false, // Get the most recent passing attempt
             Limit: 1
         };
 
@@ -530,6 +528,8 @@ app.get('/admin/test-attempts', authenticateUser, authorizeAdmin, async (req, re
     }
 
     try {
+        // Using scan for filtering. For large datasets, consider designing DynamoDB queries with appropriate indexes
+        // if these filters are frequently used for large data.
         const result = await dynamodb.scan(params).promise();
         const sortedAttempts = result.Items.sort((a, b) => new Date(b.AttemptDate) - new Date(a.AttemptDate));
         res.status(200).json({ attempts: sortedAttempts });
