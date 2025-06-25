@@ -1,302 +1,902 @@
 [
-  {
-    "id": "q001",
-    "module": "Module 1",
-    "question": "What is the primary benefit of cloud computing's 'pay-as-you-go' model?",
-    "options": [
-      "Eliminates the need for security protocols.",
-      "Reduces upfront capital expenditure.",
-      "Guarantees 100% uptime.",
-      "Provides unlimited storage for free."
-    ],
-    "correctAnswerIndex": 1
-  },
-  {
-    "id": "q002",
-    "module": "Module 1",
-    "question": "Which of the following is an example of an Infrastructure as a Service (IaaS) offering?",
-    "options": [
-      "Amazon S3",
-      "AWS Lambda",
-      "Amazon EC2",
-      "Amazon RDS"
-    ],
-    "correctAnswerIndex": 2
-  },
-  {
-    "id": "q003",
-    "module": "Module 1",
-    "question": "What does an AWS Region consist of?",
-    "options": [
-      "A single data center.",
-      "Multiple, isolated Availability Zones.",
-      "A collection of Edge Locations.",
-      "A single VPC."
-    ],
-    "correctAnswerIndex": 1
-  },
-  {
-    "id": "q004",
-    "module": "Module 1",
-    "question": "Which pillar of the AWS Well-Architected Framework focuses on minimizing costs?",
-    "options": [
-      "Security",
-      "Reliability",
-      "Performance Efficiency",
-      "Cost Optimization"
-    ],
-    "correctAnswerIndex": 3
-  },
-  {
-    "id": "q005",
-    "module": "Module 1",
-    "question": "Under the AWS shared responsibility model, who is responsible for the security 'of' the cloud?",
-    "options": [
-      "The customer.",
-      "AWS.",
-      "A third-party auditor.",
-      "Both the customer and AWS equally."
-    ],
-    "correctAnswerIndex": 1
-  },
-  {
-    "id": "q006",
-    "module": "Module 1",
-    "question": "Which service provides a highly available, scalable, and fully managed relational database service?",
-    "options": [
-      "Amazon DynamoDB",
-      "Amazon S3",
-      "Amazon RDS",
-      "Amazon Redshift"
-    ],
-    "correctAnswerIndex": 2
-  },
-  {
-    "id": "q007",
-    "module": "Module 1",
-    "question": "What is the main purpose of an Amazon Virtual Private Cloud (VPC)?",
-    "options": [
-      "To store object data.",
-      "To provide a dedicated private network within AWS.",
-      "To manage user access permissions.",
-      "To run serverless functions."
-    ],
-    "correctAnswerIndex": 1
-  },
-  {
-    "id": "q008",
-    "module": "Module 1",
-    "question": "Which AWS service is used for block-level storage volumes for use with EC2 instances?",
-    "options": [
-      "Amazon S3",
-      "Amazon Glacier",
-      "Amazon EBS",
-      "Amazon EFS"
-    ],
-    "correctAnswerIndex": 2
-  },
-  {
-    "id": "q009",
-    "module": "Module 1",
-    "question": "What is an Edge Location primarily used for?",
-    "options": [
-      "Deploying EC2 instances.",
-      "Storing persistent database backups.",
-      "Caching content for faster delivery to end-users.",
-      "Managing IAM users."
-    ],
-    "correctAnswerIndex": 2
-  },
-  {
-    "id": "q010",
-    "module": "Module 1",
-    "question": "Which AWS service allows you to run code without provisioning or managing servers?",
-    "options": [
-      "Amazon EC2",
-      "AWS Lambda",
-      "AWS Elastic Beanstalk",
-      "Amazon ECS"
-    ],
-    "correctAnswerIndex": 1
-  },
-  {
-    "id": "q011",
-    "module": "Module 1",
-    "question": "What is the benefit of using an Elastic Load Balancer (ELB)?",
-    "options": [
-      "It provides a persistent public IP address.",
-      "It automatically scales your database capacity.",
-      "It distributes incoming application traffic across multiple targets.",
-      "It creates automated backups of your instances."
-    ],
-    "correctAnswerIndex": 2
-  },
-  {
-    "id": "q012",
-    "module": "Module 1",
-    "question": "Which pricing model offers significant discounts for committing to a certain amount of compute usage for 1- or 3-year terms?",
-    "options": [
-      "On-Demand Instances",
-      "Spot Instances",
-      "Dedicated Hosts",
-      "Reserved Instances"
-    ],
-    "correctAnswerIndex": 3
-  },
-  {
-    "id": "q013",
-    "module": "Module 1",
-    "question": "Which AWS service is a highly scalable, fully managed NoSQL database service?",
-    "options": [
-      "Amazon Aurora",
-      "Amazon DynamoDB",
-      "Amazon RDS",
-      "Amazon Redshift"
-    ],
-    "correctAnswerIndex": 1
-  },
-  {
-    "id": "q014",
-    "module": "Module 1",
-    "question": "What is a Security Group in AWS?",
-    "options": [
-      "A group of IAM users.",
-      "A virtual firewall that controls inbound and outbound traffic for EC2 instances.",
-      "A network access control list for subnets.",
-      "A managed service for DDoS protection."
-    ],
-    "correctAnswerIndex": 1
-  },
-  {
-    "id": "q015",
-    "module": "Module 1",
-    "question": "Which AWS service provides a content delivery network (CDN) for fast delivery of web content?",
-    "options": [
-      "Amazon S3",
-      "Amazon Route 53",
-      "Amazon CloudFront",
-      "AWS Direct Connect"
-    ],
-    "correctAnswerIndex": 2
-  },
-  {
-    "id": "q016",
-    "module": "Module 1",
-    "question": "What does Amazon S3 stand for?",
-    "options": [
-      "Simple System Storage",
-      "Secure Server Solution",
-      "Simple Storage Service",
-      "Scalable Server Solution"
-    ],
-    "correctAnswerIndex": 2
-  },
-  {
-    "id": "q017",
-    "module": "Module 1",
-    "question": "Which AWS service helps you monitor your AWS resources and applications in real-time?",
-    "options": [
-      "AWS CloudFormation",
-      "AWS CloudTrail",
-      "Amazon CloudWatch",
-      "AWS Config"
-    ],
-    "correctAnswerIndex": 2
-  },
-  {
-    "id": "q018",
-    "module": "Module 1",
-    "question": "What is the primary use case for Amazon Glacier?",
-    "options": [
-      "Running high-performance databases.",
-      "Storing frequently accessed data.",
-      "Long-term archival of infrequently accessed data.",
-      "Hosting dynamic websites."
-    ],
-    "correctAnswerIndex": 2
-  },
-  {
-    "id": "q019",
-    "module": "Module 1",
-    "question": "Which service allows you to automatically adjust the number of EC2 instances in your application based on demand?",
-    "options": [
-      "Elastic Load Balancing",
-      "Amazon CloudWatch",
-      "AWS Auto Scaling",
-      "AWS Systems Manager"
-    ],
-    "correctAnswerIndex": 2
-  },
-  {
-    "id": "q020",
-    "module": "Module 1",
-    "question": "What is the purpose of AWS Identity and Access Management (IAM)?",
-    "options": [
-      "To create virtual networks.",
-      "To manage users, groups, and permissions to AWS resources.",
-      "To deploy applications directly.",
-      "To monitor network traffic."
-    ],
-    "correctAnswerIndex": 1
-  },
-  {
-    "id": "q021",
-    "module": "Module 1",
-    "question": "Which AWS support plan offers a full set of AWS Trusted Advisor checks and architectural guidance?",
-    "options": [
-      "Basic",
-      "Developer",
-      "Business",
-      "Enterprise"
-    ],
-    "correctAnswerIndex": 3
-  },
-  {
-    "id": "q022",
-    "module": "Module 1",
-    "question": "Which service provides a domain name system (DNS) web service?",
-    "options": [
-      "Amazon CloudFront",
-      "Amazon Route 53",
-      "AWS Direct Connect",
-      "AWS VPN"
-    ],
-    "correctAnswerIndex": 1
-  },
-  {
-    "id": "q023",
-    "module": "Module 1",
-    "question": "What is the concept of 'elasticity' in AWS cloud computing?",
-    "options": [
-      "The ability to stretch data across multiple regions.",
-      "The ability to rapidly expand or decrease resources to meet demand.",
-      "The ability to securely encrypt all data automatically.",
-      "The ability to choose different operating systems for EC2 instances."
-    ],
-    "correctAnswerIndex": 1
-  },
-  {
-    "id": "q024",
-    "module": "Module 1",
-    "question": "Which AWS service is a managed message queuing service that enables you to decouple and scale microservices, distributed systems, and serverless applications?",
-    "options": [
-      "Amazon SNS",
-      "Amazon SQS",
-      "Amazon Kinesis",
-      "AWS Step Functions"
-    ],
-    "correctAnswerIndex": 1
-  },
-  {
-    "id": "q025",
-    "module": "Module 1",
-    "question": "What is the primary benefit of deploying resources across multiple Availability Zones?",
-    "options": [
-      "Increased cost savings.",
-      "Reduced network latency.",
-      "Improved fault tolerance and high availability.",
-      "Simpler management of resources."
-    ],
-    "correctAnswerIndex": 2
-  }
+    {
+        "id": "q001",
+        "module": "Module 1",
+        "question": "What is the primary benefit of cloud computing's 'pay-as-you-go' model?",
+        "options": [
+            "Eliminates the need for security protocols.",
+            "Reduces upfront capital expenditure.",
+            "Guarantees 100% uptime.",
+            "Provides unlimited storage for free."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q002",
+        "module": "Module 1",
+        "question": "Which of the following is an example of an Infrastructure as a Service (IaaS) offering?",
+        "options": [
+            "Amazon S3",
+            "AWS Lambda",
+            "Amazon EC2",
+            "Amazon RDS"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q003",
+        "module": "Module 1",
+        "question": "What does an AWS Region consist of?",
+        "options": [
+            "A single data center.",
+            "Multiple, isolated Availability Zones.",
+            "A collection of Edge Locations.",
+            "A single VPC."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q004",
+        "module": "Module 1",
+        "question": "Which pillar of the AWS Well-Architected Framework focuses on minimizing costs?",
+        "options": [
+            "Security",
+            "Reliability",
+            "Performance Efficiency",
+            "Cost Optimization"
+        ],
+        "correctAnswerIndex": 3
+    },
+    {
+        "id": "q005",
+        "module": "Module 1",
+        "question": "Under the AWS shared responsibility model, who is responsible for the security 'of' the cloud?",
+        "options": [
+            "The customer.",
+            "AWS.",
+            "A third-party auditor.",
+            "Both the customer and AWS equally."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q006",
+        "module": "Module 1",
+        "question": "Which service provides a highly available, scalable, and fully managed relational database service?",
+        "options": [
+            "Amazon DynamoDB",
+            "Amazon S3",
+            "Amazon RDS",
+            "Amazon Redshift"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q007",
+        "module": "Module 1",
+        "question": "What is the main purpose of an Amazon Virtual Private Cloud (VPC)?",
+        "options": [
+            "To store object data.",
+            "To provide a dedicated private network within AWS.",
+            "To manage user access permissions.",
+            "To run serverless functions."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q008",
+        "module": "Module 1",
+        "question": "Which AWS global infrastructure component consists of physically separate data centers within a region, ensuring high availability and fault tolerance?",
+        "options": [
+            "AWS Region",
+            "Availability Zone",
+            "Edge Location",
+            "VPC"
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q009",
+        "module": "Module 1",
+        "question": "A company wants to host an application in AWS and needs to ensure low latency for users in Tokyo. Which AWS Region code would be most suitable?",
+        "options": [
+            "us-east-1",
+            "ap-northeast-1",
+            "eu-west-1",
+            "sa-east-1"
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q010",
+        "module": "Module 1",
+        "question": "What is the primary function of AWS Edge Locations?",
+        "options": [
+            "To host relational databases.",
+            "To store copies of content for faster delivery.",
+            "To manage user identities and access.",
+            "To provide serverless compute capacity."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q011",
+        "module": "Module 1",
+        "question": "Which AWS service is a Content Delivery Network (CDN) that speeds up content delivery by using Edge Locations?",
+        "options": [
+            "Amazon S3",
+            "AWS Direct Connect",
+            "Amazon CloudFront",
+            "AWS Global Accelerator"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q012",
+        "module": "Module 1",
+        "question": "When choosing an AWS Region, which of the following factors should be considered?",
+        "options": [
+            "Only the cheapest pricing available.",
+            "Latency, pricing, service availability, and data compliance.",
+            "Number of EC2 instance types only.",
+            "The default region set in the AWS Management Console."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q013",
+        "module": "Module 1",
+        "question": "The AWS Free Tier offers different types of offers. Which type allows you to use services without incurring charges for 12 months following your initial AWS sign-up date?",
+        "options": [
+            "Always Free",
+            "Trials",
+            "12 Months Free",
+            "Developer Tier"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q014",
+        "module": "Module 1",
+        "question": "Which AWS service is an example of an 'Always Free' offer, providing 1 million free requests per month?",
+        "options": [
+            "Amazon EC2",
+            "Amazon S3",
+            "AWS Lambda",
+            "Amazon RDS"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q015",
+        "module": "Module 1",
+        "question": "What is the primary advantage of the 'Pay-as-You-Go' pricing model in AWS?",
+        "options": [
+            "Requires a long-term commitment.",
+            "Eliminates all operational costs.",
+            "You pay only for the compute capacity used, with no upfront payments.",
+            "Provides unlimited free storage."
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q016",
+        "module": "Module 1",
+        "question": "Which AWS pricing strategy allows you to save up to 72% on EC2 by committing to a one-year or three-year term?",
+        "options": [
+            "On-Demand Instances",
+            "Spot Instances",
+            "Savings Plans",
+            "Dedicated Hosts"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q017",
+        "module": "Module 1",
+        "question": "What is the main benefit of AWS Consolidated Billing for organizations with multiple AWS accounts?",
+        "options": [
+            "It eliminates all billing charges.",
+            "It provides a single bill and allows sharing of bulk discounts and aggregated usage.",
+            "It restricts access to certain services.",
+            "It automates resource provisioning."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q018",
+        "module": "Module 1",
+        "question": "A user wants to set custom alerts for their AWS spending and track usage against a defined budget. Which AWS service should they use?",
+        "options": [
+            "AWS Cost Explorer",
+            "AWS Budgets",
+            "Amazon CloudWatch",
+            "AWS Billing Dashboard"
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q019",
+        "module": "Module 1",
+        "question": "Which AWS service provides detailed reports and allows you to visualize and manage your AWS costs and usage over time, including custom filters?",
+        "options": [
+            "AWS Support Plans",
+            "AWS Organizations",
+            "AWS Cost Explorer",
+            "AWS Budgets"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q020",
+        "module": "Module 1",
+        "question": "Which AWS Support Plan is free and provides essential resources like documentation and health alerts?",
+        "options": [
+            "Developer",
+            "Business",
+            "Enterprise",
+            "Basic"
+        ],
+        "correctAnswerIndex": 3
+    },
+    {
+        "id": "q021",
+        "module": "Module 1",
+        "question": "For a large, complex organization requiring the highest level of support with dedicated account managers and tailored solutions, which AWS Support Plan is recommended?",
+        "options": [
+            "Basic",
+            "Developer",
+            "Business",
+            "Enterprise On-Ramp / Enterprise"
+        ],
+        "correctAnswerIndex": 3
+    },
+    {
+        "id": "q022",
+        "module": "Module 1",
+        "question": "What is the purpose of AWS Marketplace?",
+        "options": [
+            "To provide a forum for AWS developers.",
+            "A digital catalog for finding, testing, and buying third-party software solutions that run on AWS.",
+            "A service for managing virtual private networks.",
+            "A tool for migrating on-premises databases to AWS."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q023",
+        "module": "Module 1",
+        "question": "Which of the following is a web-based interface for managing AWS services, accessible from any browser and providing visual tools?",
+        "options": [
+            "AWS CLI",
+            "AWS SDKs",
+            "AWS Management Console",
+            "Amazon CloudWatch"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q024",
+        "module": "Module 1",
+        "question": "A developer wants to automate the provisioning of AWS resources using scripts. Which AWS interaction method is best suited for this task?",
+        "options": [
+            "AWS Management Console",
+            "AWS CLI (Command Line Interface)",
+            "AWS SDKs (Software Development Kits)",
+            "AWS Trusted Advisor"
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q025",
+        "module": "Module 1",
+        "question": "What is the primary function of AWS SDKs (Software Development Kits)?",
+        "options": [
+            "To provide a graphical interface for AWS services.",
+            "To enable text-based command execution for AWS services.",
+            "To provide programming libraries for integrating AWS services into applications.",
+            "To monitor AWS resource performance."
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q026",
+        "module": "Module 1",
+        "question": "What is the difference between a physical server and a virtual server (VM)?",
+        "options": [
+            "Physical servers run on software, while VMs are hardware-based.",
+            "Physical servers are hardware-based, while VMs are software-based and run on physical servers.",
+            "Physical servers are only used on-premises, VMs only in the cloud.",
+            "There is no functional difference."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q027",
+        "module": "Module 1",
+        "question": "Which component of a Virtual Machine (VM) runs directly on physical hardware and manages guest operating systems?",
+        "options": [
+            "Guest OS",
+            "Virtual Hardware",
+            "Hypervisor Type 2",
+            "Hypervisor Type 1"
+        ],
+        "correctAnswerIndex": 3
+    },
+    {
+        "id": "q028",
+        "module": "Module 1",
+        "question": "Which of the following is a key benefit of using Virtual Machines (VMs)?",
+        "options": [
+            "No need for a hypervisor.",
+            "Eliminates the need for proper security setup.",
+            "Runs different operating systems on one machine.",
+            "Guarantees 100% performance efficiency at all times."
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q029",
+        "module": "Module 1",
+        "question": "What is a characteristic of containers in modern development?",
+        "options": [
+            "They require dedicated physical servers for each application.",
+            "They package application code and dependencies into standalone, isolated packages.",
+            "They are primarily used for managing virtual machines.",
+            "They do not support continuous integration/continuous deployment (CI/CD)."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q030",
+        "module": "Module 1",
+        "question": "Which service allows you to run code without provisioning or managing servers, automatically scaling in response to events?",
+        "options": [
+            "Amazon EC2",
+            "AWS Lambda",
+            "Amazon RDS",
+            "Amazon ECS"
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q031",
+        "module": "Module 1",
+        "question": "What does Amazon EC2 (Elastic Compute Cloud) provide?",
+        "options": [
+            "Managed relational databases.",
+            "Scalable object storage.",
+            "Secure, resizable compute capacity in the cloud as virtual servers.",
+            "A global content delivery network."
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q032",
+        "module": "Module 1",
+        "question": "What is an Amazon Machine Image (AMI)?",
+        "options": [
+            "A physical server in an AWS data center.",
+            "A pre-configured template for launching EC2 instances, including the OS and software.",
+            "A network configuration for an EC2 instance.",
+            "A storage volume for an EC2 instance."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q033",
+        "module": "Module 1",
+        "question": "When launching an EC2 instance, where is the selected Amazon Machine Image (AMI) copied?",
+        "options": [
+            "To an S3 bucket.",
+            "To the root device volume.",
+            "To an EBS snapshot.",
+            "To an Edge Location."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q034",
+        "module": "Module 1",
+        "question": "Which EC2 instance type is optimized for CPU-intensive tasks like data processing and machine learning?",
+        "options": [
+            "General Purpose",
+            "Compute-Optimized",
+            "Memory-Optimized",
+            "Storage-Optimized"
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q035",
+        "module": "Module 1",
+        "question": "For an application requiring a balanced mix of CPU, memory, and storage, suitable for web servers or small databases, which EC2 instance type would be ideal?",
+        "options": [
+            "Compute-Optimized (C-series)",
+            "Memory-Optimized (R-series)",
+            "Storage-Optimized (I-series)",
+            "General Purpose (M-series)"
+        ],
+        "correctAnswerIndex": 3
+    },
+    {
+        "id": "q036",
+        "module": "Module 1",
+        "question": "To architect for high availability with EC2 instances, what is a recommended practice?",
+        "options": [
+            "Use a single EC2 instance in one Availability Zone.",
+            "Use at least two EC2 instances in two separate Availability Zones.",
+            "Deploy all instances in a single AWS Region.",
+            "Only use On-Demand instances."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q037",
+        "module": "Module 1",
+        "question": "What happens to an EC2 instance in the 'Running' state?",
+        "options": [
+            "It is preparing, and billing has not started yet.",
+            "It is active, and billing has started.",
+            "Its data and IP addresses are deleted.",
+            "It retains its IPs but cannot move to a new server."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q038",
+        "module": "Module 1",
+        "question": "Which EC2 pricing option allows you to purchase unused EC2 capacity at lower prices, ideal for fault-tolerant workloads that can handle interruptions?",
+        "options": [
+            "On-Demand Instances",
+            "Reserved Instances",
+            "Spot Instances",
+            "Dedicated Hosts"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q039",
+        "module": "Module 1",
+        "question": "A company needs to run a steady-state workload 24/7 for three years. Which EC2 pricing option would provide significant discounts for this predictable demand?",
+        "options": [
+            "On-Demand Instances",
+            "Spot Instances",
+            "Savings Plans",
+            "Dedicated Hosts"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q040",
+        "module": "Module 1",
+        "question": "What is the primary function of Amazon EC2 Auto Scaling?",
+        "options": [
+            "To manually provision EC2 instances.",
+            "To automatically adjust the number of EC2 instances in response to changing demand.",
+            "To distribute incoming application traffic.",
+            "To monitor EC2 instance health."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q041",
+        "module": "Module 1",
+        "question": "Which AWS service automatically distributes incoming application traffic across multiple EC2 instances to ensure high availability and fault tolerance?",
+        "options": [
+            "Amazon Route 53",
+            "Amazon CloudFront",
+            "AWS Elastic Load Balancing (ELB)",
+            "AWS Auto Scaling"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q042",
+        "module": "Module 1",
+        "question": "What is AWS Fargate?",
+        "options": [
+            "A serverless compute engine for virtual machines.",
+            "A serverless compute engine for containers.",
+            "A service for managing relational databases.",
+            "A global content delivery network."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q043",
+        "module": "Module 1",
+        "question": "Which AWS service is a fully managed service for running Kubernetes on AWS?",
+        "options": [
+            "Amazon ECS",
+            "AWS Fargate",
+            "Amazon EKS",
+            "AWS Lambda"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q044",
+        "module": "Module 1",
+        "question": "What are the three main categories of storage services offered by AWS?",
+        "options": [
+            "Ephemeral, Persistent, Archival",
+            "Local, Network, Cloud",
+            "File, Block, Object",
+            "Structured, Unstructured, Semi-structured"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q045",
+        "module": "Module 1",
+        "question": "Which type of storage organizes data in a tree-like hierarchy of folders and subfolders?",
+        "options": [
+            "Object Storage",
+            "Block Storage",
+            "File Storage",
+            "Ephemeral Storage"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q046",
+        "module": "Module 1",
+        "question": "A company needs a highly scalable file storage service that can be accessed by multiple EC2 instances simultaneously. Which AWS service is best suited for this?",
+        "options": [
+            "Amazon S3",
+            "Amazon EBS",
+            "Amazon EFS",
+            "Amazon DynamoDB"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q047",
+        "module": "Module 1",
+        "question": "Which AWS storage service is a fully managed file system service that supports Lustre, NetApp ONTAP, OpenZFS, and Windows File Server?",
+        "options": [
+            "Amazon EFS",
+            "Amazon FSx",
+            "Amazon S3",
+            "Amazon EBS"
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q048",
+        "module": "Module 1",
+        "question": "What characterizes Block Storage?",
+        "options": [
+            "Data is stored as distinct objects in buckets.",
+            "It organizes data in a tree-like hierarchy.",
+            "Files are split into fixed-size chunks (blocks) with individual addresses.",
+            "It is only suitable for temporary data."
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q049",
+        "module": "Module 1",
+        "question": "Which Amazon EC2 storage option provides temporary block storage that is tied to the EC2 instance lifecycle and is deleted when the instance is terminated?",
+        "options": [
+            "Amazon EBS",
+            "Amazon S3",
+            "Amazon EC2 Instance Store",
+            "Amazon EFS"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q050",
+        "module": "Module 1",
+        "question": "What is a key characteristic of Amazon EBS (Elastic Block Store) volumes?",
+        "options": [
+            "They are deleted when the EC2 instance is stopped.",
+            "They are temporary storage for caches and buffers.",
+            "They are persistent block-level storage that remains intact even if the EC2 instance fails.",
+            "They are object storage accessible from anywhere on the web."
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q051",
+        "module": "Module 1",
+        "question": "Which feature of Amazon EBS allows you to create incremental backups of your volumes, storing only the changes since the last backup?",
+        "options": [
+            "EBS Replication",
+            "EBS Snapshots",
+            "EBS Mirroring",
+            "EBS Tiering"
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q052",
+        "module": "Module 1",
+        "question": "In Object Storage, how are files typically stored?",
+        "options": [
+            "In a hierarchical folder structure.",
+            "As distinct objects with unique identifiers in a flat structure.",
+            "As fixed-size blocks with individual addresses.",
+            "On dedicated physical servers."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q053",
+        "module": "Module 1",
+        "question": "What is a key characteristic of Amazon S3 (Simple Storage Service)?",
+        "options": [
+            "It provides block-level storage for databases.",
+            "It is tightly coupled with EC2 instances.",
+            "It offers unlimited storage for objects in a flat structure.",
+            "It supports traditional file system permissions."
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q054",
+        "module": "Module 1",
+        "question": "Which Amazon S3 concept refers to the unique identifiers for objects stored in S3?",
+        "options": [
+            "Buckets",
+            "Regions",
+            "Keys",
+            "Folders"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q055",
+        "module": "Module 1",
+        "question": "Which of the following is a valid Amazon S3 bucket naming rule?",
+        "options": [
+            "Bucket names can contain uppercase letters.",
+            "Bucket names must be between 1 and 2 characters long.",
+            "Bucket names must be globally unique across all AWS accounts.",
+            "Bucket names can be named as IP addresses."
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q056",
+        "module": "Module 1",
+        "question": "What is the primary purpose of Amazon S3 Versioning?",
+        "options": [
+            "To encrypt objects automatically.",
+            "To reduce storage costs by deleting old versions.",
+            "To keep multiple versions of an object in the same bucket, protecting against accidental deletions and overwrites.",
+            "To publicly expose all objects in a bucket."
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q057",
+        "module": "Module 1",
+        "question": "Which Amazon S3 security feature is written in JSON format, attached to S3 buckets, and applies to all objects within that bucket?",
+        "options": [
+            "IAM User Policies",
+            "Access Control Lists (ACLs)",
+            "S3 Bucket Policies",
+            "Security Groups"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q058",
+        "module": "Module 1",
+        "question": "Which Amazon S3 storage class automatically moves data to the most cost-effective tier based on changing access patterns?",
+        "options": [
+            "S3 Standard",
+            "S3 Standard-IA",
+            "S3 Intelligent-Tiering",
+            "S3 Glacier Deep Archive"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q059",
+        "module": "Module 1",
+        "question": "For rarely accessed data that requires fast retrieval (millisecond retrieval) and is cost-effective for archival purposes, which S3 storage class would you choose?",
+        "options": [
+            "S3 Standard",
+            "S3 Glacier Deep Archive",
+            "S3 Glacier Instant Retrieval",
+            "S3 One Zone-IA"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q060",
+        "module": "Module 1",
+        "question": "A media company needs the absolute cheapest storage for long-term retention of video archives, with retrieval times acceptable up to 12 hours. Which S3 storage class is most suitable?",
+        "options": [
+            "S3 Standard-IA",
+            "S3 Glacier Flexible Retrieval",
+            "S3 Glacier Deep Archive",
+            "S3 Standard"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q061",
+        "module": "Module 1",
+        "question": "Which AWS storage service is best suited for hosting static websites and distributing media files?",
+        "options": [
+            "Amazon EBS",
+            "Amazon RDS",
+            "Amazon S3",
+            "Amazon EFS"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q062",
+        "module": "Module 1",
+        "question": "What is the purpose of an Availability Zone in AWS?",
+        "options": [
+            "To serve as a single data center for an AWS Region.",
+            "To provide a physically isolated location within an AWS Region to ensure high availability.",
+            "To act as a caching location for content delivery.",
+            "To manage all billing for an AWS account."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q063",
+        "module": "Module 1",
+        "question": "Which pricing model provides discounts for Amazon EC2 by committing to a consistent amount of compute usage, regardless of instance family, size, OS, or tenancy?",
+        "options": [
+            "Reserved Instances",
+            "Spot Instances",
+            "On-Demand Instances",
+            "Savings Plans"
+        ],
+        "correctAnswerIndex": 3
+    },
+    {
+        "id": "q064",
+        "module": "Module 1",
+        "question": "Which AWS service would you use to get a default report on your top five cost-accruing services?",
+        "options": [
+            "AWS Budgets",
+            "AWS Cost Explorer",
+            "AWS Organizations",
+            "Amazon CloudWatch"
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q065",
+        "module": "Module 1",
+        "question": "A developer needs to integrate their Python application with various AWS services using programmatic calls. Which AWS interaction method should they use?",
+        "options": [
+            "AWS Management Console",
+            "AWS CLI",
+            "AWS SDKs",
+            "Amazon Lightsail"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q066",
+        "module": "Module 1",
+        "question": "What is the key benefit of serverless computing?",
+        "options": [
+            "You manage all underlying servers and infrastructure.",
+            "It requires significant upfront capital expenditure.",
+            "You don't need to manage servers, and it scales automatically.",
+            "It is only suitable for batch processing workloads."
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q067",
+        "module": "Module 1",
+        "question": "When an EC2 instance is 'stopped', what happens to its associated data and IP addresses?",
+        "options": [
+            "All data and IPs are deleted permanently.",
+            "Data is retained, IPs are retained, and it can be moved to a new server.",
+            "Data is deleted, but IPs are retained.",
+            "Billing continues as normal."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q068",
+        "module": "Module 1",
+        "question": "Which EC2 instance type is ideal for in-memory databases and real-time analytics due to its large memory capacity?",
+        "options": [
+            "General Purpose",
+            "Compute-Optimized",
+            "Memory-Optimized",
+            "Storage-Optimized"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q069",
+        "module": "Module 1",
+        "question": "What is a 'bucket' in Amazon S3?",
+        "options": [
+            "A type of virtual server.",
+            "A container for storing objects.",
+            "A network configuration.",
+            "A relational database table."
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q070",
+        "module": "Module 1",
+        "question": "Which S3 storage class is designed for frequently accessed data that needs high durability and availability, suitable for cloud applications?",
+        "options": [
+            "S3 Glacier Deep Archive",
+            "S3 Standard-IA",
+            "S3 One Zone-IA",
+            "S3 Standard"
+        ],
+        "correctAnswerIndex": 3
+    },
+    {
+        "id": "q071",
+        "module": "Module 1",
+        "question": "A media archiving company needs to store petabytes of historical video footage for compliance. Access is very rare (once or twice a year), and retrieval times of several hours are acceptable to minimize costs. Which Amazon S3 storage class would be the most cost-effective choice?",
+        "options": [
+            "S3 Standard",
+            "S3 Intelligent-Tiering",
+            "S3 Glacier Deep Archive",
+            "S3 Glacier Instant Retrieval"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q072",
+        "module": "Module 1",
+        "question": "A data analytics firm is running a high-performance computing (HPC) simulation on Amazon EC2 instances. The simulation generates large amounts of temporary scratch data that needs extremely fast read/write access during computation but is not required after the instance terminates. Which storage option is best for this temporary data?",
+        "options": [
+            "Amazon EBS",
+            "Amazon S3",
+            "Amazon EC2 Instance Store",
+            "Amazon EFS"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q073",
+        "module": "Module 1",
+        "question": "A large enterprise has multiple AWS accounts for different departments and projects. They want to simplify their billing process, receive a single consolidated bill, and take advantage of volume discounts across all accounts. Which AWS feature should they implement?",
+        "options": [
+            "AWS Cost Explorer",
+            "AWS Budgets",
+            "AWS Consolidated Billing",
+            "AWS Organizations (without Consolidated Billing)"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "id": "q074",
+        "module": "Module 1",
+        "question": "A DevOps engineer needs to repeatedly deploy and configure hundreds of EC2 instances and other AWS resources as part of an automated deployment pipeline. Which AWS interaction method is the most efficient and suitable for this automation?",
+        "options": [
+            "AWS Management Console",
+            "AWS Command Line Interface (CLI)",
+            "AWS SDKs for Java",
+            "AWS Personal Health Dashboard"
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "id": "q075",
+        "module": "Module 1",
+        "question": "A company has a legacy application that requires a specific operating system license and needs to run on a dedicated physical server for strict compliance and licensing reasons. Which Amazon EC2 pricing option allows them to use dedicated physical servers for their instances?",
+        "options": [
+            "On-Demand Instances",
+            "Spot Instances",
+            "Reserved Instances",
+            "Dedicated Hosts"
+        ],
+        "correctAnswerIndex": 3
+    }
 ]
