@@ -482,7 +482,7 @@ async function sendPasswordResetEmail(toEmail, resetToken) {
     // or at least an alias of it, to avoid spam filters.
     const senderEmail = 'craids22@gmail.com'; // <--- Make sure this matches your Gmail account for nodemailer auth
 
-    const resetLink = `http://localhost:5000/reset-password?token=${resetToken}`; // Adjust the port/domain if deployed
+    const resetLink = `${BASE_URL}/reset-password?token=${resetToken}`; // Adjust the port/domain if deployed
 
     const mailOptions = {
         from: `AWSPrepZone <${senderEmail}>`, // Display name for the sender
