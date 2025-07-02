@@ -97,7 +97,7 @@
         if (response.ok) {
           messageDiv.className = 'text-green-700 bg-green-100 rounded p-3 mt-4 text-center';
           messageDiv.textContent = data.message || 'Registration successful! Redirecting to login...';
-          setTimeout(() => { window.location.href = '/Login'; }, 2000);
+          setTimeout(() => { window.location.href = '/login'; }, 2000);
         } else {
           messageDiv.className = 'text-red-700 bg-red-100 rounded p-3 mt-4 text-center';
           messageDiv.textContent = data.message || 'Registration failed. Please try again.';
