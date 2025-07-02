@@ -7,26 +7,39 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const AWS = require('aws-sdk');
+const nodemailer = require('nodemailer'); // Added for email functionality
 require('dotenv').config(); // Add this line to load environment variables from .env file
-
 
 AWS.config.update({
     region: 'ap-south-1', // IMPORTANT: This region must match where your DynamoDB tables are located.
-    accessKeyId: 'AKIAVEP3EDM5K3LA5J47', // Replace with your actual Access Key ID (securely!)
-    secretAccessKey: 'YfIszgolrWKUglxC6Q85HSb3V0qhDsa00yv6jcIP' // Replace with your actual Secret Access Key (securely!)
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'AKIAVEP3EDM5K3LA5J47', // Use env var or provided key
+    secretAccessKey: process.env.AWS_ACCESS_KEY_ID || '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' // Use env var or provided key
 });
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
+// --- Nodemailer Transporter for GMAIL SMTP (using your App Password) ---
+// IMPORTANT: Replace 'yourgmailaccount@gmail.com' with the actual Gmail address
+// for which you generated the App Password.
+const gmailTransporter = nodemailer.createTransport({
+    service: 'gmail', // This tells Nodemailer to use Gmail's well-known settings
+    auth: {
+        user: 'craids22@gmail.com', // <--- REPLACE THIS with YOUR GMAIL ADDRESS
+        pass: 'opok nwqf kukx aihh' // <--- YOUR GENERATED APP PASSWORD
+    }
+});
+
 // --- Constants ---
 const SECRET_KEY = 'jwt_secret_key_54742384238423_ahfgrdtTFHHYJNMP[]yigfgfjdfjd=-+&+pqiel;,,dkvntegdv/cv,mbkzmbzbhsbha#&$^&(#_enD';
 const PORT = 5000;
-const USER_TABLE_NAME = 'Usertable'; // Your existing user table
-const TEST_ATTEMPTS_TABLE_NAME = 'TestAttempts'; // New table for test results
-const COURSE_PROGRESS_TABLE = 'CourseProgress'; // New DynamoDB table
+const USER_TABLE_NAME = 'Usertable';
+const TEST_ATTEMPTS_TABLE_NAME = 'TestAttempts';
+const COURSE_PROGRESS_TABLE = 'CourseProgress';
 const VIOLATIONS_TABLE_NAME = 'ViolationsTable';
+const PASSWORD_RESET_TABLE_NAME = 'PasswordResetTokens'; // NEW: Table for password reset tokens
+const PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES = 60; // NEW: Token valid for 60 minutes
 
-const ALL_QUESTIONS_DATA = require('./questions.json'); // Ensure this file exists and is correctly formatted
+const ALL_QUESTIONS_DATA = require('./questions.json');
 
 const NUMBER_OF_QUESTIONS_PER_TEST = 25;
 const NUMBER_OF_MODULES = 25;
@@ -43,78 +56,26 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files (HTML pages)
 app.use(express.static(path.join(__dirname)));
 app.get('/Login', (req, res) => res.sendFile(path.join(__dirname, 'Login.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'Login.html')));
-app.get('/Login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/Signup', (req, res) => res.sendFile(path.join(__dirname, 'Signup.html')));
 app.get('/home', (req, res) => res.sendFile(path.join(__dirname, 'Home.html')));
 app.get('/test', (req, res) => res.sendFile(path.join(__dirname, 'Test.html')));
 app.get('/certificate', (req, res) => res.sendFile(path.join(__dirname, 'Certificate.html')));
 app.get('/welcome', (req, res) => res.sendFile(path.join(__dirname, 'welcome.html')));
 app.get('/Course', (req, res) => res.sendFile(path.join(__dirname, 'Course.html')));
-// Admin page is now served directly. Frontend JS will handle auth/redirect.
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'Admin.html')));
 app.use('/pdfs', express.static(path.join(__dirname, 'PPts')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'welcome.html')));
 
-// --- Save Topic Progress ---
-app.post('/save-topic-progress', authenticateUser, async (req, res) => {
-    const { topicNumber } = req.body;
-    const { userId } = req.user;
-
-    if (typeof topicNumber !== 'number' || topicNumber < 1 || topicNumber > NUMBER_OF_MODULES) {
-        return res.status(400).json({ message: `Invalid topic number. Must be a number between 1 and ${NUMBER_OF_MODULES}.` });
-    }
-
-    const params = {
-        TableName: COURSE_PROGRESS_TABLE,
-        Item: {
-            ProgressId: `${userId}_${topicNumber}`,
-            UserId: userId,
-            TopicNumber: topicNumber,
-            CompletedAt: new Date().toISOString()
-        }
-    };
-
-    try {
-        await dynamodb.put(params).promise();
-        res.status(200).json({ message: `Topic ${topicNumber} marked as completed for user ${userId}.` });
-    } catch (error) {
-        console.error('Error saving topic progress:', error);
-        res.status(500).json({ message: 'Failed to save progress due to server error.' });
-    }
-});
-
-// --- Get Completed Topics ---
-app.get('/get-topic-progress', authenticateUser, async (req, res) => {
-    const { userId } = req.user;
-
-    const params = {
-        TableName: COURSE_PROGRESS_TABLE,
-        IndexName: 'UserId-index', // Ensure this index exists in DynamoDB
-        KeyConditionExpression: 'UserId = :userId',
-        ExpressionAttributeValues: {
-            ':userId': userId
-        },
-        ProjectionExpression: 'TopicNumber'
-    };
-
-    try {
-        const result = await dynamodb.query(params).promise();
-        const completedTopics = result.Items.map(item => item.TopicNumber).sort((a, b) => a - b);
-        res.status(200).json({ completedTopics });
-    } catch (error) {
-        console.error('Error fetching topic progress:', error);
-        res.status(500).json({ message: 'Failed to fetch progress due to server error.' });
-    }
-});
+// NEW: Routes for Forgot/Reset Password HTML
+app.get('/forgot-password', (req, res) => res.sendFile(path.join(__dirname, 'forgot-password.html')));
+app.get('/reset-password', (req, res) => res.sendFile(path.join(__dirname, 'reset-password.html')));
 
 
 // --- Helper Function for DynamoDB Checks (used in signup) ---
 async function checkIfAttributeExists(tableName, indexName, attributeName, value) {
     const params = {
         TableName: tableName,
-        IndexName: indexName, // Ensure this index exists in DynamoDB
+        IndexName: indexName,
         KeyConditionExpression: `${attributeName} = :value`,
         ExpressionAttributeValues: { ':value': value },
         ProjectionExpression: attributeName,
@@ -132,20 +93,20 @@ async function checkIfAttributeExists(tableName, indexName, attributeName, value
 // --- User Authentication Middleware ---
 function authenticateUser(req, res, next) {
     const authHeader = req.headers.authorization;
-    // console.log('SERVER DEBUG: authenticateUser called. Authorization header:', authHeader); // Log full header
+    console.log('SERVER DEBUG: authenticateUser called. Authorization header:', authHeader);
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         console.warn('SERVER DEBUG: Auth header missing or malformed.');
         return res.status(401).json({ message: 'Authorization token not provided or malformed.' });
     }
     const token = authHeader.replace('Bearer ', '');
-    // console.log('SERVER DEBUG: Token extracted (first 20 chars):', token.substring(0, 20) + '...'); // Log partial token
+    console.log('SERVER DEBUG: Token extracted (first 20 chars):', token.substring(0, 20) + '...');
     try {
         const decoded = jwt.verify(token, SECRET_KEY, { algorithms: ['HS512'] });
-        // console.log('SERVER DEBUG: Token decoded successfully. User ID:', decoded.userId, 'Role:', decoded.role); // Log decoded info
+        console.log('SERVER DEBUG: Token decoded successfully. User ID:', decoded.userId, 'Role:', decoded.role);
         req.user = decoded;
         next();
     } catch (error) {
-        console.error('SERVER ERROR: JWT Verification FAILED:', error.message, 'Name:', error.name); // Log detailed error
+        console.error('SERVER ERROR: JWT Verification FAILED:', error.message, 'Name:', error.name);
         if (error.name === 'TokenExpiredError') {
             return res.status(401).json({ message: 'Token expired. Please log in again.' });
         } else if (error.name === 'JsonWebTokenError') {
@@ -158,7 +119,7 @@ function authenticateUser(req, res, next) {
 
 // --- Admin Authorization Middleware ---
 function authorizeAdmin(req, res, next) {
-    // console.log('SERVER DEBUG: authorizeAdmin called. User role from token:', req.user ? req.user.role : 'N/A (req.user missing)'); // Log role check
+    console.log('SERVER DEBUG: authorizeAdmin called. User role from token:', req.user ? req.user.role : 'N/A (req.user missing)');
     if (req.user && req.user.role === 'admin') {
         next(); // User is an admin, proceed
     } else {
@@ -177,7 +138,6 @@ app.post('/signup', async (req, res) => {
     }
 
     try {
-        // These index names must match your DynamoDB secondary indexes
         if (await checkIfAttributeExists(USER_TABLE_NAME, 'Username-index', 'Username', username.toLowerCase())) {
             return res.status(400).json({ message: 'Username already in use.' });
         }
@@ -193,7 +153,7 @@ app.post('/signup', async (req, res) => {
             UserId: uuidv4(),
             Email: email,
             Mobile: mobile,
-            password: hashedPassword, // Store hashed password
+            password: hashedPassword,
             Username: username.toLowerCase(),
             role: 'user', // Default role for new signups
             createdAt: new Date().toISOString(),
@@ -222,7 +182,7 @@ app.post('/login', async (req, res) => {
     try {
         const result = await dynamodb.query({
             TableName: USER_TABLE_NAME,
-            IndexName: 'Email-index', // Ensure this index exists in DynamoDB
+            IndexName: 'Email-index',
             KeyConditionExpression: 'Email = :email',
             ExpressionAttributeValues: { ':email': email }
         }).promise();
@@ -250,8 +210,8 @@ app.post('/login', async (req, res) => {
             SECRET_KEY,
             { expiresIn: '1h', algorithm: 'HS512' }
         );
-        // console.log('SERVER DEBUG: Login successful. Generated JWT token (first 20 chars):', token.substring(0, 20) + '...');
-        // console.log('SERVER DEBUG: User role included in token:', user.role || 'user');
+        console.log('SERVER DEBUG: Login successful. Generated JWT token (first 20 chars):', token.substring(0, 20) + '...');
+        console.log('SERVER DEBUG: User role included in token:', user.role || 'user');
 
         res.status(200).json({
             token,
@@ -309,10 +269,8 @@ app.get('/start-test', authenticateUser, (req, res) => {
         const shuffledQuestions = [...questionsToUse].sort(() => 0.5 - Math.random());
         const finalQuestions = shuffledQuestions.slice(0, NUMBER_OF_QUESTIONS_PER_TEST);
 
-        // --- MODIFIED SECTION: Send the full question objects including correctAnswerIndex ---
-        // The frontend Test.html needs correctAnswerIndex for scoring and review.
+        // MODIFIED: Send the full question objects including correctAnswerIndex
         res.status(200).json({ questions: finalQuestions, moduleTested: moduleName });
-        // --- END MODIFIED SECTION ---
 
     } catch (error) {
         console.error('Error selecting questions:', error);
@@ -334,7 +292,7 @@ app.post('/save-test-result', authenticateUser, async (req, res) => {
             TestAttemptId : uuidv4(),
             UserId: userId,
             UserLoginUsername: loggedInUsername,
-            CollegeName: userName, // Assuming 'userName' from frontend is college name
+            CollegeName: userName,
             ModuleTested: module,
             Score: score,
             TotalQuestions: totalQuestions,
@@ -363,10 +321,10 @@ app.get('/get-test-history', authenticateUser, async (req, res) => {
     try {
         const params = {
             TableName: TEST_ATTEMPTS_TABLE_NAME,
-            IndexName: 'UserId-AttemptDate-index', // Ensure this index exists in DynamoDB
+            IndexName: 'UserId-AttemptDate-index',
             KeyConditionExpression: 'UserId = :userId',
             ExpressionAttributeValues: { ':userId': userId },
-            ScanIndexForward: false // Latest attempts first
+            ScanIndexForward: false
         };
         const result = await dynamodb.query(params).promise();
         res.status(200).json({ history: result.Items || [] });
@@ -396,14 +354,14 @@ app.get('/get-certificate-data', authenticateUser, async (req, res) => {
 
         const testAttemptParams = {
             TableName: TEST_ATTEMPTS_TABLE_NAME,
-            IndexName: 'UserId-AttemptDate-index', // Ensure this index exists in DynamoDB
+            IndexName: 'UserId-AttemptDate-index',
             KeyConditionExpression: 'UserId = :userId',
             FilterExpression: 'IsPass = :isPass',
             ExpressionAttributeValues: {
                 ':userId': userId,
                 ':isPass': true
             },
-            ScanIndexForward: false, // Get the most recent passing attempt
+            ScanIndexForward: false,
             Limit: 1
         };
 
@@ -462,6 +420,224 @@ app.post('/record-violation', authenticateUser, async (req, res) => {
     } catch (error) {
         console.error('Error recording violation:', error);
         res.status(500).json({ message: 'Failed to record violation: ' + error.message });
+    }
+});
+
+// --- Save Topic Progress ---
+app.post('/save-topic-progress', authenticateUser, async (req, res) => {
+    const { topicNumber } = req.body;
+    const { userId } = req.user;
+
+    if (typeof topicNumber !== 'number' || topicNumber < 1 || topicNumber > NUMBER_OF_MODULES) {
+        return res.status(400).json({ message: `Invalid topic number. Must be a number between 1 and ${NUMBER_OF_MODULES}.` });
+    }
+
+    const params = {
+        TableName: COURSE_PROGRESS_TABLE,
+        Item: {
+            ProgressId: `${userId}_${topicNumber}`,
+            UserId: userId,
+            TopicNumber: topicNumber,
+            CompletedAt: new Date().toISOString()
+        }
+    };
+
+    try {
+        await dynamodb.put(params).promise();
+        res.status(200).json({ message: `Topic ${topicNumber} marked as completed for user ${userId}.` });
+    } catch (error) {
+        console.error('Error saving topic progress:', error);
+        res.status(500).json({ message: 'Failed to save progress due to server error.' });
+    }
+});
+
+// --- Get Completed Topics ---
+app.get('/get-topic-progress', authenticateUser, async (req, res) => {
+    const { userId } = req.user;
+
+    const params = {
+        TableName: COURSE_PROGRESS_TABLE,
+        IndexName: 'UserId-index', // Ensure this index exists in DynamoDB
+        KeyConditionExpression: 'UserId = :userId',
+        ExpressionAttributeValues: {
+            ':userId': userId
+        },
+        ProjectionExpression: 'TopicNumber'
+    };
+
+    try {
+        const result = await dynamodb.query(params).promise();
+        const completedTopics = result.Items.map(item => item.TopicNumber).sort((a, b) => a - b);
+        res.status(200).json({ completedTopics });
+    } catch (error) {
+        console.error('Error fetching topic progress:', error);
+        res.status(500).json({ message: 'Failed to fetch progress due to server error.' });
+    }
+});
+
+
+// --- NEW: Email Sending Function (using Nodemailer with Gmail SMTP) ---
+async function sendPasswordResetEmail(toEmail, resetToken) {
+    // This sender email should ideally be the Gmail account you're authenticating with
+    // or at least an alias of it, to avoid spam filters.
+    const senderEmail = 'craids22@gmail.com'; // <--- Make sure this matches your Gmail account for nodemailer auth
+
+    const resetLink = `http://localhost:5000/reset-password?token=${resetToken}`; // Adjust the port/domain if deployed
+
+    const mailOptions = {
+        from: `AWSPrepZone <${senderEmail}>`, // Display name for the sender
+        to: toEmail,
+        subject: "Password Reset Request for Your Account",
+        html: `
+            <p>You requested a password reset for your account on our website.</p>
+            <p>Please click the following link to reset your password:</p>
+            <p><a href="${resetLink}">Reset Your Password</a></p>
+            <p>This link will expire in ${PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES} minutes.</p>
+            <p>If you did not request this, please ignore this email.</p>
+            <p>Regards,<br>Your Website Team</p>
+        `,
+        text: `You requested a password reset for your account. Click the following link to reset your password: ${resetLink}. This link will expire in ${PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES} minutes. If you did not request this, please ignore this email. Regards, Your Website Team`,
+    };
+
+    try {
+        // Use the gmailTransporter here
+        await gmailTransporter.sendMail(mailOptions);
+        console.log(`Password reset email sent to ${toEmail} via Gmail SMTP.`);
+        return true;
+    } catch (error) {
+        console.error(`Error sending password reset email to ${toEmail} via Gmail SMTP:`, error);
+        throw new Error('Failed to send password reset email.');
+    }
+}
+
+
+// --- NEW: Forgot Password Request Route ---
+app.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required.' });
+    }
+
+    try {
+        // 1. Find the user by email
+        const userResult = await dynamodb.query({
+            TableName: USER_TABLE_NAME,
+            IndexName: 'Email-index', // Ensure this GSI exists on your Usertable
+            KeyConditionExpression: 'Email = :email',
+            ExpressionAttributeValues: { ':email': email }
+        }).promise();
+
+        const user = userResult.Items[0];
+
+        // Important: Always return a generic success message to prevent email enumeration
+        if (!user) {
+            console.warn(`Forgot password attempt for unknown email: ${email}`);
+            return res.status(200).json({ message: 'If an account with that email exists, a password reset link has been sent.' });
+        }
+
+        // 2. Generate a unique, time-limited token
+        const resetToken = uuidv4();
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES * 60 * 1000); // Token expires in X minutes
+
+        const tokenItem = {
+            Token: resetToken,
+            UserId: user.UserId,
+            CreatedAt: now.toISOString(),
+            ExpiresAt: expiresAt.toISOString(),
+            TTL: Math.floor(expiresAt.getTime() / 1000) // TTL in seconds for DynamoDB (if enabled on table)
+        };
+
+        // 3. Save the token to the PasswordResetTokens table
+        await dynamodb.put({
+            TableName: PASSWORD_RESET_TABLE_NAME,
+            Item: tokenItem
+        }).promise();
+
+        // 4. Send email with the reset link
+        await sendPasswordResetEmail(email, resetToken);
+
+        res.status(200).json({ message: 'If an account with that email exists, a password reset link has been sent.' });
+
+    } catch (error) {
+        console.error('Error in forgot password request:', error);
+        // It's generally better to still return 200 for security even if email sending fails,
+        // but log the error internally. For a critical error, 500 is also acceptable.
+        res.status(500).json({ message: 'Server error during password reset request. Please try again later.' });
+    }
+});
+
+// --- NEW: Reset Password Confirmation Route ---
+app.post('/reset-password', async (req, res) => {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+        return res.status(400).json({ message: 'Token and new password are required.' });
+    }
+
+    // Basic password strength check (can be more robust)
+    if (newPassword.length < 6) {
+        return res.status(400).json({ message: 'New password must be at least 6 characters long.' });
+    }
+
+    try {
+        // 1. Find the token in the PasswordResetTokens table
+        const tokenResult = await dynamodb.get({
+            TableName: PASSWORD_RESET_TABLE_NAME,
+            Key: { Token: token }
+        }).promise();
+
+        const tokenRecord = tokenResult.Item;
+
+        if (!tokenRecord) {
+            console.warn(`Reset password attempt with non-existent token: ${token}`);
+            return res.status(400).json({ message: 'Invalid or expired password reset token.' });
+        }
+
+        // 2. Check if the token has expired
+        const expiresAt = new Date(tokenRecord.ExpiresAt);
+        if (new Date() > expiresAt) {
+            // Optionally delete the expired token immediately if TTL is not configured or for immediate cleanup
+            await dynamodb.delete({
+                TableName: PASSWORD_RESET_TABLE_NAME,
+                Key: { Token: token }
+            }).promise();
+            console.warn(`Reset password attempt with expired token: ${token}`);
+            return res.status(400).json({ message: 'Invalid or expired password reset token.' });
+        }
+
+        // 3. Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // 4. Update the user's password in the Usertable
+        const updateParams = {
+            TableName: USER_TABLE_NAME,
+            Key: { UserId: tokenRecord.UserId }, // Use UserId from the token record
+            UpdateExpression: 'SET #password = :newPassword, #updatedAt = :updatedAt',
+            ExpressionAttributeNames: {
+                "#password": "password", // 'password' is a reserved word in DynamoDB, so use alias
+                "#updatedAt": "updatedAt"
+            },
+            ExpressionAttributeValues: {
+                ":newPassword": hashedPassword,
+                ":updatedAt": new Date().toISOString()
+            },
+            ReturnValues: 'UPDATED_NEW'
+        };
+        await dynamodb.update(updateParams).promise();
+
+        // 5. Invalidate (delete) the used token
+        await dynamodb.delete({
+            TableName: PASSWORD_RESET_TABLE_NAME,
+            Key: { Token: token }
+        }).promise();
+
+        res.status(200).json({ message: 'Your password has been reset successfully.' });
+
+    } catch (error) {
+        console.error('Error during password reset:', error);
+        res.status(500).json({ message: 'Server error during password reset: ' + error.message });
     }
 });
 
@@ -531,8 +707,6 @@ app.get('/admin/test-attempts', authenticateUser, authorizeAdmin, async (req, re
     }
 
     try {
-        // Using scan for filtering. For large datasets, consider designing DynamoDB queries with appropriate indexes
-        // if these filters are frequently used for large data.
         const result = await dynamodb.scan(params).promise();
         const sortedAttempts = result.Items.sort((a, b) => new Date(b.AttemptDate) - new Date(a.AttemptDate));
         res.status(200).json({ attempts: sortedAttempts });
