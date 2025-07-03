@@ -6,9 +6,7 @@
   <title>Dashboard - AWSPrepZone | Test Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
+    body { font-family: 'Inter', sans-serif; }
   </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex flex-col">
@@ -18,46 +16,30 @@
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
         <img src="./ChatGPT Image Jun 15, 2025, 03_58_04 PM.png" alt="Logo" class="w-10 h-10 rounded-full shadow-md" />
-        <h1 class="text-2xl font-bold text-blue-700">
-          AWSPrep<span class="text-blue-500">Zone</span><span class="text-gray-700"> – TestPortal</span>
-        </h1>
+        <h1 class="text-2xl font-bold text-blue-700">AWSPrep<span class="text-blue-500">Zone</span><span class="text-gray-700"> – TestPortal</span></h1>
       </div>
-      
-      <!-- Buttons Group -->
       <div class="flex gap-3">
-        <button
-          onclick="window.location.href='/Course.html'"
-          class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 transition"
-        >
-          Prepare
+        <button onclick="window.location.href='/Course.html'" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 transition">Learn</button>
+        <button onclick="toggleModal('instructionsModal')" class="bg-yellow-500 text-white px-3 py-2 rounded-lg hover:bg-yellow-600 transition">Instructions</button>
+        <button id="progressButton" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition relative">
+          Learning-Progress
+          <span id="progressBadge" class="absolute -top-2 -right-2 bg-white text-blue-700 text-xs font-bold px-1.5 py-0.5 rounded-full shadow-sm">0/14</span>
         </button>
-        <button
-          onclick="showInstructions()"
-          class="bg-yellow-500 text-white px-3 py-2 rounded-lg hover:bg-yellow-600 transition"
-        >
-          Instructions
-        </button>
-        <button id="logoutButton" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
-          Logout
-        </button>
+        <button id="logoutButton" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">Logout</button>
       </div>
     </div>
   </header>
 
-  <!-- Main Dashboard -->
+  <!-- Main -->
   <main class="flex-1 flex justify-center px-4 py-10">
     <div class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl p-6 md:p-10 space-y-10">
-      
-      <!-- Welcome -->
       <div class="text-center">
         <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome, <span id="usernameDisplay" class="text-blue-700"></span>!</h2>
-        <p class="text-gray-600 text-md">Ready for your next challenge?</p>
-        <button id="writeTestButton" class="mt-4 bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-md transition transform hover:-translate-y-1">
-          Write New Test
-        </button>
+        <p class="text-gray-600">Ready for your next challenge?</p>
+        <button id="writeTestButton" class="mt-4 bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-md transition">Write New Test</button>
+        <p id="progressStatus" class="text-green-700 text-lg font-medium mt-2"></p>
       </div>
 
-      <!-- Test History -->
       <section>
         <h3 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2 border-blue-300">Your Test History</h3>
         <div id="testHistoryContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -73,7 +55,7 @@
     <p>Designed & Developed by AWSPrepZone</p>
   </footer>
 
-  <!-- Instructions Modal -->
+  <!-- Modals -->
   <div id="instructionsModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
     <div class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full">
       <h2 class="text-xl font-bold mb-4 text-blue-700">Test Instructions</h2>
@@ -84,7 +66,18 @@
         <li>Do not refresh or close the tab during the test.</li>
         <li>Certificate will be awarded for 70% or above score.</li>
       </ul>
-      <button onclick="closeInstructions()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Close</button>
+      <button onclick="toggleModal('instructionsModal')" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Close</button>
+    </div>
+  </div>
+
+  <div id="progressModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full text-center">
+      <h2 class="text-xl font-bold text-blue-700 mb-4">Learning Progress</h2>
+      <p id="progressModalText" class="text-gray-800 text-lg mb-4">Loading...</p>
+      <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+        <div id="progressBar" class="bg-blue-600 h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
+      </div>
+      <button onclick="toggleModal('progressModal')" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Close</button>
     </div>
   </div>
 
@@ -92,13 +85,36 @@
   <script>
     const API_BASE_URL = window.location.origin;
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const usernameDisplay = document.getElementById('usernameDisplay');
-      const testHistoryContainer = document.getElementById('testHistoryContainer');
-      const noHistoryMessage = document.getElementById('noHistoryMessage');
-      const writeTestButton = document.getElementById('writeTestButton');
-      const logoutButton = document.getElementById('logoutButton');
+    const toggleModal = (id) => {
+      const modal = document.getElementById(id);
+      modal.classList.toggle('hidden');
+      modal.classList.toggle('flex');
+    };
 
+    const fetchProgress = async () => {
+      const jwtToken = localStorage.getItem('jwtToken');
+      try {
+        const response = await fetch(`${API_BASE_URL}/get-topic-progress`, {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${jwtToken}` }
+        });
+
+        if (response.ok) {
+          const { completedTopics } = await response.json();
+          const completed = completedTopics.length;
+          const total = 14;
+          document.getElementById('progressStatus').textContent = `📘 You have completed ${completed} out of ${total} modules in Learning of AWS CLOUD PRACTITIONER.`;
+          document.getElementById('progressBadge').textContent = `${completed}/${total}`;
+          document.getElementById('progressModalText').textContent = `You have completed ${completed} out of ${total} modules.`;
+          document.getElementById('progressBar').style.width = `${(completed / total) * 100}%`;
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById('progressModalText').textContent = 'Error loading progress.';
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
       const jwtToken = localStorage.getItem('jwtToken');
       const username = localStorage.getItem('username');
       const userId = localStorage.getItem('userId');
@@ -109,94 +125,73 @@
         return;
       }
 
-      usernameDisplay.textContent = username;
+      document.getElementById('usernameDisplay').textContent = username;
+      fetchProgress();
+      fetchTestHistory();
 
-      const fetchTestHistory = async () => {
-        try {
-          const response = await fetch(`${API_BASE_URL}/get-test-history`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${jwtToken}`
-            }
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            if (data.history.length === 0) {
-              noHistoryMessage.classList.remove('hidden');
-            } else {
-              noHistoryMessage.classList.add('hidden');
-              renderTestHistory(data.history);
-            }
-          } else if (response.status === 401) {
-            alert('Your session has expired. Please log in again.');
-            localStorage.clear();
-            window.location.href = '/Login';
-          } else {
-            console.error('Failed to fetch test history:', response.statusText);
-            testHistoryContainer.innerHTML = `<p class="text-red-600 col-span-full text-center">Failed to load test history. Please try again later.</p>`;
-          }
-        } catch (error) {
-          console.error('Network error fetching test history:', error);
-          testHistoryContainer.innerHTML = `<p class="text-red-600 col-span-full text-center">Network error. Could not connect to the server.</p>`;
-        }
-      };
-
-      const renderTestHistory = (history) => {
-        testHistoryContainer.innerHTML = '';
-        history.forEach(attempt => {
-          const attemptDate = new Date(attempt.AttemptDate).toLocaleString();
-          const statusClass = attempt.IsPass ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-          const statusText = attempt.IsPass ? 'Passed' : 'Failed';
-
-          const card = `
-            <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow hover:shadow-md transition">
-              <div class="flex justify-between items-center mb-3">
-                <h4 class="text-lg font-semibold text-gray-800">Test on ${attemptDate}</h4>
-                <span class="${statusClass} px-3 py-1 rounded-full text-sm font-medium">${statusText}</span>
-              </div>
-              <p class="text-gray-700 mb-2">Score: <span class="font-bold">${attempt.Score} / ${attempt.TotalQuestions}</span></p>
-              ${attempt.IsPass
-                ? `<button data-attempt-id="${attempt.AttemptId}" data-score="${attempt.Score}" data-username="${attempt.Username}" class="download-certificate-button w-full mt-3 bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">Download Certificate</button>`
-                : ''
-              }
-            </div>
-          `;
-          testHistoryContainer.insertAdjacentHTML('beforeend', card);
-        });
-
-        document.querySelectorAll('.download-certificate-button').forEach(button => {
-          button.addEventListener('click', (event) => {
-            const score = event.target.dataset.score;
-            const user = event.target.dataset.username;
-            localStorage.setItem('certificateScore', score);
-            localStorage.setItem('certificateUserName', user);
-            window.location.href = `/certificate`;
-          });
-        });
-      };
-
-      writeTestButton.addEventListener('click', () => {
-        window.location.href = '/test';
+      document.getElementById('progressButton').addEventListener('click', () => {
+        toggleModal('progressModal');
+        fetchProgress();
       });
 
-      logoutButton.addEventListener('click', () => {
+      document.getElementById('logoutButton').addEventListener('click', () => {
         localStorage.clear();
         alert('You have been logged out.');
         window.location.href = './welcome.html';
       });
 
-      fetchTestHistory();
+      document.getElementById('writeTestButton').addEventListener('click', () => {
+        window.location.href = '/test';
+      });
     });
 
-    function showInstructions() {
-      document.getElementById('instructionsModal').classList.remove('hidden');
-      document.getElementById('instructionsModal').classList.add('flex');
-    }
+    const fetchTestHistory = async () => {
+      const jwtToken = localStorage.getItem('jwtToken');
+      const container = document.getElementById('testHistoryContainer');
+      const noHistoryMsg = document.getElementById('noHistoryMessage');
 
-    function closeInstructions() {
-      document.getElementById('instructionsModal').classList.add('hidden');
-    }
+      try {
+        const response = await fetch(`${API_BASE_URL}/get-test-history`, {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${jwtToken}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const history = data.history;
+          if (history.length === 0) {
+            noHistoryMsg.classList.remove('hidden');
+            return;
+          }
+          container.innerHTML = '';
+          history.forEach(({ AttemptDate, IsPass, Score, TotalQuestions, AttemptId, Username }) => {
+            const statusText = IsPass ? 'Passed' : 'Failed';
+            const statusClass = IsPass ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+            container.insertAdjacentHTML('beforeend', `
+              <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow hover:shadow-md transition">
+                <div class="flex justify-between items-center mb-3">
+                  <h4 class="text-lg font-semibold text-gray-800">Test on ${new Date(AttemptDate).toLocaleString()}</h4>
+                  <span class="${statusClass} px-3 py-1 rounded-full text-sm font-medium">${statusText}</span>
+                </div>
+                <p class="text-gray-700 mb-2">Score: <span class="font-bold">${Score} / ${TotalQuestions}</span></p>
+                ${IsPass ? `<button data-score="${Score}" data-username="${Username}" class="download-certificate-button w-full mt-3 bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">Download Certificate</button>` : ''}
+              </div>
+            `);
+          });
+
+          document.querySelectorAll('.download-certificate-button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              localStorage.setItem('certificateScore', e.target.dataset.score);
+              localStorage.setItem('certificateUserName', e.target.dataset.username);
+              window.location.href = `/certificate`;
+            });
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        container.innerHTML = `<p class="text-red-600 col-span-full text-center">Failed to load test history.</p>`;
+      }
+    };
   </script>
 </body>
 </html>
