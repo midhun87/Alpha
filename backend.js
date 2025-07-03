@@ -9,6 +9,7 @@ const { v4: uuidv4 } = require('uuid');
 const AWS = require('aws-sdk');
 const nodemailer = require('nodemailer'); // Added for email functionality
 require('dotenv').config(); // Add this line to load environment variables from .env file
+const baseURL = process.env.BASE_URL || 'http://localhost:5000'; 
 
 AWS.config.update({
     region: 'ap-south-1', // IMPORTANT: This region must match where your DynamoDB tables are located.
@@ -482,19 +483,20 @@ async function sendPasswordResetEmail(toEmail, resetToken) {
     // or at least an alias of it, to avoid spam filters.
     const senderEmail = 'craids22@gmail.com'; // <--- Make sure this matches your Gmail account for nodemailer auth
 
-    const resetLink = `${BASE_URL}/reset-password?token=${resetToken}`; // Adjust the port/domain if deployed
+    const resetLink = `${baseURL}/reset-password?token=${resetToken}`; // Adjust the port/domain if deployed
 
     const mailOptions = {
         from: `AWSPrepZone <${senderEmail}>`, // Display name for the sender
         to: toEmail,
         subject: "Password Reset Request for Your Account",
         html: `
-            <p>You requested a password reset for your account on our website.</p>
+            <p>You requested a password reset for your account on AWSPrepZone website.</p>
             <p>Please click the following link to reset your password:</p>
             <p><a href="${resetLink}">Reset Your Password</a></p>
             <p>This link will expire in ${PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES} minutes.</p>
-            <p>If you did not request this, please ignore this email.</p>
-            <p>Regards,<br>Your Website Team</p>
+            <p>If you did not request this, please ignore this email. If you seen this suspicious please report at craids22@gmail.com</p>
+            <p>Regards,<br>AWSPrepZone-Team</p>
+            <p>Happy Learning!- Your Midhun Founder</p>
         `,
         text: `You requested a password reset for your account. Click the following link to reset your password: ${resetLink}. This link will expire in ${PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES} minutes. If you did not request this, please ignore this email. Regards, Your Website Team`,
     };
