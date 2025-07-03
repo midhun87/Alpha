@@ -307,7 +307,7 @@ async function sendTestCompletionEmail(toEmail, username, score, totalQuestions,
             <p>Regards,<br>AWSPrepZone-Team</p>
             <p>Happy Learning! - Your Midhun Founder</p>
         `,
-        text: `Dear ${username},\n\nThis email is to confirm that you have completed a test on AWSPrepZone.\n\nModule Tested: ${module}\nYour Score: ${score} / ${totalQuestions}\nResult: ${passStatus}\n\n${isPass ? 'Congratulations on passing! Keep up the great work.' : 'Keep practicing! You can do it.'}\n\nYou can view your complete test history on your dashboard.\n\nRegards,\nAWSPrepZone-Team\nHappy Learning! - Your Midhun Founder`,
+        text: `Dear ${username},\n\nThis email is to confirm that you have completed a test on AWSPrepZone.\n\nYou made us Proud!!!!!\n\nModule Tested: ${module}\nYour Score: ${score} / ${totalQuestions}\nResult: ${passStatus}\n\n${isPass ? 'Congratulations on passing! Keep up the great work.' : 'Keep practicing! You can do it.'}\n\nYou can view your complete test history on your dashboard.\n\nDownload Your Completion Certficate from your Account DashBoard\n\nRegards,\nAWSPrepZone-Team\nHappy Learning! - Your Midhun\n\n Founder - AWSPrepZone`,
     };
 
     try {
