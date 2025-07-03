@@ -104,7 +104,7 @@ function authenticateUser(req, res, next) {
     try {
         const decoded = jwt.verify(token, SECRET_KEY, { algorithms: ['HS512'] });
         console.log('SERVER DEBUG: Token decoded successfully. User ID:', decoded.userId, 'Role:', decoded.role);
-        req.user = decoded;
+        req.user = decoded; // Attach user info to request
         next();
     } catch (error) {
         console.error('SERVER ERROR: JWT Verification FAILED:', error.message, 'Name:', error.name);
@@ -205,7 +205,7 @@ app.post('/login', async (req, res) => {
             {
                 userId: user.UserId,
                 username: user.Username,
-                email: user.Email,
+                email: user.Email, // Include email in token payload for convenience
                 role: user.role || 'user' // Default to 'user' if role not explicitly set
             },
             SECRET_KEY,
@@ -279,10 +279,52 @@ app.get('/start-test', authenticateUser, (req, res) => {
     }
 });
 
+// --- NEW: Email Sending Function for Test Completion ---
+async function sendTestCompletionEmail(toEmail, username, score, totalQuestions, isPass, module) {
+    const senderEmail = 'craids22@gmail.com'; // <--- Make sure this matches your Gmail account for nodemailer auth
+
+    const passStatus = isPass ? 'Passed' : 'Failed';
+    const emailSubject = `Your AWSPrepZone Test Result: ${passStatus} for ${module} Module`;
+
+    const mailOptions = {
+        from: `AWSPrepZone <${senderEmail}>`,
+        to: toEmail,
+        subject: emailSubject,
+        html: `
+            <p>Dear ${username},</p>
+            <p>This email is to confirm that you have completed a test on AWSPrepZone.</p>
+            <p>Here are your results:</p>
+            <ul>
+                <li>Module Tested: <strong>${module}</strong></li>
+                <li>Your Score: <strong>${score} / ${totalQuestions}</strong></li>
+                <li>Result: <strong>${passStatus}</strong></li>
+            </ul>
+            ${isPass ? '<p>Congratulations on passing! Keep up the great work.</p>' : '<p>Keep practicing! You can do it.</p>'}
+            <p>You can view your complete test history on your dashboard.</p>
+            <p>Regards,<br>AWSPrepZone-Team</p>
+            <p>Happy Learning! - Your Midhun Founder</p>
+        `,
+        text: `Dear ${username},\n\nThis email is to confirm that you have completed a test on AWSPrepZone.\n\nModule Tested: ${module}\nYour Score: ${score} / ${totalQuestions}\nResult: ${passStatus}\n\n${isPass ? 'Congratulations on passing! Keep up the great work.' : 'Keep practicing! You can do it.'}\n\nYou can view your complete test history on your dashboard.\n\nRegards,\nAWSPrepZone-Team\nHappy Learning! - Your Midhun Founder`,
+    };
+
+    try {
+        await gmailTransporter.sendMail(mailOptions);
+        console.log(`Test completion email sent to ${toEmail} for ${module} with score ${score}.`);
+        return true;
+    } catch (error) {
+        console.error(`Error sending test completion email to ${toEmail}:`, error);
+        // Do not re-throw if email sending fails, as test result is already saved.
+        // Log the error but let the main API response continue.
+        return false; // Indicate failure to send email
+    }
+}
+
+
 // --- Save Test Result Route ---
 app.post('/save-test-result', authenticateUser, async (req, res) => {
     const { score, totalQuestions, isPass, userName, module } = req.body;
-    const { userId, username: loggedInUsername } = req.user;
+    // Extract userId, username, and email from the authenticated user (email is now included in token)
+    const { userId, username: loggedInUsername, email: userEmail } = req.user; 
 
     if (score === undefined || totalQuestions === undefined || isPass === undefined || userName === undefined || module === undefined) {
         return res.status(400).json({ message: 'Missing test result data. Make sure score, totalQuestions, isPass, college name, and module are provided.' });
@@ -308,9 +350,18 @@ app.post('/save-test-result', authenticateUser, async (req, res) => {
             Item: newAttempt
         }).promise();
 
-        res.status(201).json({ message: 'Test result saved successfully.' });
+        // --- NEW: Send Test Completion Email ---
+        // Call the new function here, after successfully saving the test result
+        if (userEmail) { // Ensure userEmail is available from the token
+            await sendTestCompletionEmail(userEmail, loggedInUsername, score, totalQuestions, isPass, module);
+        } else {
+            console.warn(`Cannot send test completion email: User email not found in token for userId: ${userId}`);
+        }
+        // --- END NEW ---
+
+        res.status(201).json({ message: 'Test result saved successfully and email sent (if email available).' }); // Updated message
     } catch (error) {
-        console.error('Error saving test result:', error);
+        console.error('Error saving test result or sending email:', error); // Updated error log
         res.status(500).json({ message: 'Failed to save test result: ' + error.message });
     }
 });
@@ -355,14 +406,14 @@ app.get('/get-certificate-data', authenticateUser, async (req, res) => {
 
         const testAttemptParams = {
             TableName: TEST_ATTEMPTS_TABLE_NAME,
-            IndexName: 'UserId-AttemptDate-index',
+            IndexName: 'UserId-AttemptDate-index', // Ensure this index exists in DynamoDB
             KeyConditionExpression: 'UserId = :userId',
             FilterExpression: 'IsPass = :isPass',
             ExpressionAttributeValues: {
                 ':userId': userId,
                 ':isPass': true
             },
-            ScanIndexForward: false,
+            ScanIndexForward: false, // Get the most recent passing attempt
             Limit: 1
         };
 
@@ -388,7 +439,6 @@ app.get('/get-certificate-data', authenticateUser, async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch certificate data: ' + error.message });
     }
 });
-
 // --- Route to record violations ---
 app.post('/record-violation', authenticateUser, async (req, res) => {
     const { violationType, timestamp, questionIndex, userName, module } = req.body;
@@ -477,16 +527,16 @@ app.get('/get-topic-progress', authenticateUser, async (req, res) => {
 });
 
 
-// --- NEW: Email Sending Function (using Nodemailer with Gmail SMTP) ---
+// --- Password Reset Email Sending Function ---
 async function sendPasswordResetEmail(toEmail, resetToken) {
-    // This sender email should ideally be the Gmail account you're authenticating with
-    // or at least an alias of it, to avoid spam filters.
-    const senderEmail = 'craids22@gmail.com'; // <--- Make sure this matches your Gmail account for nodemailer auth
+    const senderEmail = 'craids22@gmail.com'; 
 
-    const resetLink = `http://15.207.55.68:5000/reset-password?token=${encodeURIComponent(resetToken)}`;
+    // Ensure baseURL is correctly configured in your ecosystem.config.js for production
+const resetLink = `http://15.207.55.68:5000/reset-password?token=${encodeURIComponent(resetToken)}`;
+
 
     const mailOptions = {
-        from: `AWSPrepZone <${senderEmail}>`, // Display name for the sender
+        from: `AWSPrepZone <${senderEmail}>`,
         to: toEmail,
         subject: "Password Reset Request for Your Account",
         html: `
@@ -502,7 +552,6 @@ async function sendPasswordResetEmail(toEmail, resetToken) {
     };
 
     try {
-        // Use the gmailTransporter here
         await gmailTransporter.sendMail(mailOptions);
         console.log(`Password reset email sent to ${toEmail} via Gmail SMTP.`);
         return true;
@@ -513,7 +562,7 @@ async function sendPasswordResetEmail(toEmail, resetToken) {
 }
 
 
-// --- NEW: Forgot Password Request Route ---
+// --- Forgot Password Request Route ---
 app.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
 
@@ -525,7 +574,7 @@ app.post('/forgot-password', async (req, res) => {
         // 1. Find the user by email
         const userResult = await dynamodb.query({
             TableName: USER_TABLE_NAME,
-            IndexName: 'Email-index', // Ensure this GSI exists on your Usertable
+            IndexName: 'Email-index', 
             KeyConditionExpression: 'Email = :email',
             ExpressionAttributeValues: { ':email': email }
         }).promise();
@@ -564,13 +613,11 @@ app.post('/forgot-password', async (req, res) => {
 
     } catch (error) {
         console.error('Error in forgot password request:', error);
-        // It's generally better to still return 200 for security even if email sending fails,
-        // but log the error internally. For a critical error, 500 is also acceptable.
         res.status(500).json({ message: 'Server error during password reset request. Please try again later.' });
     }
 });
 
-// --- NEW: Reset Password Confirmation Route ---
+// --- Reset Password Confirmation Route ---
 app.post('/reset-password', async (req, res) => {
     const { token, newPassword } = req.body;
 
