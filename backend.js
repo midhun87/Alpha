@@ -477,8 +477,7 @@ app.post('/record-violation', authenticateUser, async (req, res) => {
     }
 });
 
-// --- Save Topic Progress ---
-app.post('/save-topic-progress', authenticateUser, async (req, res) => {
+router.post('/save-topic-progress', authenticateUser, async (req, res) => {
     const { topicNumber } = req.body;
     const { userId } = req.user;
 
@@ -489,8 +488,8 @@ app.post('/save-topic-progress', authenticateUser, async (req, res) => {
     const params = {
         TableName: COURSE_PROGRESS_TABLE,
         Item: {
-            ProgressId: `${userId}_${topicNumber}`,
-            UserId: userId,
+            ProgressId: `${userId}_${topicNumber}`,  // Primary key
+            UserId: userId,                          // GSI partition key
             TopicNumber: topicNumber,
             CompletedAt: new Date().toISOString()
         }
@@ -498,20 +497,21 @@ app.post('/save-topic-progress', authenticateUser, async (req, res) => {
 
     try {
         await dynamodb.put(params).promise();
-        res.status(200).json({ message: `Topic ${topicNumber} marked as completed for user ${userId}.` });
+        console.log(`✅ Saved progress: Topic ${topicNumber} for user ${userId}`);
+        res.status(200).json({ message: `Topic ${topicNumber} marked as completed.` });
     } catch (error) {
-        console.error('Error saving topic progress:', error);
+        console.error('❌ Error saving topic progress:', error);
         res.status(500).json({ message: 'Failed to save progress due to server error.' });
     }
 });
 
 // --- Get Completed Topics ---
-app.get('/get-topic-progress', authenticateUser, async (req, res) => {
+router.get('/get-topic-progress', authenticateUser, async (req, res) => {
     const { userId } = req.user;
 
     const params = {
         TableName: COURSE_PROGRESS_TABLE,
-        IndexName: 'UserId-index', // Ensure this index exists in DynamoDB
+        IndexName: 'UserId-index', // ✅ Ensure this exists
         KeyConditionExpression: 'UserId = :userId',
         ExpressionAttributeValues: {
             ':userId': userId
@@ -522,13 +522,16 @@ app.get('/get-topic-progress', authenticateUser, async (req, res) => {
     try {
         const result = await dynamodb.query(params).promise();
         const completedTopics = result.Items.map(item => item.TopicNumber).sort((a, b) => a - b);
+        console.log(`📘 Fetched progress for user ${userId}:`, completedTopics);
+
         res.status(200).json({ completedTopics });
     } catch (error) {
-        console.error('Error fetching topic progress:', error);
+        console.error('❌ Error fetching topic progress:', error);
         res.status(500).json({ message: 'Failed to fetch progress due to server error.' });
     }
 });
 
+module.exports = router;
 
 // --- Password Reset Email Sending Function ---
 async function sendPasswordResetEmail(toEmail, resetToken) {
