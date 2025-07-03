@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login to AWSPrepZone</title> <script src="https://cdn.tailwindcss.com"></script>
+    <title>Login to AWS Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
@@ -69,10 +70,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 max-w-md w-full">
-        <div class="flex flex-col items-center justify-center mb-6">
-            <img src="./ChatGPT Image Jun 15, 2025, 03_58_04 PM.png" alt="AWSPrepZone - TestPortal" class="h-16 mb-4"> <h1 class="text-3xl font-bold text-blue-700 text-center">Login</h1>
-        </div>
-        
+        <h1 class="text-3xl font-bold text-blue-700 text-center mb-6">Login</h1>
         <form id="login-form" class="space-y-4">
             <div>
                 <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
@@ -92,7 +90,8 @@
         <p class="text-center text-gray-600 text-sm mt-4">
             Don't have an account? <a href="/Signup" class="text-blue-600 hover:underline">Sign up here</a>.
         </p>
-        <p class="forgot-password-link" style="text-align: center; margin-top: 15px;">
+
+       <p class="forgot-password-link" style="text-align: center; margin-top: 15px;">
     <a href="/forgot-password">Forgot Password?</a>
 </p>
 
@@ -150,6 +149,7 @@
                     console.log("CLIENT DEBUG (Login.html): Login successful. Received response data:", data); // Log full successful response
                     console.log("CLIENT DEBUG (Login.html): Received token (first 20 chars):", data.token ? data.token.substring(0, 20) + '...' : 'No token!');
                     console.log("CLIENT DEBUG (Login.html): Received user role:", data.role);
+                    localStorage.setItem('token', data.token);
 
                     // Ensure token and role are present before setting localStorage
                     if (!data.token) {
