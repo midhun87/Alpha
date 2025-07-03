@@ -477,7 +477,7 @@ app.post('/record-violation', authenticateUser, async (req, res) => {
     }
 });
 
-router.post('/save-topic-progress', authenticateUser, async (req, res) => {
+app.post('/save-topic-progress', authenticateUser, async (req, res) => {
     const { topicNumber } = req.body;
     const { userId } = req.user;
 
@@ -506,7 +506,7 @@ router.post('/save-topic-progress', authenticateUser, async (req, res) => {
 });
 
 // --- Get Completed Topics ---
-router.get('/get-topic-progress', authenticateUser, async (req, res) => {
+app.get('/get-topic-progress', authenticateUser, async (req, res) => {
     const { userId } = req.user;
 
     const params = {
