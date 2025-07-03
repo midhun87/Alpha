@@ -57,6 +57,8 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files (HTML pages)
 app.use(express.static(path.join(__dirname)));
 app.get('/Login', (req, res) => res.sendFile(path.join(__dirname, 'Login.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'Login.html')));
+app.get('/Login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/Signup', (req, res) => res.sendFile(path.join(__dirname, 'Signup.html')));
 app.get('/home', (req, res) => res.sendFile(path.join(__dirname, 'Home.html')));
 app.get('/test', (req, res) => res.sendFile(path.join(__dirname, 'Test.html')));
