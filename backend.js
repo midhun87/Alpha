@@ -531,7 +531,7 @@ app.get('/get-topic-progress', authenticateUser, async (req, res) => {
     }
 });
 
-module.exports = router;
+
 
 // --- Password Reset Email Sending Function ---
 async function sendPasswordResetEmail(toEmail, resetToken) {
