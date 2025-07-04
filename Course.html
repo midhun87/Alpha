@@ -519,7 +519,8 @@
         const topic = courseTopics.find(t => t.id === topicId);
         if (!topic) return;
 
-        const pdfPath = `/pdfs/${topic.id}. ${topic.title}.pdf`;
+        const pdfPath = `/pdfs/${topic.id}_${topic.title}.pdf`;
+
 
         loadPdf(pdfPath);
 
