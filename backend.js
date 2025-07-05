@@ -46,7 +46,7 @@ const NUMBER_OF_MODULES = 14;
 
 // --- Express App Setup ---
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5000', 'http://127.0.0.1:5000', 'http://15.207.55.68:5000'],
+    origin: ['http://localhost:3000', 'http://localhost:5000', 'http://127.0.0.1:5000'],
     credentials: true
 }));
 app.use(bodyParser.json());
