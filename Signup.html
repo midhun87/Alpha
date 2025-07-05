@@ -3,112 +3,336 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign Up - AWSPrepZone | Test Portal</title>
+  <title>Signup - AWSPrepZone | Test Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     body {
       font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom right, #e0f2f7, #c1e4f4);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
-    .input-field:focus {
-      border-color: #2563eb;
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+
+    .custom-message-box {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .custom-message-box.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .custom-message-box .message-content-wrapper {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .custom-message-box .message-content {
+      font-size: 1rem;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .custom-message-box .close-btn {
+      background-color: #3b82f6;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .custom-message-box .close-btn:hover {
+      background-color: #2563eb;
     }
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-tr from-blue-100 to-blue-200 flex flex-col">
+<body>
 
-  <header class="bg-white shadow-sm py-4 px-6 w-full">
-  <div class="max-w-7xl mx-auto flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <img src="./ChatGPT Image Jun 15, 2025, 03_58_04 PM.png" alt="Logo" class="w-10 h-10 rounded-full shadow-md" />
-      <h1 class="text-2xl font-bold text-blue-700">
-        AWSPrep<span class="text-blue-500">Zone</span><span class="text-gray-700"> – TestPortal</span>
+  <div class="bg-white shadow-md">
+    <div class="flex items-center px-6 py-3 bg-white border-b border-gray-200">
+      <img src="./ChatGPT Image Jun 15, 2025, 03_58_04 PM.png" alt="AWSPrepZone Logo" class="h-10 w-10 mr-3" />
+      <h1 class="text-2xl font-bold">
+        <span class="text-blue-600">AWSPrepZone</span> – <span class="text-gray-800">TestPortal</span>
       </h1>
     </div>
+    <div class="h-2 bg-blue-100"></div>
   </div>
-</header>
-  <!-- Sign Up Form Section -->
-  <main class="flex-1 flex flex-col items-center justify-center px-4 py-10">
-    <section class="w-full max-w-md bg-white rounded-xl shadow-md p-8">
-      <h2 class="text-3xl font-bold text-center text-blue-700 mb-1">Sign Up</h2>
-      <p class="text-center text-sm text-gray-500 mb-6">Create your account to get started</p>
 
-      <div id="message" class="hidden"></div>
+  <div class="flex justify-center items-center flex-grow p-4">
+    <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 max-w-md w-full">
+      <h1 class="text-3xl font-bold text-blue-700 text-center mb-6" id="form-title">Create an Account</h1>
 
-      <form id="signupForm" class="space-y-5">
+      <form id="signup-form" class="space-y-4">
         <div>
-          <label for="username" class="block text-gray-700 font-medium mb-1">Username</label>
-          <input type="text" id="username" name="username"
-                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-md"
-                 placeholder="Choose a username" required />
+          <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Username:</label>
+          <input type="text" id="username" name="username" placeholder="Choose a username" required
+                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         </div>
         <div>
-          <label for="email" class="block text-gray-700 font-medium mb-1">Email</label>
-          <input type="email" id="email" name="email"
-                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-md"
-                 placeholder="you@example.com" required />
+          <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+          <input type="email" id="email" name="email" placeholder="Your email address" required
+                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         </div>
         <div>
-          <label for="mobile" class="block text-gray-700 font-medium mb-1">Mobile Number</label>
-          <input type="tel" id="mobile" name="mobile"
-                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-md"
-                 placeholder="e.g., 9876543210" pattern="[0-9]{10}" required />
+          <label for="mobile" class="block text-gray-700 text-sm font-bold mb-2">Mobile:</label>
+          <input type="tel" id="mobile" name="mobile" placeholder="Your mobile number" required
+                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         </div>
         <div>
-          <label for="password" class="block text-gray-700 font-medium mb-1">Password</label>
-          <input type="password" id="password" name="password"
-                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-md"
-                 placeholder="••••••••" required />
+          <label for="collegeName" class="block text-gray-700 font-medium mb-1">Organization Name</label>
+          <select id="collegeName" name="collegeName"
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-white" required>
+            <option value="">Select your organization</option>
+            <option value="LBRCE">LBRCE</option>
+            <option value="AITAM">AITAM</option>
+            <option value="GMRIT">GMRIT</option>
+            <option value="MBU">MBU</option>
+            <option value="SMART BRIDGE">SMART BRIDGE</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
-        <button type="submit"
-                class="w-full bg-blue-600 text-white font-semibold py-3 rounded-md hover:bg-blue-700 transition transform hover:-translate-y-0.5">
-          Register
+        <div>
+          <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+          <input type="password" id="password" name="password" placeholder="Create a password" required
+                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <button type="submit" id="requestOtpButton"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline w-full transition-colors">
+          Sign Up & Get OTP
         </button>
       </form>
 
-      <p class="text-center text-sm text-gray-600 mt-5">
-        Already have an account?
-        <a href="/login.html" class="text-blue-600 hover:underline font-medium">Login</a>
+      <form id="otp-form" class="space-y-4 hidden">
+        <p class="text-center text-gray-600 text-base mb-4">An OTP has been sent to <strong id="otp-email-display"></strong>. Please enter it below to verify your account.</p>
+        <div>
+          <label for="otp" class="block text-gray-700 text-sm font-bold mb-2">OTP:</label>
+          <input type="text" id="otp" name="otp" placeholder="Enter 6-digit OTP"
+                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <button type="submit" id="verifyOtpButton"
+                class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline w-full transition-colors">
+          Verify OTP & Create Account
+        </button>
+        <button type="button" id="resendOtpButton"
+                class="mt-2 w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors">
+            Resend OTP
+        </button>
+        <button type="button" id="backToSignupButton"
+                class="mt-2 w-full bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors">
+            Back to Signup Details
+        </button>
+      </form>
+
+      <p class="text-center text-gray-600 text-sm mt-4">
+        Already have an account? <a href="/login.html" class="text-blue-600 hover:underline">Login here</a>.
       </p>
-    </section>
-  </main>
+    </div>
+  </div>
+
+  <div id="custom-message-box" class="custom-message-box">
+    <div class="message-content-wrapper">
+      <p class="message-content" id="message-box-content"></p>
+      <button class="close-btn" id="message-box-close-btn">OK</button>
+    </div>
+  </div>
 
   <script>
-    document.getElementById('signupForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const username = document.getElementById('username').value;
-      const email = document.getElementById('email').value;
-      const mobile = document.getElementById('mobile').value;
-      const password = document.getElementById('password').value;
-      const messageDiv = document.getElementById('message');
+    const API_BASE_URL = window.location.origin;
 
-      messageDiv.className = 'hidden';
+    const customMessageBox = document.getElementById('custom-message-box');
+    const messageBoxContent = document.getElementById('message-box-content');
+    const messageBoxCloseBtn = document.getElementById('message-box-close-btn');
 
-      try {
-        const response = await fetch('/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, email, mobile, password })
-        });
+    function showCustomMessage(message, callback = null) {
+      messageBoxContent.textContent = message;
+      customMessageBox.classList.add('show');
+      messageBoxCloseBtn.onclick = () => {
+        customMessageBox.classList.remove('show');
+        if (callback) callback();
+      };
+    }
 
-        const data = await response.json();
+    const signupForm = document.getElementById('signup-form');
+    const otpForm = document.getElementById('otp-form');
+    const formTitle = document.getElementById('form-title');
 
-        if (response.ok) {
-          messageDiv.className = 'text-green-700 bg-green-100 rounded p-3 mt-4 text-center';
-          messageDiv.textContent = data.message || 'Registration successful! Redirecting to login...';
-          setTimeout(() => { window.location.href = '/login.html'; }, 2000);
-        } else {
-          messageDiv.className = 'text-red-700 bg-red-100 rounded p-3 mt-4 text-center';
-          messageDiv.textContent = data.message || 'Registration failed. Please try again.';
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const mobileInput = document.getElementById('mobile');
+    const passwordInput = document.getElementById('password');
+    const collegeNameInput = document.getElementById('collegeName'); // This is now a select element
+    const otpInput = document.getElementById('otp');
+    const otpEmailDisplay = document.getElementById('otp-email-display');
+
+    const requestOtpButton = document.getElementById('requestOtpButton');
+    const verifyOtpButton = document.getElementById('verifyOtpButton');
+    const resendOtpButton = document.getElementById('resendOtpButton');
+    const backToSignupButton = document.getElementById('backToSignupButton');
+
+    let temporaryUserData = {}; // To store user data before final creation
+
+    // Function to show/hide forms
+    function showSignupForm() {
+        signupForm.classList.remove('hidden');
+        otpForm.classList.add('hidden');
+        formTitle.textContent = 'Create an Account';
+        // Make signup fields required
+        usernameInput.setAttribute('required', '');
+        emailInput.setAttribute('required', '');
+        mobileInput.setAttribute('required', '');
+        passwordInput.setAttribute('required', '');
+        collegeNameInput.setAttribute('required', '');
+        otpInput.removeAttribute('required'); // OTP not required yet
+        emailInput.readOnly = false; // Make email editable
+    }
+
+    function showOtpForm(email) {
+        signupForm.classList.add('hidden');
+        otpForm.classList.remove('hidden');
+        formTitle.textContent = 'Verify Your Account';
+        otpEmailDisplay.textContent = email;
+        // Make OTP field required
+        otpInput.setAttribute('required', '');
+        usernameInput.removeAttribute('required');
+        emailInput.removeAttribute('required');
+        mobileInput.removeAttribute('required');
+        passwordInput.removeAttribute('required');
+        collegeNameInput.removeAttribute('required');
+        emailInput.readOnly = true; // Make email read-only during OTP step
+        otpInput.value = ''; // Clear OTP input
+    }
+
+    // Initial state
+    showSignupForm();
+
+    // Event listener for initial signup form submission (Step 1: Request OTP)
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Validate dropdown selection
+        if (collegeNameInput.value === "") {
+            showCustomMessage('Please select your organization.');
+            return;
         }
-      } catch (err) {
-        console.error('Signup error:', err);
-        messageDiv.className = 'text-red-700 bg-red-100 rounded p-3 mt-4 text-center';
-        messageDiv.textContent = 'Network error or server unavailable.';
-      }
+
+        temporaryUserData = { // Store data temporarily
+            username: usernameInput.value,
+            email: emailInput.value,
+            mobile: mobileInput.value,
+            password: passwordInput.value,
+            collegeName: collegeNameInput.value // Value from the dropdown
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(temporaryUserData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showOtpForm(temporaryUserData.email);
+            } else {
+                showCustomMessage(data.message || 'Signup failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('CLIENT ERROR (Signup.html): Network error during signup request:', error);
+            showCustomMessage('Network error. Please try again later.');
+        }
+    });
+
+    // Event listener for OTP verification form submission (Step 2: Verify OTP and create account)
+    otpForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const otp = otpInput.value;
+        const email = temporaryUserData.email; // Use stored email
+
+        if (!otp) {
+            showCustomMessage('Please enter the OTP.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/verify-signup-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showCustomMessage('Account created successfully! Please log in.', () => {
+                    window.location.href = '/Login.html'; // Redirect to login page
+                });
+            } else {
+                showCustomMessage(data.message || 'OTP verification failed. Please try again.');
+                if (data.message && data.message.includes('expired')) {
+                    showSignupForm(); // Go back to signup form on OTP expiration
+                }
+            }
+        } catch (error) {
+            console.error('CLIENT ERROR (Signup.html): Network error during OTP verification:', error);
+            showCustomMessage('Network error during OTP verification. Please try again.');
+        }
+    });
+
+    // Event listener for Resend OTP button
+    resendOtpButton.addEventListener('click', async () => {
+        if (!temporaryUserData.email) {
+            showCustomMessage('Please go back and fill in your signup details first.');
+            showSignupForm();
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/signup`, { // Re-send initial signup data
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(temporaryUserData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showCustomMessage('A new OTP has been sent to your email.');
+                otpInput.value = ''; // Clear OTP input
+            } else {
+                showCustomMessage(data.message || 'Failed to resend OTP.');
+            }
+        } catch (error) {
+            console.error('CLIENT ERROR (Signup.html): Network error during OTP resend:', error);
+            showCustomMessage('Network error. Could not resend OTP.');
+        }
+    });
+
+    // Event listener for Back to Signup button
+    backToSignupButton.addEventListener('click', () => {
+        showSignupForm();
     });
   </script>
-
 </body>
 </html>
