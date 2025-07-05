@@ -238,23 +238,6 @@
                 Prepare for your certification by taking this practice exam.
             </p>
             <div class="w-full max-w-md mb-8 px-2">
-                <label for="college-select" class="block text-gray-700 text-sm font-bold mb-2">
-                    Select Your College:
-                </label>
-                <select
-                    id="college-select"
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
-                    aria-label="Select College"
-                >
-                    <option value="">-- Select Your College --</option>
-                    <option value="GMRIT">GMRIT</option>
-                    <option value="MBU">MBU</option>
-                    <option value="LBRCE">LBRCE</option>
-                    <option value="KHIT">KHIT</option>
-                    <option value="AITAM">AITAM</option>
-                </select>
-            </div>
-            <div class="w-full max-w-md mb-8 px-2">
                 <label for="module-select" class="block text-gray-700 text-sm font-bold mb-2">
                     Select Module:
                 </label>
@@ -264,7 +247,7 @@
                     aria-label="Select Module"
                 >
                     <option value="">-- Select Test Module --</option>
-                     <option value="All Modules">All Modules</option>
+                    <option value="All Modules">All Modules</option>
                     <option value="Module 1">Module 1</option>
                     <option value="Module 2">Module 2</option>
                     <option value="Module 3">Module 3</option>
@@ -407,13 +390,13 @@
         let markedForReview = []; // Stores boolean for marked questions for the current test's questions
         let score = 0;
         let quizCompleted = false;
-        let userName = ''; // To store the user's selected college name
+        let userName = 'DefaultUser'; // Changed: Set a default user name since college selection is removed
         let selectedModule = ''; // NEW: To store the user's selected module
         let quizViolationDetected = false; // Flag to indicate if a violation occurred
 
         // Get DOM elements
         const startScreen = document.getElementById('start-screen');
-        const collegeSelect = document.getElementById('college-select');
+        // const collegeSelect = document.getElementById('college-select'); // Removed
         const moduleSelect = document.getElementById('module-select'); // NEW: Get module select element
         const startQuizButton = document.getElementById('start-quiz-button');
 
@@ -486,7 +469,6 @@
             };
         }
 
-
         /**
          * Enters full-screen mode for the document body.
          */
@@ -514,7 +496,7 @@
             } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
                 document.webkitExitFullscreen();
             } else if (document.msExitFullscreen) { /* IE/Edge */
-                document.msExitFullscreen();
+                document.msFullscreenElement();
             }
         }
 
@@ -554,7 +536,7 @@
                             violationType: reason,
                             timestamp: new Date().toISOString(),
                             questionIndex: currentQuestionIndex,
-                            userName: userName, // Include user name (college name)
+                            userName: userName, // Include user name (now 'DefaultUser')
                             module: selectedModule // Include the module
                         })
                     });
@@ -581,16 +563,16 @@
             const jwtToken = localStorage.getItem('jwtToken');
             if (!jwtToken) {
                 showCustomMessage('You are not logged in. Please log in to start a test.', () => {
-                    window.location.href = '/Login'; // Redirect to login if not authenticated
+                    window.location.href = '/login.html'; // Redirect to login if not authenticated
                 });
                 return;
             }
             if (!moduleName) {
-                 showCustomMessage('No module selected. Please select a module to start the quiz.');
-                 // Re-show start screen if module is not selected
-                 startScreen.classList.remove('hidden');
-                 quizContainer.classList.add('hidden');
-                 return;
+                showCustomMessage('No module selected. Please select a module to start the quiz.');
+                // Re-show start screen if module is not selected
+                startScreen.classList.remove('hidden');
+                quizContainer.classList.add('hidden');
+                return;
             }
 
             // Enter full screen as soon as quiz loads
@@ -625,7 +607,7 @@
                 } else if (response.status === 401) {
                     showCustomMessage('Your session has expired. Please log in again.', () => {
                         localStorage.clear();
-                        window.location.href = '/Login';
+                        window.location.href = '/login.html';
                     });
                 } else {
                     const errorData = await response.json();
@@ -649,7 +631,7 @@
             if (quizViolationDetected || questions.length === 0) {
                 // If violation detected or no questions, don't render anything, just show relevant overlay
                 if (questions.length === 0 && !quizViolationDetected) {
-                     showCustomMessage('Error: Questions not loaded. Please return to dashboard and try again.', () => {
+                    showCustomMessage('Error: Questions not loaded. Please return to dashboard and try again.', () => {
                         window.location.href = '/home';
                     });
                 }
@@ -863,13 +845,13 @@
             });
 
             const totalQuestions = questions.length;
-            const isPass = score > 17; // Pass if score is greater than 20 (Adjust as needed for 25 questions)
+            const isPass = score > 17; // Pass if score is greater than 17 (Adjust as needed for 25 questions)
 
             const jwtToken = localStorage.getItem('jwtToken');
             if (!jwtToken) {
                 showCustomMessage('You are not logged in. Please log in.', () => {
                     localStorage.clear();
-                    window.location.href = '/Login';
+                    window.location.href = '/login.html';
                 });
                 return;
             }
@@ -885,7 +867,7 @@
                         score, 
                         totalQuestions, 
                         isPass,
-                        userName: userName, // Ensure college name is sent
+                        userName: userName, // Ensure default user name is sent
                         module: selectedModule // NEW: Send the selected module to backend
                     })
                 });
@@ -894,21 +876,20 @@
                     localStorage.setItem('finalScore', score);
                     localStorage.setItem('testPassed', isPass);
                     localStorage.setItem('totalTestQuestions', totalQuestions);
-                    localStorage.setItem('userName', userName); // Store college name locally as well
+                    localStorage.setItem('userName', userName); // Store default user name locally as well
                     localStorage.setItem('selectedModule', selectedModule); // NEW: Store module locally
-                    quizCompleted = true; // Mark quiz as completed
-                    exitFullScreen(); // Exit full screen gracefully
-
-                    // Hide the quiz container and show the review screen
+                    quizCompleted = true;
+                    exitFullScreen(); 
+                    
                     quizContainer.classList.add('hidden');
-                    startScreen.classList.add('hidden'); // Ensure start screen is also hidden
-                    reviewResultsContainer.classList.remove('hidden'); // Show the review screen
-                    displayQuizReview(); // Call function to populate review screen
+                    startScreen.classList.add('hidden'); 
+                    reviewResultsContainer.classList.remove('hidden'); 
+                    displayQuizReview(); 
 
                 } else if (response.status === 401) {
                     showCustomMessage('Your session has expired. Please log in again.', () => {
                         localStorage.clear();
-                        window.location.href = '/Login';
+                        window.location.href = '/login.html';
                     });
                 } else {
                     const errorData = await response.json();
@@ -924,12 +905,10 @@
             }
         }
 
-        /**
-         * Displays the quiz results showing correct/incorrect answers.
-         */
+        
         function displayQuizReview() {
             finalScoreDisplay.textContent = `Your Score: ${score} out of ${questions.length}`;
-            questionsReviewArea.innerHTML = ''; // Clear previous content
+            questionsReviewArea.innerHTML = ''; 
 
             questions.forEach((q, index) => {
                 const userChoiceIndex = userSelections[index];
@@ -939,42 +918,42 @@
                 const questionReviewDiv = document.createElement('div');
                 questionReviewDiv.classList.add('bg-gray-50', 'p-4', 'rounded-lg', 'shadow-sm', 'mb-4', 'border');
 
-                // Question Number and Text
+                
                 const qTitle = document.createElement('p');
                 qTitle.classList.add('font-semibold', 'text-gray-800', 'mb-2');
                 qTitle.innerHTML = `Q${index + 1}: ${q.question}`;
                 questionReviewDiv.appendChild(qTitle);
 
-                // Options
+                
                 const optionsList = document.createElement('div');
                 optionsList.classList.add('space-y-2', 'mb-3');
                 q.options.forEach((option, optIndex) => {
                     const optionP = document.createElement('p');
                     optionP.classList.add('p-2', 'rounded-md', 'text-sm');
 
-                    // Determine prefix and styling based on correctness and user choice
+                    
                     let prefixText = '';
                     let additionalClasses = [];
 
                     if (optIndex === userChoiceIndex && optIndex === correctChoiceIndex) {
-                        // User chose correctly
+                        
                         additionalClasses.push('bg-green-100', 'text-green-800', 'font-medium', 'border-green-300');
                         prefixText = 'Your Answer (Correct)';
                     } else if (optIndex === userChoiceIndex && optIndex !== correctChoiceIndex) {
-                        // User chose incorrectly
+                        
                         additionalClasses.push('bg-red-100', 'text-red-800', 'font-medium', 'border-red-300');
                         prefixText = 'Your Answer (Incorrect)';
                     } else if (optIndex === correctChoiceIndex) {
-                        // This is the correct answer, but user didn't choose it
+                        
                         additionalClasses.push('bg-green-50', 'text-green-700', 'border-green-200');
                         prefixText = 'Correct Answer';
                     } else {
-                        // Other unselected options
+                       
                         additionalClasses.push('bg-white', 'text-gray-700', 'border-gray-200');
                     }
                     
                     optionP.classList.add(...additionalClasses);
-                    optionP.textContent = `${prefixText ? prefixText + ': ' : ''}${option}`; // Add prefix if exists
+                    optionP.textContent = `${prefixText ? prefixText + ': ' : ''}${option}`; 
                     optionsList.appendChild(optionP);
                 });
                 questionReviewDiv.appendChild(optionsList);
@@ -984,20 +963,15 @@
         }
 
 
-        /**
-         * Handles restarting the quiz from scratch (e.g., from overlay).
-         */
         function handleRestartQuiz() {
-            // This function is for the "Full Screen Mode Exited" overlay
-            // and simply redirects to home/login.
-            // It assumes the quiz was not completed and is being aborted.
+            
             exitFullScreen();
             currentQuestionIndex = 0;
             score = 0;
             quizCompleted = false;
-            quizViolationDetected = false; // Reset violation flag
-            userName = ''; // Clear college name on restart
-            selectedModule = ''; // Clear selected module on restart
+            quizViolationDetected = false; 
+            userName = 'DefaultUser'; // Reset to default
+            selectedModule = ''; 
 
             questions = [];
             userSelections = [];
@@ -1005,43 +979,35 @@
 
             const jwtToken = localStorage.getItem('jwtToken');
             if (jwtToken) {
-                window.location.href = '/home';
+                window.location.href = '/Home.html';
             } else {
-                window.location.href = '/Login';
+                window.location.href = '/login.html';
             }
         }
 
-        // --- Event Listeners ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Check for JWT token on initial load and redirect if not present
             const jwtTokenOnLoad = localStorage.getItem('jwtToken');
             if (!jwtTokenOnLoad) {
-                window.location.href = '/Login'; 
+                window.location.href = '/login.html'; 
                 return; 
             }
 
-            // Event listener for the "Start Quiz" button
             startQuizButton.addEventListener('click', () => {
-                userName = collegeSelect.value; // Get selected college from dropdown
-                selectedModule = moduleSelect.value; // NEW: Get selected module from dropdown
+                // userName = collegeSelect.value; // Removed this line
+                selectedModule = moduleSelect.value; 
 
-                if (!userName) { // Check if a college was selected
-                    showCustomMessage('Please select your college to start the quiz.');
-                    return;
-                }
-                if (!selectedModule) { // NEW: Check if a module was selected
+                // Removed college selection validation
+                if (!selectedModule) { 
                     showCustomMessage('Please select a module to start the quiz.');
                     return;
                 }
 
-                // Hide the start screen and show the quiz container
                 startScreen.classList.add('hidden');
                 quizContainer.classList.remove('hidden');
 
-                initializeQuiz(selectedModule); // Now, initialize the quiz (fetch questions, enter fullscreen)
+                initializeQuiz(selectedModule); 
             });
 
-            // Add other existing event listeners that are not related to the start button
             prevButton.addEventListener('click', () => goToQuestion(currentQuestionIndex - 1));
             nextButton.addEventListener('click', () => goToQuestion(currentQuestionIndex + 1));
             clearResponseButton.addEventListener('click', handleClearResponse);
@@ -1053,18 +1019,15 @@
             });
             overlayRestartButton.addEventListener('click', handleRestartQuiz);
             
-            // NEW: Event listener for the "Return to Home" button on the quiz stopped overlay
             quizStoppedRestartButton.addEventListener('click', () => {
-                window.location.href = '/home'; // Always redirect to home if quiz was stopped by violation
+                window.location.href = '/home'; 
             });
 
-            // NEW: Event listener for the "Return to Home" button on the review screen
             returnHomeButton.addEventListener('click', () => {
                 window.location.href = '/home';
             });
 
 
-            // --- Fullscreen Change Listeners (Unified and Enhanced) ---
             const fullscreenChangeEventNames = [
                 'fullscreenchange',
                 'webkitfullscreenchange',
@@ -1074,66 +1037,39 @@
 
             fullscreenChangeEventNames.forEach(eventName => {
                 document.addEventListener(eventName, () => {
-                    // Check if *any* fullscreen element exists for cross-browser compatibility
                     const isInFullScreen = document.fullscreenElement || 
                                            document.webkitFullscreenElement || 
                                            document.mozFullScreenElement || 
                                            document.msFullscreenElement;
 
-                    if (!isInFullScreen) { // If exited full screen
+                    if (!isInFullScreen) { 
                         if (!quizCompleted && !quizViolationDetected) { 
-                            // If quiz was in progress and no violation was already detected
                             stopQuizDueToViolation('Fullscreen Exit');
                         }
                     } else {
-                        // Entered full screen - clear any previous overlay if it was due to exit
                         fullscreenExitOverlay.classList.remove('show');
-                        quizStoppedOverlay.classList.remove('show'); // Ensure this is hidden if somehow shown
-                        // Optionally, if you want to ensure focus, you can request it
-                        // window.focus(); 
+                        quizStoppedOverlay.classList.remove('show'); 
+                        
                     }
                 });
             });
 
-            // --- Visibility Change Listener (for tab switching/minimizing) ---
+          
             document.addEventListener('visibilitychange', () => {
-                // Only act if the document is becoming hidden, and quiz is active, not completed, and no violation yet
                 if (document.hidden && !quizCompleted && !quizViolationDetected && quizContainer.classList.contains('hidden') === false) {
-                    // Check if quizContainer is actually visible before flagging a violation
                     stopQuizDueToViolation('Tab/Window Switch (Hidden)');
                 } else if (!document.hidden && quizViolationDetected) {
-                    // User came back after a violation, keep the overlay if it was due to violation
                     quizStoppedOverlay.classList.add('show');
                 }
             });
 
-            // --- Blur/Focus Listeners (Alternative/Complementary to visibilitychange) ---
             window.addEventListener('blur', () => {
-                // Only act if the quiz is active, not completed, and no violation yet
                 if (!quizCompleted && !quizViolationDetected && quizContainer.classList.contains('hidden') === false) {
                     stopQuizDueToViolation('Window Blur');
                 }
             });
 
-            // --- OPTIONAL: Disable Right-Click and Common Dev Tool Shortcuts ---
-            // document.addEventListener('contextmenu', e => {
-            //     e.preventDefault(); 
-            //     console.log("Right-click prevented during test."); 
-            // });
-
-            // document.addEventListener('keydown', e => {
-            //     // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U (view source), Command+Option+I (Mac)
-            //     if (
-            //         (e.key === 'F12') ||
-            //         (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
-            //         (e.ctrlKey && e.key === 'U') ||
-            //         (e.metaKey && e.altKey && e.key === 'I') // Mac: Cmd+Opt+I
-            //     ) {
-            //         e.preventDefault(); 
-            //         console.log("Developer tool shortcut prevented."); 
-            //     }
-            // });
-        });
+           });
     </script>
 </body>
 </html>
