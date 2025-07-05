@@ -130,7 +130,7 @@
           displayErrorState(data.message);
           if (response.status === 401 || response.status === 403) {
             alert(data.message || 'Authentication required. Redirecting to login.');
-            window.location.href = '/Login.html';
+            window.location.href = '/login.html';
           } else if (response.status === 404) {
             displayNoCertificateState(data.message);
           } else {
