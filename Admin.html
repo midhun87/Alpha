@@ -3,419 +3,897 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>AWSPrepZone Admin Dashboard</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(to bottom right, #f0f9ff, #dcf0fb);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
             min-height: 100vh;
-            color: #333;
+            flex-direction: column;
         }
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 1.5rem;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        h1, h2 {
-            color: #1e3a8a;
-            font-weight: 700;
-        }
-        .header-section {
+        header {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e0e7ff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .filter-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            padding: 1.5rem;
-            background-color: #f8fafc;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        header h1 {
+            margin: 0;
+            font-size: 24px;
         }
-        .filter-item label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #4a5568;
-        }
-        .filter-item select, .filter-item input[type="date"] {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid #cbd5e0;
-            border-radius: 6px;
-            background-color: #fff;
-            transition: border-color 0.2s;
-            outline: none;
-        }
-        .filter-item select:focus, .filter-item input[type="date"]:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-        }
-        .table-container {
-            overflow-x: auto;
-            border: 1px solid #e0e7ff;
-            border-radius: 8px;
-        }
-        table {
-            width: 100%;
-            min-width: 800px; /* Ensure table doesn't get too narrow */
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 1rem 1.25rem;
-            text-align: left;
-            border-bottom: 1px solid #e0e7ff;
-        }
-        th {
-            background-color: #ebf5ff;
-            font-weight: 700;
-            color: #2563eb;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-        }
-        tr:last-child td {
-            border-bottom: none;
-        }
-        tbody tr:hover {
-            background-color: #f5f9ff;
-        }
-        .action-button {
-            background-color: #3b82f6;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: background-color 0.2s;
-        }
-        .action-button:hover {
-            background-color: #2563eb;
-        }
-        .logout-button {
-            background-color: #ef4444;
-            color: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: 6px;
-            font-weight: 600;
-            transition: background-color 0.2s;
-        }
-        .logout-button:hover {
-            background-color: #dc2626;
-        }
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .flex-end {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 1rem;
-        }
-        /* Custom Message Box styles */
-        .custom-message-box {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        header .user-info {
+            font-size: 16px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            gap: 15px;
         }
-
-        .custom-message-box.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .custom-message-box .message-content-wrapper {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-
-        .custom-message-box .message-content {
-            font-size: 1rem;
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .custom-message-box .close-btn {
-            background-color: #3b82f6;
+        header .user-info button {
+            background-color: #e74c3c;
             color: white;
+            border: none;
             padding: 8px 15px;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
         }
-
-        .custom-message-box .close-btn:hover {
-            background-color: #2563eb;
+        header .user-info button:hover {
+            background-color: #c0392b;
+        }
+        nav {
+            background-color: #34495e;
+            padding: 10px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+        nav ul li {
+            margin: 0 15px;
+        }
+        nav ul li button {
+            background: none;
+            border: none;
+            color: #ecf0f1;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            border-radius: 5px;
+        }
+        nav ul li button.active {
+            background-color: #3498db;
+            color: white;
+        }
+        nav ul li button:hover:not(.active) {
+            background-color: #2c3e50;
+        }
+        main {
+            padding: 20px;
+            flex-grow: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .filters label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        .filters select,
+        .filters input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .filters button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            grid-column: span var(--filter-cols, 1); /* For submit button spanning columns */
+            margin-top: auto; /* Align to bottom if items have different heights */
+        }
+        .filters button:hover {
+            background-color: #2980b9;
+        }
+        .data-table-container {
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+            color: #444;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .loading-spinner, .error-message {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            color: #555;
+        }
+        .error-message {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        #no-data-message {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-style: italic;
+        }
+        footer {
+            margin-top: 30px;
+            padding: 20px;
+            text-align: center;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            font-size: 14px;
+        }
+        /* Media Queries for responsiveness */
+        @media (max-width: 768px) {
+            .filters {
+                grid-template-columns: 1fr;
+            }
+            .filters button {
+                grid-column: span 1;
+            }
+            header, nav {
+                flex-direction: column;
+                text-align: center;
+            }
+            header .user-info {
+                margin-top: 10px;
+            }
+            nav ul {
+                flex-wrap: wrap;
+            }
+            nav ul li {
+                margin: 5px 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header-section">
-            <h1 class="text-3xl">AWSPrepZone Admin Dashboard</h1>
-            <button id="logout-button" class="logout-button">Logout</button>
+    <header>
+        <h1>AWSPrepZone Admin Dashboard</h1>
+        <div class="user-info">
+            Welcome, <span id="adminUsername">Admin</span>!
+            <button id="logoutButton">Logout</button>
         </div>
+    </header>
 
-        <div class="filter-section">
-            <div class="filter-item">
-                <label for="college-filter">College:</label>
-                <select id="college-filter">
-                    <option value="">All Colleges</option>
+    <nav>
+        <ul>
+            <li><button id="tabTestAttempts" class="active">Test Attempts</button></li>
+            <li><button id="tabViolations">Violations</button></li>
+            <li><button id="tabLearningProgress">Learning Progress</button></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="testAttemptsSection" class="tab-content active">
+            <h2>Test Attempts Report</h2>
+            <div class="filters">
+                <div>
+                    <label for="attemptCollegeFilter">College:</label>
+                    <select id="attemptCollegeFilter">
+                        <option value="">All Colleges</option>
                     </select>
+                </div>
+                <div>
+                    <label for="attemptModuleFilter">Module:</label>
+                    <select id="attemptModuleFilter">
+                        <option value="">All Modules</option>
+                        </select>
+                </div>
+                <div>
+                    <label for="attemptStartDateFilter">Start Date:</label>
+                    <input type="date" id="attemptStartDateFilter">
+                </div>
+                <div>
+                    <label for="attemptEndDateFilter">End Date:</label>
+                    <input type="date" id="attemptEndDateFilter">
+                </div>
+                <button id="applyAttemptFilters" style="--filter-cols: 2;">Apply Filters</button>
             </div>
-            <div class="filter-item">
-                <label for="module-filter">Module:</label>
-                <select id="module-filter">
-                    <option value="">All Modules</option>
-                    <script>
-                        // Hardcode module options here (adjust NUMBER_OF_MODULES as per backend)
-                        const numberOfModules = 14; // Must match backend's NUMBER_OF_MODULES
-                        const moduleFilterSelect = document.getElementById('module-filter');
-                        for (let i = 1; i <= numberOfModules; i++) {
-                            const option = document.createElement('option');
-                            option.value = `Module ${i}`;
-                            option.textContent = `Module ${i}`;
-                            moduleFilterSelect.appendChild(option);
-                        }
-                    </script>
-                </select>
+            <div class="data-table-container">
+                <div id="attemptLoading" class="loading-spinner" style="display: none;">Loading test attempts...</div>
+                <div id="attemptError" class="error-message" style="display: none;"></div>
+                <div id="noAttemptData" class="no-data-message" style="display: none;">No test attempts found for the selected filters.</div>
+                <table id="testAttemptsTable">
+                    <thead>
+                        <tr>
+                            <th>User Name</th>
+                            <th>College Name</th>
+                            <th>Module Tested</th>
+                            <th>Score</th>
+                            <th>Total Questions</th>
+                            <th>Passed</th>
+                            <th>Attempt Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
             </div>
-            <div class="filter-item">
-                <label for="start-date-filter">Start Date:</label>
-                <input type="date" id="start-date-filter">
+        </section>
+
+        <section id="violationsSection" class="tab-content">
+            <h2>Violations Report</h2>
+            <div class="filters">
+                <div>
+                    <label for="violationCollegeFilter">College:</label>
+                    <select id="violationCollegeFilter">
+                        <option value="">All Colleges</option>
+                        </select>
+                </div>
+                <div>
+                    <label for="violationModuleFilter">Module:</label>
+                    <select id="violationModuleFilter">
+                        <option value="">All Modules</option>
+                        </select>
+                </div>
+                <div>
+                    <label for="violationTypeFilter">Violation Type:</label>
+                    <select id="violationTypeFilter">
+                        <option value="">All Types</option>
+                        </select>
+                </div>
+                <div>
+                    <label for="violationStartDateFilter">Start Date:</label>
+                    <input type="date" id="violationStartDateFilter">
+                </div>
+                <div>
+                    <label for="violationEndDateFilter">End Date:</label>
+                    <input type="date" id="violationEndDateFilter">
+                </div>
+                <center><button id="applyViolationFilters" style="--filter-cols: 2;">Apply Filters</button></center>
             </div>
-            <div class="filter-item">
-                <label for="end-date-filter">End Date:</label>
-                <input type="date" id="end-date-filter">
+            <div class="data-table-container">
+                <div id="violationLoading" class="loading-spinner" style="display: none;">Loading violations...</div>
+                <div id="violationError" class="error-message" style="display: none;"></div>
+                <div id="noViolationData" class="no-data-message" style="display: none;">No violations found for the selected filters.</div>
+                <table id="violationsTable">
+                    <thead>
+                        <tr>
+                            <th>User Name</th>
+                            <th>College Name</th>
+                            <th>Module</th>
+                            <th>Violation Type</th>
+                            <th>Question Index</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
             </div>
-            <div class="filter-item flex items-end">
-                <button id="apply-filters-button" class="action-button w-full">Apply Filters</button>
+        </section>
+
+        <section id="learningProgressSection" class="tab-content">
+            <h2>Learning Progress Report</h2>
+            <div class="filters">
+                <div>
+                    <label for="progressCollegeFilter">College:</label>
+                    <select id="progressCollegeFilter">
+                        <option value="">All Colleges</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="progressModuleFilter">Module:</label>
+                    <select id="progressModuleFilter">
+                        <option value="">All Modules</option>
+                        </select>
+                </div>
+                <button id="applyProgressFilters" style="--filter-cols: 2;">Apply Filters</button>
             </div>
-        </div>
+            <div class="data-table-container">
+                <div id="progressLoading" class="loading-spinner" style="display: none;">Loading learning progress...</div>
+                <div id="progressError" class="error-message" style="display: none;"></div>
+                <div id="noProgressData" class="no-data-message" style="display: none;">No learning progress found for the selected filters.</div>
+                <table id="learningProgressTable">
+                    <thead>
+                        <tr>
+                            <th>User Name</th>
+                            <th>College Name</th>
+                            <th>Module</th>
+                            <th>Completed Topics</th>
+                            <th>Total Topics</th>
+                            <th>Completion (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
 
-        <h2 class="text-2xl mb-4">Test Attempts</h2>
-        <div class="table-container">
-            <table id="attempts-table">
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>College</th>
-                        <th>Module</th>
-                        <th>Score</th>
-                        <th>Total Questions</th>
-                        <th>Result</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    </tbody>
-            </table>
-            <p id="no-data-message" class="text-center text-gray-500 py-4 hidden">No data found for the selected filters.</p>
-        </div>
-    </div>
+    <footer>
+        <p>&copy; 2025 AWSPrepZone. All rights reserved.</p>
+    </footer>
 
-    <div id="custom-message-box" class="custom-message-box">
-        <div class="message-content-wrapper">
-            <p class="message-content" id="message-box-content"></p>
-            <button class="close-btn" id="message-box-close-btn">OK</button>
-        </div>
-    </div>
+    <script> // admin.js
+document.addEventListener('DOMContentLoaded', () => {
+    // IMPORTANT: Make sure this BASE_URL matches the port your backend is running on (e.g., 5000)
+    const baseURL = process.env.BASE_URL || 'http://localhost:5000';
+    const authToken = localStorage.getItem('token');
+    const adminUsernameSpan = document.getElementById('adminUsername');
+    const logoutButton = document.getElementById('logoutButton');
 
-    <script>
-        const API_BASE_URL = window.location.origin;
+    // Tab buttons and content sections
+    const tabTestAttempts = document.getElementById('tabTestAttempts');
+    const tabViolations = document.getElementById('tabViolations');
+    const tabLearningProgress = document.getElementById('tabLearningProgress');
 
-        // Custom Message Box Elements
-        const customMessageBox = document.getElementById('custom-message-box');
-        const messageBoxContent = document.getElementById('message-box-content');
-        const messageBoxCloseBtn = document.getElementById('message-box-close-btn');
+    const testAttemptsSection = document.getElementById('testAttemptsSection');
+    const violationsSection = document.getElementById('violationsSection');
+    const learningProgressSection = document.getElementById('learningProgressSection');
 
-        /**
-         * Displays a custom message box.
-         * @param {string} message - The message to display.
-         * @param {function} [callback] - Optional callback function to execute when OK is clicked.
-         */
-        function showCustomMessage(message, callback = null) {
-            messageBoxContent.textContent = message;
-            customMessageBox.classList.add('show');
-            messageBoxCloseBtn.onclick = () => {
-                customMessageBox.classList.remove('show');
-                if (callback) callback();
-            };
+    // Filters and tables for Test Attempts
+    const attemptCollegeFilter = document.getElementById('attemptCollegeFilter');
+    const attemptModuleFilter = document.getElementById('attemptModuleFilter');
+    const attemptStartDateFilter = document.getElementById('attemptStartDateFilter');
+    const attemptEndDateFilter = document.getElementById('attemptEndDateFilter');
+    const applyAttemptFiltersButton = document.getElementById('applyAttemptFilters');
+    const testAttemptsTableBody = document.querySelector('#testAttemptsTable tbody');
+    const attemptLoading = document.getElementById('attemptLoading');
+    const attemptError = document.getElementById('attemptError');
+    const noAttemptData = document.getElementById('noAttemptData');
+
+    // Filters and tables for Violations
+    const violationCollegeFilter = document.getElementById('violationCollegeFilter');
+    const violationModuleFilter = document.getElementById('violationModuleFilter');
+    const violationTypeFilter = document.getElementById('violationTypeFilter');
+    const violationStartDateFilter = document.getElementById('violationStartDateFilter');
+    const violationEndDateFilter = document.getElementById('violationEndDateFilter');
+    const applyViolationFiltersButton = document.getElementById('applyViolationFilters');
+    const violationsTableBody = document.querySelector('#violationsTable tbody');
+    const violationLoading = document.getElementById('violationLoading');
+    const violationError = document.getElementById('violationError');
+    const noViolationData = document.getElementById('noViolationData');
+
+    // Filters and tables for Learning Progress
+    const progressCollegeFilter = document.getElementById('progressCollegeFilter'); // NEW: College filter for learning progress
+    const progressModuleFilter = document.getElementById('progressModuleFilter');
+    const applyProgressFiltersButton = document.getElementById('applyProgressFilters');
+    const learningProgressTableBody = document.querySelector('#learningProgressTable tbody');
+    const progressLoading = document.getElementById('progressLoading');
+    const progressError = document.getElementById('progressError');
+    const noProgressData = document.getElementById('noProgressData');
+
+    // Make sure this matches the number of modules in your questions.json and backend logic
+    const NUMBER_OF_MODULES = 14; 
+
+    // --- Helper Functions ---
+    function showLoader(element) {
+        element.style.display = 'block';
+    }
+
+    function hideLoader(element) {
+        element.style.display = 'none';
+    }
+
+    function showErrorMessage(element, message) {
+        element.textContent = `Error: ${message}`;
+        element.style.display = 'block';
+        console.error('UI Error Displayed:', message); // Log to console for debugging
+    }
+
+    function hideErrorMessage(element) {
+        element.style.display = 'none';
+        element.textContent = '';
+    }
+
+    function showNoDataMessage(element) {
+        element.style.display = 'block';
+    }
+
+    function hideNoDataMessage(element) {
+        element.style.display = 'none';
+    }
+
+    function clearTable(tableBody) {
+        tableBody.innerHTML = '';
+    }
+
+    function formatDate(isoString) {
+        if (!isoString) return 'N/A';
+        try {
+            // Attempt to parse as a valid ISO string first, then as a simple date string
+            let date;
+            if (!isNaN(new Date(isoString).getTime())) { // Check if it's a valid date string
+                date = new Date(isoString);
+            } else if (isoString.includes('T')) { // Might be a full ISO string without 'Z'
+                date = new Date(isoString + 'Z'); // Add 'Z' to treat as UTC
+            } else { // Assume it's a date-only string or timestamp that Date() can handle
+                date = new Date(isoString);
+            }
+            
+            // Check for invalid date
+            if (isNaN(date.getTime())) {
+                console.warn("Invalid date string passed to formatDate:", isoString);
+                return isoString; // Return original if parsing failed
+            }
+            
+            // Format to a readable local string
+            return date.toLocaleString(); 
+        } catch (e) {
+            console.error("Error formatting date:", e, "Original string:", isoString);
+            return isoString; // Return as is if any error occurs
+        }
+    }
+
+
+    // Populate Module dropdowns (called once on init)
+    function populateModuleFilters() {
+        const modules = [];
+        for (let i = 1; i <= NUMBER_OF_MODULES; i++) {
+            modules.push(`Module ${i}`);
         }
 
-        // Helper to get JWT token from local storage
-        function getToken() {
-            const token = localStorage.getItem('jwtToken');
-            console.log("CLIENT DEBUG (Admin.html - getToken): Token status:", token ? "Token FOUND" : "Token NOT FOUND");
-            if (token) {
-                console.log("CLIENT DEBUG (Admin.html - getToken): Token starts with:", token.substring(0, 20) + '...');
-            }
-            return token;
-        }
+        [attemptModuleFilter, violationModuleFilter, progressModuleFilter].forEach(selectElement => {
+            // Clear existing options first, except the initial 'All' option if it exists
+            const currentOptions = Array.from(selectElement.options);
+            selectElement.innerHTML = ''; // Clear all options
+            const allOption = document.createElement('option');
+            allOption.value = '';
+            allOption.textContent = 'All Modules'; // Default 'All Modules'
+            selectElement.appendChild(allOption);
 
-        // --- Check Authentication and Authorization on Page Load ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            const token = getToken();
-            const userRole = localStorage.getItem('userRole'); // Retrieve role from localStorage
-
-            console.log("CLIENT DEBUG (Admin.html - DOMContentLoaded): User role from localStorage:", userRole);
-
-            if (!token || userRole !== 'admin') {
-                console.warn("CLIENT DEBUG (Admin.html - DOMContentLoaded): Unauthorized access attempt. No token or not admin.");
-                showCustomMessage('You are not authorized to view this page. Please log in as an admin.', () => {
-                    window.location.href = '/Login'; // Redirect to login if not authorized
-                });
-                return; // Stop execution
-            }
-
-            // If authorized, proceed to fetch data
-            fetchDropdownData();
-            fetchTestAttempts(); // Fetch initial data without filters
-        });
-
-        // --- Fetch Dropdown Data (Colleges) ---
-        async function fetchDropdownData() {
-            const token = getToken(); // This function call now logs its status
-            if (!token) {
-                console.error("CLIENT DEBUG (Admin.html - fetchDropdownData): No token found. This should have been caught earlier.");
-                return; // Should be handled by DOMContentLoaded check
-            }
-
-            try {
-                console.log("CLIENT DEBUG (Admin.html - fetchDropdownData): Attempting to fetch colleges.");
-                const collegeResponse = await fetch(`${API_BASE_URL}/admin/unique-colleges`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                if (!collegeResponse.ok) {
-                    const errorData = await collegeResponse.json();
-                    console.error("CLIENT ERROR (Admin.html - fetchDropdownData): Failed to fetch colleges:", errorData.message);
-                    showCustomMessage(`Failed to load colleges: ${errorData.message}`);
-                    return;
-                }
-
-                const data = await collegeResponse.json();
-                const collegeFilter = document.getElementById('college-filter');
-                collegeFilter.innerHTML = '<option value="">All Colleges</option>'; // Reset options
-                data.colleges.forEach(college => {
-                    const option = document.createElement('option');
-                    option.value = college;
-                    option.textContent = college;
-                    collegeFilter.appendChild(option);
-                });
-                console.log("CLIENT DEBUG (Admin.html - fetchDropdownData): Colleges loaded successfully.");
-
-            } catch (error) {
-                console.error('CLIENT ERROR (Admin.html - fetchDropdownData): Network error fetching dropdown data:', error);
-                showCustomMessage('Network error fetching filter options.');
-            }
-        }
-
-
-        // --- Fetch Test Attempts Data ---
-        async function fetchTestAttempts() {
-            const token = getToken(); // This function call now logs its status
-            if (!token) {
-                console.error("CLIENT DEBUG (Admin.html - fetchTestAttempts): No token found. This should have been caught earlier.");
-                return; // Should be handled by DOMContentLoaded check
-            }
-
-            const college = document.getElementById('college-filter').value;
-            const module = document.getElementById('module-filter').value;
-            const startDate = document.getElementById('start-date-filter').value;
-            const endDate = document.getElementById('end-date-filter').value;
-
-            const queryParams = new URLSearchParams();
-            if (college) queryParams.append('college', college);
-            if (module) queryParams.append('module', module);
-            if (startDate) queryParams.append('startDate', startDate);
-            if (endDate) queryParams.append('endDate', endDate);
-
-            console.log("CLIENT DEBUG (Admin.html - fetchTestAttempts): Fetching attempts with filters:", { college, module, startDate, endDate });
-            console.log("CLIENT DEBUG (Admin.html - fetchTestAttempts): Requesting URL:", `${API_BASE_URL}/admin/test-attempts?${queryParams.toString()}`);
-            console.log("CLIENT DEBUG (Admin.html - fetchTestAttempts): Using token (first 20 chars):", token.substring(0, 20) + '...');
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/admin/test-attempts?${queryParams.toString()}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error("CLIENT ERROR (Admin.html - fetchTestAttempts): Failed to fetch test attempts:", errorData.message);
-                    showCustomMessage(`Failed to load test attempts: ${errorData.message}`);
-                    return;
-                }
-
-                const data = await response.json();
-                const tbody = document.querySelector('#attempts-table tbody');
-                const noDataMessage = document.getElementById('no-data-message');
-                tbody.innerHTML = ''; // Clear previous data
-
-                if (data.attempts && data.attempts.length > 0) {
-                    noDataMessage.classList.add('hidden');
-                    data.attempts.forEach(attempt => {
-                        const row = tbody.insertRow();
-                        row.insertCell().textContent = attempt.UserLoginUsername;
-                        row.insertCell().textContent = attempt.CollegeName;
-                        row.insertCell().textContent = attempt.ModuleTested;
-                        row.insertCell().textContent = attempt.Score;
-                        row.insertCell().textContent = attempt.TotalQuestions;
-                        row.insertCell().textContent = attempt.IsPass ? 'Pass' : 'Fail';
-                        row.insertCell().textContent = new Date(attempt.AttemptDate).toLocaleDateString();
-                    });
-                    console.log(`CLIENT DEBUG (Admin.html - fetchTestAttempts): Loaded ${data.attempts.length} test attempts.`);
-                } else {
-                    noDataMessage.classList.remove('hidden');
-                    console.log("CLIENT DEBUG (Admin.html - fetchTestAttempts): No test attempts found for filters.");
-                }
-
-            } catch (error) {
-                console.error('CLIENT ERROR (Admin.html - fetchTestAttempts): Network error fetching test attempts:', error);
-                showCustomMessage('Network error. Could not load data.');
-            }
-        }
-
-        // --- Event Listeners ---
-        document.getElementById('apply-filters-button').addEventListener('click', fetchTestAttempts);
-
-        document.getElementById('logout-button').addEventListener('click', () => {
-            localStorage.removeItem('jwtToken');
-            localStorage.removeItem('username');
-            localStorage.removeItem('userId');
-            localStorage.removeItem('userEmail');
-            localStorage.removeItem('userMobile');
-            localStorage.removeItem('userRole'); // Clear role on logout
-            showCustomMessage('You have been logged out.', () => {
-                window.location.href = '/Login'; // Redirect to login page
+            modules.forEach(moduleName => {
+                const option = document.createElement('option');
+                option.value = moduleName;
+                option.textContent = moduleName;
+                selectElement.appendChild(option);
             });
         });
-    </script>
+    }
+
+    // --- Authentication and Initialization ---
+    async function checkAdminAuth() {
+        if (!authToken) {
+            console.log('No token found. Redirecting to login.');
+            window.location.href = '/Login.html'; // Assuming your login page is Login.html
+            return;
+        }
+
+        try {
+            const response = await fetch(`${BASE_URL}/validate-token`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Token validation failed:', response.status, errorData.message);
+                if (response.status === 401 || response.status === 403) {
+                    alert(`Session expired or unauthorized: ${errorData.message}. Please log in again.`);
+                    localStorage.removeItem('token');
+                    window.location.href = '/Login.html';
+                } else {
+                    throw new Error(errorData.message || `Server error during token validation: ${response.statusText}`);
+                }
+            }
+
+            const data = await response.json();
+            if (data.user && data.user.role === 'admin') {
+                adminUsernameSpan.textContent = data.user.username || 'Admin';
+                console.log('Admin authenticated and authorized. User:', data.user.username);
+                // Initial data fetching for the default tab
+                populateModuleFilters(); // Populate module dropdowns first
+                await fetchUniqueColleges();
+                await fetchUniqueViolationTypes();
+                await fetchTestAttempts(); // Fetch data for the initial active tab
+            } else {
+                console.warn('User is not an admin. Role:', data.user ? data.user.role : 'N/A');
+                alert('Access Denied: You do not have administrator privileges. Redirecting to login.');
+                localStorage.removeItem('token');
+                window.location.href = '/Login.html';
+            }
+        } catch (error) {
+            console.error('Authentication check failed:', error);
+            alert(`Authentication failed: ${error.message}. Please try logging in again.`);
+            localStorage.removeItem('token');
+            window.location.href = '/Login.html';
+        }
+    }
+
+    // --- Tab Switching Logic ---
+    function activateTab(sectionId) {
+        // Deactivate all tab buttons and hide all sections
+        document.querySelectorAll('nav button').forEach(button => button.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(section => section.classList.remove('active'));
+
+        // Activate the selected tab button and show its section
+        if (sectionId === 'testAttemptsSection') {
+            tabTestAttempts.classList.add('active');
+            testAttemptsSection.classList.add('active');
+            fetchTestAttempts();
+        } else if (sectionId === 'violationsSection') {
+            tabViolations.classList.add('active');
+            violationsSection.classList.add('active');
+            fetchViolations();
+        } else if (sectionId === 'learningProgressSection') {
+            tabLearningProgress.classList.add('active');
+            learningProgressSection.classList.add('active');
+            fetchLearningProgress();
+        }
+    }
+
+    tabTestAttempts.addEventListener('click', () => activateTab('testAttemptsSection'));
+    tabViolations.addEventListener('click', () => activateTab('violationsSection'));
+    tabLearningProgress.addEventListener('click', () => activateTab('learningProgressSection'));
+
+    // --- Logout Functionality ---
+    logoutButton.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        window.location.href = '/Login.html';
+    });
+
+    // --- Fetchers for Filters (Colleges, Violation Types) ---
+    async function fetchUniqueColleges() {
+        try {
+            const response = await fetch(`${BASE_URL}/admin/unique-colleges`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to fetch unique colleges');
+            }
+            const data = await response.json();
+            // Ensure data.colleges is an array, default to empty array if not
+            const colleges = Array.isArray(data.colleges) ? data.colleges : [];
+            populateFilterDropdown(attemptCollegeFilter, colleges, 'All Colleges');
+            populateFilterDropdown(violationCollegeFilter, colleges, 'All Colleges');
+            populateFilterDropdown(progressCollegeFilter, colleges, 'All Colleges'); // NEW: Populate for learning progress
+        } catch (error) {
+            console.error('Error fetching unique colleges:', error);
+            // Optionally, show a more specific error for the filter dropdowns if needed
+        }
+    }
+
+    async function fetchUniqueViolationTypes() {
+        try {
+            const response = await fetch(`${BASE_URL}/admin/unique-violation-types`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to fetch unique violation types');
+            }
+            const data = await response.json();
+            // Ensure data.violationTypes is an array, default to empty array if not
+            const violationTypes = Array.isArray(data.violationTypes) ? data.violationTypes : [];
+            populateFilterDropdown(violationTypeFilter, violationTypes, 'All Types');
+        } catch (error) {
+            console.error('Error fetching unique violation types:', error);
+            // Optionally, show a more specific error for the filter dropdowns if needed
+        }
+    }
+
+    function populateFilterDropdown(selectElement, items, allText = 'All') {
+        const currentSelectedValue = selectElement.value; // Store current selection
+        selectElement.innerHTML = ''; // Clear all options
+
+        const allOption = document.createElement('option');
+        allOption.value = '';
+        allOption.textContent = allText;
+        selectElement.appendChild(allOption);
+
+        items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item;
+            option.textContent = item;
+            selectElement.appendChild(option);
+        });
+
+        // Restore previous selection if it's still available in the new options
+        if ([...selectElement.options].some(opt => opt.value === currentSelectedValue)) {
+            selectElement.value = currentSelectedValue;
+        } else {
+            // If the previously selected option is no longer available, default to 'All'
+            selectElement.value = '';
+        }
+    }
+
+    // --- Fetch and Render Test Attempts ---
+    async function fetchTestAttempts() {
+        showLoader(attemptLoading);
+        hideErrorMessage(attemptError);
+        hideNoDataMessage(noAttemptData);
+        clearTable(testAttemptsTableBody);
+
+        const college = attemptCollegeFilter.value;
+        const module = attemptModuleFilter.value;
+        const startDate = attemptStartDateFilter.value;
+        const endDate = attemptEndDateFilter.value;
+
+        const queryParams = new URLSearchParams();
+        if (college) queryParams.append('college', college);
+        // Correct module format for backend: 'Module X' becomes 'X' or 'ModuleX' if backend expects
+        // Based on previous discussions, backend expects 'Module X' so no change needed here.
+        if (module) queryParams.append('module', module); 
+        if (startDate) queryParams.append('startDate', startDate);
+        if (endDate) queryParams.append('endDate', endDate);
+
+        try {
+            const url = `${BASE_URL}/admin/test-attempts?${queryParams.toString()}`;
+            console.log("Fetching test attempts from:", url); // For debugging
+            const response = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            renderTestAttempts(data.attempts || []); // Ensure 'attempts' property exists and is an array
+        } catch (error) {
+            console.error('Error fetching test attempts:', error);
+            showErrorMessage(attemptError, error.message);
+        } finally {
+            hideLoader(attemptLoading);
+        }
+    }
+
+    function renderTestAttempts(attempts) {
+        clearTable(testAttemptsTableBody);
+        if (!attempts || attempts.length === 0) {
+            showNoDataMessage(noAttemptData);
+            return;
+        }
+        hideNoDataMessage(noAttemptData);
+
+        attempts.forEach(attempt => {
+            const row = testAttemptsTableBody.insertRow();
+            // Ensure properties match your backend's returned data structure
+            row.insertCell().textContent = attempt.UserLoginUsername || 'N/A';
+            row.insertCell().textContent = attempt.CollegeName || 'N/A';
+            row.insertCell().textContent = attempt.ModuleTested || 'N/A';
+            row.insertCell().textContent = `${attempt.Score || 0}`;
+            row.insertCell().textContent = `${attempt.TotalQuestions || 0}`;
+            row.insertCell().textContent = attempt.IsPass ? 'Yes' : 'No';
+            row.insertCell().textContent = formatDate(attempt.AttemptDate);
+        });
+    }
+
+    applyAttemptFiltersButton.addEventListener('click', fetchTestAttempts);
+
+    // --- Fetch and Render Violations ---
+    async function fetchViolations() {
+        showLoader(violationLoading);
+        hideErrorMessage(violationError);
+        hideNoDataMessage(noViolationData);
+        clearTable(violationsTableBody);
+
+        const college = violationCollegeFilter.value;
+        const module = violationModuleFilter.value;
+        const type = violationTypeFilter.value;
+        const startDate = violationStartDateFilter.value;
+        const endDate = violationEndDateFilter.value;
+
+        const queryParams = new URLSearchParams();
+        if (college) queryParams.append('college', college);
+        if (module) queryParams.append('module', module);
+        if (type) queryParams.append('violationType', type); // Match backend param name
+        if (startDate) queryParams.append('startDate', startDate);
+        if (endDate) queryParams.append('endDate', endDate);
+
+        try {
+            const url = `${BASE_URL}/admin/violations?${queryParams.toString()}`;
+            console.log("Fetching violations from:", url); // For debugging
+            const response = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            renderViolations(data.violations || []); // Ensure 'violations' property exists and is an array
+        } catch (error) {
+            console.error('Error fetching violations:', error);
+            showErrorMessage(violationError, error.message);
+        } finally {
+            hideLoader(violationLoading);
+        }
+    }
+
+    function renderViolations(violations) {
+        clearTable(violationsTableBody);
+        if (!violations || violations.length === 0) {
+            showNoDataMessage(noViolationData);
+            return;
+        }
+        hideNoDataMessage(noViolationData);
+
+        violations.forEach(violation => {
+            const row = violationsTableBody.insertRow();
+            // Ensure properties match your backend's returned data structure
+            row.insertCell().textContent = violation.UserLoginUsername || 'N/A';
+            row.insertCell().textContent = violation.CollegeName || 'N/A';
+            row.insertCell().textContent = violation.Module || 'N/A';
+            row.insertCell().textContent = violation.ViolationType || 'N/A';
+            row.insertCell().textContent = `${violation.QuestionIndex || 'N/A'}`;
+            row.insertCell().textContent = formatDate(violation.Timestamp);
+        });
+    }
+
+    applyViolationFiltersButton.addEventListener('click', fetchViolations);
+
+
+    // --- Fetch and Render Learning Progress ---
+    async function fetchLearningProgress() {
+        showLoader(progressLoading);
+        hideErrorMessage(progressError);
+        hideNoDataMessage(noProgressData);
+        clearTable(learningProgressTableBody);
+
+        const college = progressCollegeFilter.value; // NEW: Get college filter value
+        const module = progressModuleFilter.value;
+
+        const queryParams = new URLSearchParams();
+        
+        if (college) queryParams.append('college', college); // NEW: Add college to query params
+        if (module) queryParams.append('module', module);
+
+        try {
+            const url = `${BASE_URL}/admin/learning-progress?${queryParams.toString()}`;
+            console.log("Fetching learning progress from:", url); // For debugging
+            const response = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            // Backend should return 'learningProgress' as the key
+            renderLearningProgress(data.learningProgress || []);
+        } catch (error) {
+            console.error('Error fetching learning progress:', error);
+            showErrorMessage(progressError, error.message);
+        } finally {
+            hideLoader(progressLoading);
+        }
+    }
+
+    function renderLearningProgress(progressData) {
+        clearTable(learningProgressTableBody);
+        if (!progressData || progressData.length === 0) {
+            showNoDataMessage(noProgressData);
+            return;
+        }
+        hideNoDataMessage(noProgressData);
+
+        // Aggregate progress data by user and module
+        const aggregatedProgress = {};
+
+        progressData.forEach(item => {
+            const userModuleKey = `${item.UserId}-${item.Module}`;
+            if (!aggregatedProgress[userModuleKey]) {
+                aggregatedProgress[userModuleKey] = {
+                    UserLoginUsername: item.UserLoginUsername || 'N/A',
+                    CollegeName: item.CollegeName || 'N/A',
+                    Module: item.Module || 'N/A',
+                    CompletedTopics: new Set(),
+                    TotalTopics: NUMBER_OF_MODULES // Assuming total topics for a module is constant
+                };
+            }
+            aggregatedProgress[userModuleKey].CompletedTopics.add(item.TopicNumber);
+        });
+
+        // Convert aggregated data for rendering
+        const finalRenderData = Object.values(aggregatedProgress).map(aggItem => {
+            const completedCount = aggItem.CompletedTopics.size;
+            const completionPercentage = aggItem.TotalTopics > 0 ? ((completedCount / aggItem.TotalTopics) * 100).toFixed(1) : '0.0';
+            return {
+                UserLoginUsername: aggItem.UserLoginUsername,
+                CollegeName: aggItem.CollegeName,
+                Module: aggItem.Module,
+                CompletedTopics: completedCount,
+                TotalTopics: aggItem.TotalTopics,
+                CompletionPercentage: completionPercentage
+            };
+        });
+
+        finalRenderData.forEach(item => {
+            const row = learningProgressTableBody.insertRow();
+            row.insertCell().textContent = item.UserLoginUsername;
+            row.insertCell().textContent = item.CollegeName;
+            row.insertCell().textContent = item.Module;
+            row.insertCell().textContent = `${item.CompletedTopics}`;
+            row.insertCell().textContent = `${item.TotalTopics}`;
+            row.insertCell().textContent = `${item.CompletionPercentage}%`;
+        });
+    }
+
+    applyProgressFiltersButton.addEventListener('click', fetchLearningProgress);
+
+
+    // --- Initial setup on page load ---
+    checkAdminAuth(); // This function initiates the first data fetch
+});
+
+
+</script>
 </body>
 </html>
