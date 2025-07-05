@@ -11,173 +11,267 @@
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex flex-col">
 
-  <!-- Header -->
   <header class="bg-white shadow-sm py-4 px-6 w-full">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
         <img src="./ChatGPT Image Jun 15, 2025, 03_58_04 PM.png" alt="Logo" class="w-10 h-10 rounded-full shadow-md" />
         <h1 class="text-2xl font-bold text-blue-700">AWSPrep<span class="text-blue-500">Zone</span><span class="text-gray-700"> – TestPortal</span></h1>
       </div>
-      <div class="flex gap-3">
-        <button onclick="window.location.href='/Course.html'" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 transition">Learn</button>
-        <button onclick="toggleModal('instructionsModal')" class="bg-yellow-500 text-white px-3 py-2 rounded-lg hover:bg-yellow-600 transition">Instructions</button>
-        <button id="progressButton" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition relative">
-          Learning-Progress
-          <span id="progressBadge" class="absolute -top-2 -right-2 bg-white text-blue-700 text-xs font-bold px-1.5 py-0.5 rounded-full shadow-sm">0/14</span>
+      <div class="relative">
+        <button onclick="toggleDropdown()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+          <span id="usernameDisplayHeader">User</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
         </button>
-        <button id="logoutButton" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">Logout</button>
+        <div id="profileDropdown" class="absolute right-0 mt-2 w-64 bg-white border rounded-xl shadow-lg hidden z-50">
+          <div class="p-4 space-y-2 text-sm text-gray-700">
+            <p><strong>Tests Attempted:</strong> <span id="testCount">0</span></p>
+            <p><strong>Passed:</strong> <span id="testPassed">0</span></p>
+            <p><strong>Failed:</strong> <span id="testFailed">0</span></p>
+            <hr />
+            <button onclick="openHistoryModal()" class="w-full text-left hover:bg-gray-100 py-1 px-2 rounded">📄 Exam History</button>
+            <button onclick="openLearningProgress()" class="w-full text-left hover:bg-gray-100 py-1 px-2 rounded">📘 Learning Progress</button>
+            <button onclick="toggleModal('instructionsModal')" class="w-full text-left hover:bg-gray-100 py-1 px-2 rounded">📌 Instructions</button>
+            <button onclick="window.location.href='/forgot-password'" class="w-full text-left hover:bg-gray-100 py-1 px-2 rounded">🔒 Forgot Password</button>
+            <button onclick="logout()" class="w-full text-left text-red-600 hover:bg-red-50 py-1 px-2 rounded">🚪 Logout</button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- Main -->
-  <main class="flex-1 flex justify-center px-4 py-10">
-    <div class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl p-6 md:p-10 space-y-10">
-      <div class="text-center">
-        <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome, <span id="usernameDisplay" class="text-blue-700"></span>!</h2>
-        <p class="text-gray-600">Ready for your next challenge?</p>
-        <button id="writeTestButton" class="mt-4 bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-md transition">Write New Test</button>
-        <p id="progressStatus" class="text-green-700 text-lg font-medium mt-2"></p>
+  <main class="flex-grow flex flex-col items-center justify-center p-6">
+    <section class="text-center mb-10">
+      <h2 class="text-5xl font-extrabold text-blue-800 mb-4 animate-fade-in-down">Welcome, <span id="usernameDisplay" class="text-blue-600">User</span>!</h2>
+      <p class="text-xl text-gray-700 max-w-2xl mx-auto animate-fade-in-up">
+        Your hub for AWS certification preparation. Dive into modules, track your progress, and excel in your exams.
+      </p>
+    </section>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
+      <div class="bg-white rounded-lg shadow-xl p-8 flex flex-col items-center justify-center text-center transform hover:scale-105 transition duration-300 ease-in-out cursor-pointer" onclick="window.location.href='/test'">
+        <div class="bg-blue-100 p-4 rounded-full mb-4">
+          <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-semibold text-gray-800 mb-2">Start a New Test</h3>
+        <p class="text-gray-600">Practice with module-specific or comprehensive exams to sharpen your skills.</p>
       </div>
 
-      <section>
-        <h3 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2 border-blue-300">Your Test History</h3>
-        <div id="testHistoryContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <p id="noHistoryMessage" class="text-gray-500 col-span-full text-center hidden">No test attempts yet. Start your first test!</p>
+      <div class="bg-white rounded-lg shadow-xl p-8 flex flex-col items-center justify-center text-center transform hover:scale-105 transition duration-300 ease-in-out cursor-pointer" onclick="window.location.href='/Course'">
+        <div class="bg-green-100 p-4 rounded-full mb-4">
+          <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.747 0-3.332.477-4.5 1.253"></path>
+          </svg>
         </div>
-      </section>
+        <h3 class="text-2xl font-semibold text-gray-800 mb-2">Course Material</h3>
+        <p class="text-gray-600">Access study materials, PDFs, and resources to deepen your understanding.</p>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-xl p-8 flex flex-col items-center justify-center text-center transform hover:scale-105 transition duration-300 ease-in-out cursor-pointer" onclick="window.location.href='/certificate'">
+        <div class="bg-yellow-100 p-4 rounded-full mb-4">
+          <svg class="w-12 h-12 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.007 12.007 0 002.944 12c.007 3.344 1.282 6.47 3.553 8.851a12.007 12.007 0 0014.225-.001c2.271-2.381 3.546-5.507 3.553-8.851-.007-3.344-1.282-6.47-3.553-8.851z"></path>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-semibold text-gray-800 mb-2">View Certificate</h3>
+        <p class="text-gray-600">Download your certificate upon successful completion of the tests.</p>
+      </div>
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="w-full mt-10 py-6 bg-white shadow-inner text-center text-gray-600 text-sm rounded-t-xl">
-    <p>&copy; 2025 AWSPrepZone – Home. All rights reserved.</p>
-    <p>Designed & Developed by AWSPrepZone</p>
+  <div id="instructionsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-[100]">
+    <div class="bg-white rounded-lg shadow-xl p-8 m-4 max-w-3xl w-full">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold text-gray-800">Instructions for the Test</h3>
+        <button onclick="toggleModal('instructionsModal')" class="text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="prose max-w-none text-gray-700">
+        <p>Welcome to the AWSPrepZone Test Portal. Please read the following instructions carefully before starting your test:</p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li><strong>Test Format:</strong> Each module test consists of 25 multiple-choice questions. The "All Modules" test combines questions from all available modules.</li>
+          <li><strong>Passing Score:</strong> To pass a test, you must score at least 60%.</li>
+          <li><strong>Time Limit:</strong> There is no strict time limit per question, but the overall test duration is designed for efficient completion.</li>
+          <li><strong>Navigation:</strong> You can navigate between questions using the "Next" and "Previous" buttons.</li>
+          <li><strong>Review:</strong> Before submitting, you can review your answers.</li>
+          <li><strong>Submission:</strong> Once you click "Submit Test," your answers will be recorded, and your score will be displayed. You cannot retake the same test module until your previous attempt is processed.</li>
+          <li><strong>Academic Integrity:</strong> Any attempt to cheat, including but not limited to, opening new tabs, switching applications, or using external resources, will be recorded as a violation. Multiple violations may lead to disqualification.</li>
+          <li><strong>Certificate:</strong> Upon passing the "All Modules" test, you will be eligible for a completion certificate.</li>
+          <li><strong>Technical Issues:</strong> In case of any technical difficulties, please contact support immediately. Do not refresh the page during a test unless instructed.</li>
+        </ul>
+        <p class="mt-4">Good luck with your preparation!</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="progressModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-[100]">
+    <div class="bg-white rounded-lg shadow-xl p-8 m-4 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold text-gray-800">Your Learning Progress</h3>
+        <button onclick="toggleModal('progressModal')" class="text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div id="progressContent" class="space-y-3 text-gray-700">
+        <p id="loadingProgress" class="text-center">Loading learning progress...</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="historyModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-[100]">
+    <div class="bg-white rounded-lg shadow-xl p-8 m-4 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold text-gray-800">Your Exam History</h3>
+        <button onclick="toggleModal('historyModal')" class="text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div id="historyContent" class="space-y-3 text-gray-700">
+        <p class="text-gray-600 col-span-full text-center">Loading exam history...</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-gray-800 text-white py-6 px-6 mt-auto">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+      <div class="mb-4 md:mb-0">
+        <p>&copy; 2025 AWSPrepZone. All rights reserved.</p>
+        <p class="text-sm">Designed and Developed by Midhun, Founder</p>
+      </div>
+      <div class="flex space-x-6">
+        <a href="mailto:craids22@gmail.com" class="text-gray-400 hover:text-white transition">Support</a>
+        <a href="#" class="text-gray-400 hover:text-white transition">Privacy Policy</a>
+        <a href="#" class="text-gray-400 hover:text-white transition">Terms of Service</a>
+      </div>
+    </div>
   </footer>
 
-  <!-- Modals -->
-  <div id="instructionsModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full">
-      <h2 class="text-xl font-bold mb-4 text-blue-700">Test Instructions</h2>
-      <ul class="list-disc list-inside text-gray-700 space-y-1 text-sm">
-        <li>Each test contains 25 questions.</li>
-        <li>You have 30 minutes to complete the test.</li>
-        <li>No negative marking for wrong answers.</li>
-        <li>Do not refresh or close the tab during the test.</li>
-        <li>Certificate will be awarded for 70% or above score.</li>
-      </ul>
-      <button onclick="toggleModal('instructionsModal')" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Close</button>
-    </div>
-  </div>
-
-  <div id="progressModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full text-center">
-      <h2 class="text-xl font-bold text-blue-700 mb-4">Learning Progress</h2>
-      <p id="progressModalText" class="text-gray-800 text-lg mb-4">Loading...</p>
-      <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-        <div id="progressBar" class="bg-blue-600 h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
-      </div>
-      <button onclick="toggleModal('progressModal')" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Close</button>
-    </div>
-  </div>
-
-  <!-- Script -->
   <script>
     const API_BASE_URL = window.location.origin;
+    const NUMBER_OF_MODULES = 14; // This should ideally come from backend or a shared config
 
-    const toggleModal = (id) => {
-      const modal = document.getElementById(id);
+    function toggleDropdown() {
+      const dropdown = document.getElementById('profileDropdown');
+      dropdown.classList.toggle('hidden');
+    }
+
+    // New function to close the dropdown
+    function closeDropdown() {
+      const dropdown = document.getElementById('profileDropdown');
+      if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.add('hidden');
+      }
+    }
+
+    function toggleModal(modalId) {
+      const modal = document.getElementById(modalId);
       modal.classList.toggle('hidden');
-      modal.classList.toggle('flex');
-    };
+      if (!modal.classList.contains('hidden')) {
+        closeDropdown(); // Close dropdown when a modal opens
+      }
+    }
 
-    const fetchProgress = async () => {
+    function logout() {
+      localStorage.clear();
+      alert('Logged out!');
+      window.location.href = './welcome.html';
+    }
+
+    function openLearningProgress() {
+      toggleModal('progressModal');
+      fetchProgress();
+    }
+
+    // Function to open the exam history modal
+    function openHistoryModal() {
+      toggleModal('historyModal'); // Show the modal
+      fetchTestHistory(); // Load/refresh history when modal opens
+    }
+
+    async function fetchTestSummary() {
       const jwtToken = localStorage.getItem('jwtToken');
+      if (!jwtToken) {
+          console.warn('JWT token not found. Cannot fetch test summary.');
+          return;
+      }
       try {
-        const response = await fetch(`${API_BASE_URL}/get-topic-progress`, {
-          method: 'GET',
+        const res = await fetch(`${API_BASE_URL}/get-test-history`, {
           headers: { 'Authorization': `Bearer ${jwtToken}` }
         });
-
-        if (response.ok) {
-          const { completedTopics } = await response.json();
-          const completed = completedTopics.length;
-          const total = 14;
-          document.getElementById('progressStatus').textContent = `📘 You have completed ${completed} out of ${total} modules in Learning of AWS CLOUD PRACTITIONER.`;
-          document.getElementById('progressBadge').textContent = `${completed}/${total}`;
-          document.getElementById('progressModalText').textContent = `You have completed ${completed} out of ${total} modules.`;
-          document.getElementById('progressBar').style.width = `${(completed / total) * 100}%`;
+        if (res.ok) {
+          const data = await res.json();
+          const history = data.history || [];
+          document.getElementById('testCount').textContent = history.length;
+          document.getElementById('testPassed').textContent = history.filter(h => h.IsPass).length;
+          document.getElementById('testFailed').textContent = history.filter(h => !h.IsPass).length;
+        } else {
+            console.error('Failed to fetch test summary:', res.status, res.statusText);
+            if (res.status === 401) {
+                alert('Session expired. Please log in again.');
+                logout();
+            }
         }
       } catch (err) {
-        console.error(err);
-        document.getElementById('progressModalText').textContent = 'Error loading progress.';
+        console.error('Failed to fetch test summary:', err);
       }
-    };
+    }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // Function to fetch and display detailed test history
+    async function fetchTestHistory() {
+      const container = document.getElementById('historyContent'); // Target the content div inside the modal
+      if (!container) {
+        console.error('History content container not found within modal.');
+        return;
+      }
+      container.innerHTML = '<p class="text-gray-600 col-span-full text-center">Loading exam history...</p>';
+
       const jwtToken = localStorage.getItem('jwtToken');
-      const username = localStorage.getItem('username');
-      const userId = localStorage.getItem('userId');
-
-      if (!jwtToken || !username || !userId) {
-        alert('You are not logged in. Please log in to access the dashboard.');
-        window.location.href = '/Login';
+      if (!jwtToken) {
+        container.innerHTML = '<p class="text-red-600 col-span-full text-center">Please log in to view exam history.</p>';
         return;
       }
 
-      document.getElementById('usernameDisplay').textContent = username;
-      fetchProgress();
-      fetchTestHistory();
-
-      document.getElementById('progressButton').addEventListener('click', () => {
-        toggleModal('progressModal');
-        fetchProgress();
-      });
-
-      document.getElementById('logoutButton').addEventListener('click', () => {
-        localStorage.clear();
-        alert('You have been logged out.');
-        window.location.href = './welcome.html';
-      });
-
-      document.getElementById('writeTestButton').addEventListener('click', () => {
-        window.location.href = '/test';
-      });
-    });
-
-    const fetchTestHistory = async () => {
-      const jwtToken = localStorage.getItem('jwtToken');
-      const container = document.getElementById('testHistoryContainer');
-      const noHistoryMsg = document.getElementById('noHistoryMessage');
-
       try {
-        const response = await fetch(`${API_BASE_URL}/get-test-history`, {
-          method: 'GET',
+        const res = await fetch(`${API_BASE_URL}/get-test-history`, {
           headers: { 'Authorization': `Bearer ${jwtToken}` }
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          const history = data.history;
+        if (res.ok) {
+          const data = await res.json();
+          const history = data.history || [];
           if (history.length === 0) {
-            noHistoryMsg.classList.remove('hidden');
+            container.innerHTML = '<p class="text-gray-600 col-span-full text-center">No exam history found yet. Start a new test!</p>';
             return;
           }
-          container.innerHTML = '';
-          history.forEach(({ AttemptDate, IsPass, Score, TotalQuestions, AttemptId, Username }) => {
+
+          container.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">'; // Start grid container
+          history.forEach(test => {
+            const AttemptDate = test.AttemptDate;
+            const Score = test.Score;
+            const TotalQuestions = test.TotalQuestions;
+            const IsPass = test.IsPass;
+            const Username = test.Username;
+            const CanDownloadCertificate = test.CanDownloadCertificate; // Get the new flag from backend
+
+            const statusClass = IsPass ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800';
             const statusText = IsPass ? 'Passed' : 'Failed';
-            const statusClass = IsPass ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-            container.insertAdjacentHTML('beforeend', `
+
+            container.firstElementChild.insertAdjacentHTML('beforeend', `
               <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow hover:shadow-md transition">
                 <div class="flex justify-between items-center mb-3">
                   <h4 class="text-lg font-semibold text-gray-800">Test on ${new Date(AttemptDate).toLocaleString()}</h4>
                   <span class="${statusClass} px-3 py-1 rounded-full text-sm font-medium">${statusText}</span>
                 </div>
                 <p class="text-gray-700 mb-2">Score: <span class="font-bold">${Score} / ${TotalQuestions}</span></p>
-                ${IsPass ? `<button data-score="${Score}" data-username="${Username}" class="download-certificate-button w-full mt-3 bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">Download Certificate</button>` : ''}
+                ${CanDownloadCertificate ? `<button data-score=\"${Score}\" data-username=\"${Username}\" class=\"download-certificate-button w-full mt-3 bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors\">Download Certificate</button>` : ''}
               </div>
             `);
           });
+          container.innerHTML += '</div>'; // Close grid container
 
           document.querySelectorAll('.download-certificate-button').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -186,12 +280,92 @@
               window.location.href = `/certificate`;
             });
           });
+        } else {
+          console.error('Failed to fetch test history:', res.status, res.statusText);
+          container.innerHTML = `<p class="text-red-600 col-span-full text-center">Failed to load exam history. Please try again.</p>`;
+          if (res.status === 401) {
+              alert('Session expired. Please log in again.');
+              logout();
+          }
         }
       } catch (error) {
-        console.error(error);
-        container.innerHTML = `<p class="text-red-600 col-span-full text-center">Failed to load test history.</p>`;
+        console.error('Error fetching test history:', error);
+        container.innerHTML = `<p class="text-red-600 col-span-full text-center">An error occurred while loading exam history.</p>`;
       }
-    };
+    }
+
+    async function fetchProgress() {
+      const jwtToken = localStorage.getItem('jwtToken');
+      const progressContent = document.getElementById('progressContent');
+      progressContent.innerHTML = '<p id="loadingProgress" class="text-center">Loading learning progress...</p>'; // Show loading
+
+      if (!jwtToken) {
+          progressContent.innerHTML = '<p class="text-red-500 text-center">Not authenticated. Please log in.</p>';
+          return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/get-topic-progress`, {
+          headers: { 'Authorization': `Bearer ${jwtToken}` }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const completedTopics = new Set(data.completedTopics || []);
+          let html = '';
+          if (NUMBER_OF_MODULES > 0) {
+            html += '<p class="text-lg font-semibold mb-3">Your progress across modules:</p>';
+            html += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">'; // Start grid container
+            for (let i = 1; i <= NUMBER_OF_MODULES; i++) {
+              const isCompleted = completedTopics.has(i);
+              html += `
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow hover:shadow-md transition">
+                  <div class="flex justify-between items-center mb-3">
+                    <h4 class="text-lg font-semibold text-gray-800">Module ${i}</h4>
+                    ${isCompleted ? '<span class="bg-green-200 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Completed ✅</span>' : '<span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Not Started / In Progress</span>'}
+                  </div>
+                </div>
+              `;
+            }
+            html += '</div>'; // Close grid container
+          } else {
+            html = '<p>No modules configured for progress tracking.</p>';
+          }
+          progressContent.innerHTML = html;
+        } else {
+          console.error('Failed to fetch topic progress:', res.status, res.statusText);
+          progressContent.innerHTML = '<p class="text-red-500 text-center">Failed to load progress. Please try again.</p>';
+        }
+      } catch (error) {
+        console.error('Error fetching topic progress:', error);
+        progressContent.innerHTML = '<p class="text-red-500 text-center">An error occurred while loading progress.</p>';
+      }
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const username = localStorage.getItem('username');
+      if (!username) {
+        alert('You are not logged in. Please log in to access the dashboard.');
+        window.location.href = '/Login.html';
+        return;
+      }
+      document.getElementById('usernameDisplay').textContent = username;
+      document.getElementById('usernameDisplayHeader').textContent = username;
+      fetchTestSummary(); // Still fetch summary for dropdown stats on load
+      // fetchTestHistory() is now called only when the history modal is opened via openHistoryModal()
+
+      // Add click event listener to the document
+      document.addEventListener('click', (event) => {
+        const dropdown = document.getElementById('profileDropdown');
+        const dropdownButton = document.querySelector('header button'); // Assuming this is your dropdown toggle button
+
+        // Check if the click was outside the dropdown and outside the button
+        if (!dropdown.contains(event.target) && !dropdownButton.contains(event.target)) {
+          closeDropdown();
+        }
+      });
+    });
   </script>
 </body>
 </html>
