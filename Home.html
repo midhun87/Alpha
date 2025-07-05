@@ -347,7 +347,7 @@
       const username = localStorage.getItem('username');
       if (!username) {
         alert('You are not logged in. Please log in to access the dashboard.');
-        window.location.href = '/Login.html';
+        window.location.href = '/login.html';
         return;
       }
       document.getElementById('usernameDisplay').textContent = username;
