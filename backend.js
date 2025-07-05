@@ -57,6 +57,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 app.get('/Login', (req, res) => res.sendFile(path.join(__dirname, 'Login.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'Login.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/Login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 
 app.get('/Signup', (req, res) => res.sendFile(path.join(__dirname, 'Signup.html')));
 app.get('/home', (req, res) => res.sendFile(path.join(__dirname, 'Home.html')));
