@@ -523,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function checkAdminAuth() {
         if (!authToken) {
             console.log('No token found. Redirecting to login.');
-            window.location.href = '/Login.html'; // Assuming your login page is Login.html
+            window.location.href = '/login.html'; // Assuming your login page is Login.html
             return;
         }
 
@@ -541,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.status === 401 || response.status === 403) {
                     alert(`Session expired or unauthorized: ${errorData.message}. Please log in again.`);
                     localStorage.removeItem('token');
-                    window.location.href = '/Login.html';
+                    window.location.href = '/login.html';
                 } else {
                     throw new Error(errorData.message || `Server error during token validation: ${response.statusText}`);
                 }
@@ -560,13 +560,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.warn('User is not an admin. Role:', data.user ? data.user.role : 'N/A');
                 alert('Access Denied: You do not have administrator privileges. Redirecting to login.');
                 localStorage.removeItem('token');
-                window.location.href = '/Login.html';
+                window.location.href = '/login.html';
             }
         } catch (error) {
             console.error('Authentication check failed:', error);
             alert(`Authentication failed: ${error.message}. Please try logging in again.`);
             localStorage.removeItem('token');
-            window.location.href = '/Login.html';
+            window.location.href = '/login.html';
         }
     }
 
