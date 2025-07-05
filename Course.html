@@ -331,7 +331,6 @@
     <div id="pageIndicator"></div>
     <button id="prevPdfButton">Previous</button>
     <button id="nextPdfButton">Next</button>
-    <br><br>
     <button id="markCompleteButton" style="display: none; background: green; color: white; padding: 10px 20px; border: none; border-radius: 5px;">Mark as Complete</button>
 </div>
 
@@ -392,7 +391,7 @@
 
         document.getElementById('logoutButton').addEventListener('click', () => {
             localStorage.clear();
-            window.location.href = '/login.html';
+            window.location.href = '/Login';
         });
 
         document.getElementById('takeTestButton').addEventListener('click', () => {
@@ -519,10 +518,7 @@
         const topic = courseTopics.find(t => t.id === topicId);
         if (!topic) return;
 
-        const pdfPath = `/pdfs/${topic.id}. ${topic.title}.pdf`;
-
-
-
+        const pdfPath = `/PPts/${topic.id}. ${topic.title}.pdf`;
         loadPdf(pdfPath);
 
         document.querySelectorAll('.topic-item').forEach(item => {
