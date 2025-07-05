@@ -95,7 +95,7 @@
     let allCertificates = [];
 
     async function fetchAndDisplayCertificates() {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('jwtToken');
       const certificateListDiv = document.getElementById('certificateList');
       const loadingMessage = document.getElementById('loadingMessage');
 
