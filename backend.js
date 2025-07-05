@@ -45,9 +45,9 @@ const NUMBER_OF_QUESTIONS_PER_TEST = 25;
 const NUMBER_OF_MODULES = 14;
 
 // --- Express App Setup ---
+const app = express();
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5000', 'http://127.0.0.1:5000'],
-    credentials: true
+    origin: ['http://localhost:3000', `http://localhost:${PORT}`, `http://127.0.0.1:${PORT}`]
 }));
 app.use(bodyParser.json());
 app.use(express.json());
