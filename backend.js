@@ -47,7 +47,7 @@ const NUMBER_OF_MODULES = 14;
 // --- Express App Setup ---
 const app = express();
 app.use(cors({
-    origin: ['http://localhost:3000', `http://localhost:${PORT}`, `http://127.0.0.1:${PORT}`]
+    origin: ['http://localhost:3000', `http://localhost:${PORT}`, `http://127.0.0.1:${PORT}`, 'http://15.207.55.68']
 }));
 app.use(bodyParser.json());
 app.use(express.json());
