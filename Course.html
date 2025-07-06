@@ -433,7 +433,7 @@
     });
 
     async function getLearningProgress() {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('jwtToken');
         try {
             const response = await fetch(`${BASE_URL}/get-topic-progress`, {
                 method: 'GET',
