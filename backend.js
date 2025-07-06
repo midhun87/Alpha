@@ -1281,6 +1281,37 @@ async function fetchTestSummary() {
   }
 }
 
+app.post('/api/mark-topic-complete', authenticateUser, async (req, res) => {
+    const { topicId, courseId, topicTitle } = req.body;
+    const userId = req.user.userId; // Get userId from the authenticated token
+
+    if (!topicId || !courseId || !topicTitle) {
+        return res.status(400).json({ message: 'Topic ID, Course ID, and Topic Title are required.' });
+    }
+
+    const dateCompleted = new Date().toISOString(); // Current timestamp
+
+    try {
+        const params = {
+            TableName: COURSE_PROGRESS_TABLE, // Ensure this matches your table name 'CourseProgress'
+            Item: {
+                UserId: userId,
+                TopicId: topicId,
+                CourseId: courseId,
+                TopicTitle: topicTitle,
+                DateCompleted: dateCompleted,
+                Status: 'completed'
+            }
+        };
+
+        await dynamodb.put(params).promise();
+        res.status(200).json({ message: 'Topic marked as complete successfully!' });
+    } catch (error) {
+        console.error('Error marking topic complete:', error);
+        res.status(500).json({ message: 'Failed to mark topic complete.' });
+    }
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
