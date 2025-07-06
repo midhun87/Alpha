@@ -485,7 +485,7 @@
     }
 
     async function markTopicAsComplete(topicId) {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('jwtToken');
         if (!token) {
             alert('Please log in to mark this module as complete.');
             return;
