@@ -13,8 +13,8 @@ const baseURL = process.env.BASE_URL || 'http://localhost:5000';
 
 AWS.config.update({
     region: 'ap-south-1', // IMPORTANT: This region must match where your DynamoDB tables are located.
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'AKIAVEP3EDM5K3LA5J47', // Use env var or provided key
-    secretAccessKey: process.env.AWS_ACCESS_KEY_ID || 'YfIszgolrWKUglxC6Q85HSb3V0qhDsa00yv6jcIP' // Use env var or provided key
+    accessKeyId: 'AKIAVEP3EDM5K3LA5J47', // Use env var or provided key
+    secretAccessKey: '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' // Use env var or provided key
 });
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
@@ -47,7 +47,7 @@ const NUMBER_OF_MODULES = 14;
 // --- Express App Setup ---
 const app = express();
 app.use(cors({
-    origin: ['http://localhost:3000', `http://localhost:${PORT}`, `http://127.0.0.1:${PORT}`, 'http://15.207.55.68']
+    origin: ['http://localhost:3000', `http://localhost:${PORT}`, `http://127.0.0.1:${PORT}`]
 }));
 app.use(bodyParser.json());
 app.use(express.json());
@@ -57,15 +57,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 app.get('/Login', (req, res) => res.sendFile(path.join(__dirname, 'Login.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'Login.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-app.get('/Login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-app.get('/TestHistory', (req, res) => res.sendFile(path.join(__dirname, 'TestHistory.html')));
+
 app.get('/Signup', (req, res) => res.sendFile(path.join(__dirname, 'Signup.html')));
 app.get('/home', (req, res) => res.sendFile(path.join(__dirname, 'Home.html')));
 app.get('/test', (req, res) => res.sendFile(path.join(__dirname, 'Test.html')));
 app.get('/certificate', (req, res) => res.sendFile(path.join(__dirname, 'Certificate.html')));
 app.get('/welcome', (req, res) => res.sendFile(path.join(__dirname, 'welcome.html')));
 app.get('/Course', (req, res) => res.sendFile(path.join(__dirname, 'Course.html')));
+app.get('/history', (req, res) => res.sendFile(path.join(__dirname, 'TestHistory.html')));
+
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'Admin.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'Admin.html')));
 app.use('/pdfs', express.static(path.join(__dirname, 'PPts')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'welcome.html')));
@@ -121,44 +122,49 @@ async function checkIfAttributeExists(tableName, indexName, attributeName, value
 
 // --- User Authentication Middleware ---
 // --- User Authentication Middleware ---
-function authenticateUser(req, res, next) {
-    const authHeader = req.headers.authorization;
-    console.log('SERVER DEBUG: authenticateUser called. Authorization header:', authHeader);
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        console.warn('SERVER DEBUG: Auth header missing or malformed.');
-        return res.status(401).json({ message: 'Authorization token not provided or malformed.' });
+const authenticateUser = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ message: 'Authentication token required.' });
     }
-    const token = authHeader.replace('Bearer ', '');
-    console.log('SERVER DEBUG: Token extracted (first 20 chars):', token.substring(0, 20) + '...');
-    try {
-        // --- CHANGE: Corrected SECRET_KEY to JWT_SECRET ---
-        const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
-        console.log('SERVER DEBUG: Token decoded successfully. User ID:', decoded.userId, 'Role:', decoded.role);
-        req.user = decoded; // Attach user info to request
-        next();
-    } catch (error) {
-        console.error('SERVER ERROR: JWT Verification FAILED:', error.message, 'Name:', error.name);
-        if (error.name === 'TokenExpiredError') {
-            return res.status(401).json({ message: 'Token expired. Please log in again.' });
-        } else if (error.name === 'JsonWebTokenError') {
-            return res.status(401).json({ message: 'Invalid token. Please log in again.' });
-        } else {
-            return res.status(500).json({ message: 'Authentication failed due to an unexpected error.' });
+
+    console.log("SERVER DEBUG: JWT_SECRET value being used in authenticateUser:", JWT_SECRET); // ADD THIS LINE
+    console.log("SERVER DEBUG: Token received for verification:", token); // ADD THIS LINE
+
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        if (err) {
+            console.error("JWT verification error:", err);
+            // Log the error details for more insight
+            if (err.name === 'TokenExpiredError') {
+                return res.status(401).json({ message: 'Token expired. Please log in again.' });
+            }
+            if (err.name === 'JsonWebTokenError') {
+                return res.status(403).json({ message: 'Invalid token. Access denied.' });
+            }
+            return res.status(500).json({ message: 'Failed to authenticate token.' });
         }
-    }
-}
+        req.user = decoded;
+        console.log("SERVER DEBUG: Full decoded object after verification:", decoded); // CHANGE THIS LINE
+        console.log("SERVER DEBUG: Decoded userId:", decoded.userId, "Decoded isAdmin:", decoded.isAdmin); // ADD THIS LINE
+
+        next();
+    });
+};
 
 
 // --- Admin Authorization Middleware ---
-function authorizeAdmin(req, res, next) {
-    console.log('SERVER DEBUG: authorizeAdmin called. User role:', req.user ? req.user.role : 'N/A');
-    if (req.user && req.user.role === 'admin') {
-        next(); // User is an admin, proceed
+const authorizeAdmin = (req, res, next) => {
+    console.log("SERVER DEBUG: authorizeAdmin called. req.user object:", req.user); // THIS IS CRUCIAL
+    console.log("SERVER DEBUG: Value of req.user.isAdmin in authorizeAdmin:", req.user ? req.user.isAdmin : 'req.user is null'); // THIS IS ALSO CRUCIAL
+
+    if (req.user && req.user.isAdmin) {
+        next();
     } else {
-        console.warn('SERVER DEBUG: Admin authorization failed.');
-        return res.status(403).json({ message: 'Access denied. Administrator privileges required.' });
+        res.status(403).json({ message: 'Access Denied: You do not have administrator privileges.' });
     }
-}
+};
 
 
 // --- Signup Route ---
@@ -440,9 +446,9 @@ async function sendTestCompletionEmail(toEmail, username, score, totalQuestions,
             ${isPass ? '<p>Congratulations on passing! Keep up the great work.</p>' : '<p>Keep practicing! You can do it.</p>'}
             <p>You can view your complete test history on your dashboard.</p>
             <p>Regards,<br>AWSPrepZone-Team</p>
-            <p>Happy Learning! - Quizcom _ Team</p>
+            <p>Happy Learning! - Your Midhun Founder</p>
         `,
-        text: `Dear ${username},\n\nThis email is to confirm that you have completed a test on AWSPrepZone.\n\nModule Tested: ${module}\nYour Score: ${score} / ${totalQuestions}\nResult: ${passStatus}\n\n${isPass ? 'Congratulations on passing! Keep up the great work.' : 'Keep practicing! You can do it.'}\n\nYou can find your Certificate in Dashboard\n\nRegards,\nAWSPrepZone-Team\nHappy Learning! - QuizCom Team`,
+        text: `Dear ${username},\n\nThis email is to confirm that you have completed a test on AWSPrepZone.\n\nModule Tested: ${module}\nYour Score: ${score} / ${totalQuestions}\nResult: ${passStatus}\n\n${isPass ? 'Congratulations on passing! Keep up the great work.' : 'Keep practicing! You can do it.'}\n\nYou can find your Certificate in Dashboard\n\nRegards,\nAWSPrepZone-Team\nHappy Learning! - Your Midhun Founder`,
     };
 
     try {
@@ -765,7 +771,7 @@ async function sendPasswordResetEmail(toEmail, resetToken) {
             <p>This link will expire in ${PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES} minutes.</p>
             <p>If you did not request this, please ignore this email. If you seen this suspicious please report at craids22@gmail.com</p>
             <p>Regards,<br>AWSPrepZone-Team</p>
-            <p>Happy Learning!- QuizComTeam</p>
+            <p>Happy Learning!- Your Midhun Founder</p>
         `,
         text: `You requested a password reset for your account. Click the following link to reset your password: ${resetLink}. This link will expire in ${PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES} minutes. If you did not request this, please ignore this email. Regards, Your Website Team`,
     };
@@ -951,13 +957,24 @@ async function fetchCollegeNameByUserId(userId) {
 // Admin: Get unique College Names for dropdown (requires admin authorization)
 app.get('/admin/unique-colleges', authenticateUser, authorizeAdmin, async (req, res) => {
     try {
-        console.log('SERVER DEBUG: /admin/unique-colleges accessed by admin:', req.user.username);
-        // Corrected to fetch from USER_TABLE_NAME
-        const colleges = await getUniqueValues(USER_TABLE_NAME, 'CollegeName');
-        res.status(200).json({ colleges });
+        const params = {
+            TableName: USER_TABLE_NAME, // Assuming 'Usertable' stores user data including collegeName
+            ProjectionExpression: 'collegeName'
+        };
+
+        let allColleges = [];
+        let items;
+        do {
+            items = await dynamodb.scan(params).promise();
+            items.Items.forEach((item) => allColleges.push(item.collegeName));
+            params.ExclusiveStartKey = items.LastEvaluatedKey;
+        } while (typeof items.LastEvaluatedKey !== 'undefined');
+
+        const uniqueColleges = [...new Set(allColleges.filter(name => name))]; // Filter out any undefined/null names
+        res.status(200).json({ colleges: uniqueColleges });
     } catch (error) {
-        console.error('Error fetching unique colleges:', error);
-        res.status(500).json({ message: 'Failed to fetch unique colleges.' });
+        console.error('Error fetching unique college names:', error);
+        res.status(500).json({ message: 'Failed to fetch unique college names.' });
     }
 });
 
@@ -1206,60 +1223,64 @@ app.get('/admin/learning-progress', authenticateUser, authorizeAdmin, async (req
 
 // New endpoint to get all passing certificates for the logged-in user
 // --- NEW Endpoint: Get All Passing Certificates for Frontend List ---
-app.get('/get-all-passing-certificates', authenticateUser, async (req, res) => {
-    try {
-        const userId = req.user.userId;
+// NEW: Endpoint to get all passing certificates (for displaying multiple certificates)
+// In your backend.js file, ensure your /get-all-passing-certificates endpoint looks like this:
 
+app.get('/get-all-passing-certificates', authenticateUser, async (req, res) => {
+    const { userId, username, email } = req.user; // Get user details from authenticated token
+
+    try {
+        // 1. Fetch user details (including CollegeName) once
+        const userResult = await dynamodb.get({
+            TableName: 'Usertable', // Assuming your user table is named 'Usertable'
+            Key: { UserId: userId }
+        }).promise();
+        const user = userResult?.Item;
+
+        if (!user) {
+            return res.status(404).json({ message: 'User details not found.' });
+        }
+
+        // 2. Fetch all passing test attempts for the user
         const params = {
-            TableName: TEST_ATTEMPTS_TABLE_NAME,
-            IndexName: 'UserId-AttemptDate-index', // Ensure this GSI exists and is properly configured
+            TableName: 'TestAttempts',
+            IndexName: 'UserId-AttemptDate-index', // Assuming this GSI exists for efficient query by UserId
             KeyConditionExpression: 'UserId = :userId',
             FilterExpression: 'IsPass = :isPass',
             ExpressionAttributeValues: {
                 ':userId': userId,
                 ':isPass': true
             },
-            ScanIndexForward: false // Sort by AttemptDate descending to easily get the latest
+            ScanIndexForward: false // Get most recent first
         };
+        const result = await dynamodb.query(params).promise();
 
-        let allPassingAttempts = [];
-        let data;
-        do {
-            data = await dynamodb.query(params).promise();
-            allPassingAttempts = allPassingAttempts.concat(data.Items);
-            params.ExclusiveStartKey = data.LastEvaluatedKey;
-        } while (typeof data.LastEvaluatedKey !== 'undefined');
-
-        // Group by ModuleTested and keep only the latest attempt for each module
-        const latestAttemptsByModule = new Map(); // Map to store the latest attempt for each module
-        for (const attempt of allPassingAttempts) {
-            const moduleName = attempt.ModuleTested;
-            // If the module is not yet in the map, or if the current attempt is newer than the one in the map
-            if (!latestAttemptsByModule.has(moduleName) || new Date(attempt.AttemptDate) > new Date(latestAttemptsByModule.get(moduleName).AttemptDate)) {
-                latestAttemptsByModule.set(moduleName, attempt);
-            }
+        if (!result.Items || result.Items.length === 0) {
+            return res.status(200).json({ certificates: [] }); // Return empty array if no passing tests
         }
 
-        // Convert map values back to an array
-        const uniquePassingCertificates = Array.from(latestAttemptsByModule.values());
-
-        // Format data for the frontend
-        const formattedCertificates = uniquePassingCertificates.map(attempt => ({
-            testAttemptId: attempt.TestAttemptId, // Unique ID for each attempt
-            studentName: attempt.UserLoginUsername, // Use UserLoginUsername from TestAttempts
+        // Map test attempts to certificate objects, ensuring userId is included
+        const certificates = result.Items.map(attempt => ({
+            studentName: user.username, // Use username from the Usertable
+            studentEmail: user.email,   // Use email from the Usertable
+            studentCollege: user.collegeName, // Use collegeName from the Usertable
+            moduleTested: attempt.ModuleTested,
             studentScore: attempt.Score,
             totalQuestions: attempt.TotalQuestions,
-            moduleTested: attempt.ModuleTested, // 'ModuleTested' from TestAttempts
-            testDate: attempt.AttemptDate
+            testDate: attempt.AttemptDate,
+            testResultId: attempt.TestAttemptId, // This is the TestAttemptId from your table
+            userId: user.UserId // IMPORTANT: Explicitly include userId from the user object
         }));
 
-        res.status(200).json({ certificates: formattedCertificates });
+        res.status(200).json({ certificates });
 
     } catch (error) {
         console.error('Error fetching all passing certificates:', error);
-        res.status(500).json({ message: 'Failed to fetch all passing certificates: ' + error.message });
+        res.status(500).json({ message: 'Internal server error while fetching certificates.' });
     }
 });
+
+
 async function fetchTestSummary() {
   const jwtToken = localStorage.getItem('jwtToken');
   console.log('DEBUG: Token found in localStorage:', jwtToken ? 'YES' : 'NO'); // Add this line
@@ -1280,75 +1301,98 @@ async function fetchTestSummary() {
       console.error('Failed to fetch test summary:', err);
   }
 }
+// backend.js
 
-app.post('/api/mark-topic-complete', authenticateUser, async (req, res) => {
-    const { topicId, courseId, topicTitle } = req.body;
-    const userId = req.user.userId; // Get userId from the authenticated token
+// ... (existing code) ...
 
-    if (!topicId || !courseId || !topicTitle) {
-        return res.status(400).json({ message: 'Topic ID, Course ID, and Topic Title are required.' });
-    }
+// Endpoint to mark a topic as complete
+// app.post('/api/mark-topic-complete', authenticateUser, async (req, res) => {
+//     const { topicId, courseId, topicTitle } = req.body;
+//     const userId = req.user.userId; // Get userId from the authenticated token
 
-    const dateCompleted = new Date().toISOString(); // Current timestamp
+//     if (!topicId || !courseId || !topicTitle) {
+//         return res.status(400).json({ message: 'Topic ID, Course ID, and Topic Title are required.' });
+//     }
 
-    try {
-        const params = {
-            TableName: COURSE_PROGRESS_TABLE, // Ensure this matches your table name 'CourseProgress'
-            Item: {
-                UserId: userId,
-                TopicId: topicId,
-                CourseId: courseId,
-                TopicTitle: topicTitle,
-                DateCompleted: dateCompleted,
-                Status: 'completed'
-            }
-        };
+//     const dateCompleted = new Date().toISOString(); // Current timestamp
 
-        await dynamodb.put(params).promise();
-        res.status(200).json({ message: 'Topic marked as complete successfully!' });
-    } catch (error) {
-        console.error('Error marking topic complete:', error);
-        res.status(500).json({ message: 'Failed to mark topic complete.' });
-    }
-});
+//     try {
+//         const params = {
+//             TableName: COURSE_PROGRESS_TABLE, // Ensure this matches your table name 'CourseProgress'
+//             Item: {
+//                 UserId: userId,
+//                 TopicId: topicId,
+//                 CourseId: courseId,
+//                 TopicTitle: topicTitle,
+//                 DateCompleted: dateCompleted,
+//                 Status: 'completed'
+//             }
+//         };
+
+//         await dynamodb.put(params).promise();
+//         res.status(200).json({ message: 'Topic marked as complete successfully!' });
+//     } catch (error) {
+//         console.error('Error marking topic complete:', error);
+//         res.status(500).json({ message: 'Failed to mark topic complete.' });
+//     }
+// });
+
+// ... (rest of your existing backend.js code) ...
+
 // In your backend.js
 // Make sure to place this route handler *before* any catch-all routes if you have them.
 
-app.get('/get-test-history-by-id', async (req, res) => {
-    const testResultId = req.query.testResultId;
+// In your backend.js file, replace your current /get-test-history-by-id endpoint with this:
 
-    if (!testResultId) {
-        return res.status(400).json({ message: 'Test Result ID is required.' });
+app.get('/get-test-history-by-id', async (req, res) => {
+    // We expect both userId and testResultId (which maps to TestAttemptId)
+    const userId = req.query.userId;
+    const testAttemptId = req.query.testAttemptId; // Frontend sends 'testResultId', use it as TestAttemptId
+
+    // --- DEBUG LOGS START ---
+    console.log(`SERVER DEBUG: Received request for /get-test-history-by-id`);
+    console.log(`SERVER DEBUG: UserId from query param: "${userId}"`);
+    console.log(`SERVER DEBUG: TestAttemptId (from testAttemptId) from query param: "${testAttemptId}"`);
+    // --- DEBUG LOGS END ---
+
+    if (!userId || !testAttemptId) {
+        console.warn('SERVER DEBUG: UserId or TestAttemptId is missing. Returning 400.');
+        return res.status(400).json({ message: 'User ID and Test Attempt ID are required.' });
     }
 
     try {
-        // --- Database Query Logic ---
-        // Replace this with your actual DynamoDB query or other database query
-        // Example for DynamoDB (assuming you have a 'TestResults' table):
+        // Use dynamodb.get() for fetching a single item by its composite primary key
         const params = {
-            TableName: 'TestResults', // Your DynamoDB table for test results
-            KeyConditionExpression: 'TestResultId = :id', // Assuming TestResultId is your primary key
-            ExpressionAttributeValues: {
-                ':id': testResultId
+            TableName: 'TestAttempts', // Your table name
+            Key: {
+                UserId: userId,         // Partition Key
+                TestAttemptId: testAttemptId // Sort Key
             }
         };
 
-        const result = await dynamodb.query(params).promise();
+        // --- DEBUG LOGS START ---
+        console.log('SERVER DEBUG: DynamoDB GetItem Params:', JSON.stringify(params, null, 2));
+        // --- DEBUG LOGS END ---
 
-        if (result.Items && result.Items.length > 0) {
-            const testHistory = result.Items[0];
-            // IMPORTANT: You might want to format/filter the data here
-            // to only send necessary information and perhaps exclude sensitive user details
+        const result = await dynamodb.get(params).promise(); // Execute the GetItem operation
+
+        // --- DEBUG LOGS START ---
+        console.log('SERVER DEBUG: DynamoDB GetItem Result:', JSON.stringify(result, null, 2));
+        // --- DEBUG LOGS END ---
+
+        if (result.Item) { // For GetItem, the result is in 'Item' (singular)
+            const testHistory = result.Item;
+            console.log('SERVER DEBUG: Test history found. Sending 200 OK.');
             res.status(200).json(testHistory);
         } else {
+            console.warn(`SERVER DEBUG: No test history found for User ID "${userId}" and Test Attempt ID "${testAttemptId}". Sending 404 Not Found.`);
             res.status(404).json({ message: 'Test history not found for this ID.' });
         }
     } catch (error) {
-        console.error('Error fetching test history:', error);
+        console.error('SERVER ERROR: Error fetching test history:', error);
         res.status(500).json({ message: 'Internal server error while fetching test history.' });
     }
 });
-
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Access the application at ${baseURL}`);
