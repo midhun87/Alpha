@@ -5,54 +5,194 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test History - AWSPrepZone</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(to bottom right, #e0f2f7, #c1e4f4);
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f0f2f5; /* Lighter, modern background */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding: 2rem;
+            padding: 2.5rem; /* Increased padding to make border visible */
+            color: #3f51b5; /* Deeper blue for main text */
+            position: relative; /* For confetti positioning */
+            overflow-x: hidden; /* Prevent horizontal scroll from confetti */
+            border: 8px solid #a7d9f7; /* Apply border to the entire page */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        }
+        .header {
+            width: 100%;
+            max-width: 750px;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            color: #2c3e50; /* Darker color for the main heading text */
+        }
+        .header .logo {
+            max-height: 80px; /* Adjust logo size as needed */
+            margin-bottom: 1rem; /* Space between logo and title */
+        }
+        .header h1 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 3rem; /* Slightly larger for prominence */
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.05em;
+        }
+        .header p {
+            font-size: 1.25rem; /* Slightly larger tagline */
+            font-weight: 400;
+            color: #546e7a; /* Muted color for tagline */
         }
         .container {
             background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-            padding: 2rem;
-            max-width: 800px;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            max-width: 750px; /* Aligned with header width */
             width: 100%;
-            margin-top: 2rem;
+            border: 1px solid #e0e0e0; /* Soft border */
         }
-        .question-item {
-            border-bottom: 1px solid #eee;
-            padding: 1rem 0;
+        .sub-header-title {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #424242;
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
         }
-        .question-item:last-child {
-            border-bottom: none;
+        .sub-header-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #64b5f6;
+            border-radius: 2px;
         }
-        .correct-answer {
-            color: #16a34a; /* Tailwind green-600 */
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (min-width: 640px) {
+            .info-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem 1.25rem;
+            background-color: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .info-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .info-item strong {
+            font-size: 0.95rem;
+            color: #607d8b;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
             font-weight: 500;
         }
-        .incorrect-answer {
-            color: #dc2626; /* Tailwind red-600 */
-            font-weight: 500;
+        .info-item span {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #3f51b5;
+        }
+        .score-display {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #3f51b5;
+        }
+        .pass-status {
+            color: #4caf50;
+        }
+        .fail-status {
+            color: #f44336;
+        }
+        .message-box {
+            text-align: center;
+            font-size: 1rem;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 5px;
+            border: 1px solid;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
         }
         .loading-message {
+            color: #3f51b5;
+            background-color: #e8eaf6;
+            border-color: #c5cae9;
+        }
+        .error-message {
+            color: #d32f2f;
+            background-color: #ffebee;
+            border-color: #ef9a9a;
+        }
+        .subtle-text {
             text-align: center;
-            font-size: 1.1rem;
-            color: #4a5568;
-            margin-top: 2rem;
+            color: #90a4ae;
+            font-size: 0.85rem;
+            margin-top: 1.5rem;
+            font-style: italic;
+        }
+
+        /* Confetti styles */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ffeb3b; /* Yellow */
+            opacity: 0;
+            animation: fall 3s forwards ease-out;
+            border-radius: 50%;
+        }
+        .confetti:nth-child(2n) { background-color: #e91e63; } /* Pink */
+        .confetti:nth-child(3n) { background-color: #4fc3f7; } /* Light Blue */
+        .confetti:nth-child(4n) { background-color: #8bc34a; } /* Light Green */
+
+        @keyframes fall {
+            0% { transform: translateY(-10px) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(100vh) translateX(var(--translateX)) rotate(var(--rotate)) scale(0.5); opacity: 0; }
         }
     </style>
 </head>
 <body>
+    <div class="header">
+       <center> <img src="./ChatGPT Image Jun 15, 2025, 03_58_04 PM.png" alt="AWSPrepZone Logo" class="logo"></center>
+        <h1>AWSPrepZone</h1>
+        <p>Your Path to AWS Certification Success</p>
+    </div>
+
     <div class="container">
-        <h2 class="text-3xl font-bold text-center text-blue-800 mb-6">Test History Details</h2>
-        <div id="loadingMessage" class="loading-message">Loading test history...</div>
+        <h2 class="sub-header-title">Test Result Details</h2>
+        <div id="loadingMessage" class="message-box loading-message">Loading test history...</div>
         <div id="historyDetails" class="mt-6">
             </div>
     </div>
@@ -63,83 +203,116 @@
         async function fetchTestHistory() {
             const urlParams = new URLSearchParams(window.location.search);
             const testResultId = urlParams.get('testResultId');
-            const userId = urlParams.get('userId'); // Get the userId from the URL
+            const userId = urlParams.get('userId');
 
             const historyDetailsDiv = document.getElementById('historyDetails');
             const loadingMessage = document.getElementById('loadingMessage');
 
             if (!testResultId || !userId) {
-                loadingMessage.textContent = 'Error: Missing user ID or test result ID in URL.';
+                loadingMessage.className = 'message-box error-message';
+                loadingMessage.textContent = 'Error: Missing User ID or Test Result ID in URL. Please ensure the URL is complete.';
                 return;
             }
 
             loadingMessage.textContent = `Loading history for User ID: ${userId}, Test ID: ${testResultId}...`;
+            loadingMessage.className = 'message-box loading-message'; // Ensure correct class for loading state
 
             try {
+                // IMPORTANT: Adjust this fetch URL to your actual backend endpoint.
+                // For a local development setup (e.g., Flask on port 5000), it might be:
+                // const response = await fetch(`http://localhost:5000/get-test-history-by-id?userId=${userId}&testResultId=${testResultId}`);
+                // For a deployed application (e.g., on a server where this HTML is served), a relative path is usually better:
                 const response = await fetch(`/get-test-history-by-id?userId=${userId}&testResultId=${testResultId}`);
                 const data = await response.json();
 
                 if (response.ok) {
-                    loadingMessage.style.display = 'none';
+                    loadingMessage.style.display = 'none'; // Hide loading message on success
                     renderTestHistory(data);
+                    if (data.IsPass) {
+                        triggerCelebration(); // Call celebration if passed
+                    }
                 } else {
                     console.error('Failed to fetch test history:', data.message);
+                    loadingMessage.className = 'message-box error-message'; // Apply error styling
                     loadingMessage.textContent = `Error: ${data.message || 'Failed to load test history.'}`;
                 }
             } catch (error) {
                 console.error('Network or server error fetching test history:', error);
-                loadingMessage.textContent = 'Network error. Could not load test history. Please check your connection.';
+                loadingMessage.className = 'message-box error-message'; // Apply error styling
+                loadingMessage.textContent = 'Network error. Could not load test history. Please check your connection or server status.';
             }
         }
 
         function renderTestHistory(historyData) {
             const historyDetailsDiv = document.getElementById('historyDetails');
-            historyDetailsDiv.innerHTML = ''; // Clear loading message
+            historyDetailsDiv.innerHTML = ''; // Clear previous content
 
-            // We will now assume if historyData exists, we should try to render it.
-            // You can add a more specific check here if needed (e.g., if historyData.TestAttemptId is null).
             if (!historyData) {
-                historyDetailsDiv.innerHTML = '<p class="text-center text-red-600">Error: Received no data for this test history.</p>';
+                historyDetailsDiv.innerHTML = '<p class="message-box error-message">No data found for this test result. It might have been deleted or never existed.</p>';
                 return;
             }
 
-            // Display overall test details using the correct field names from your DynamoDB item
-            historyDetailsDiv.innerHTML += `
-                <h3 class="text-2xl font-semibold text-blue-700 mb-4">${historyData.ModuleTested || 'Test Details'}</h3>
-                <p><strong>Date:</strong> ${new Date(historyData.AttemptDate).toLocaleDateString()}</p>
-                <p><strong>Module:</strong> ${historyData.ModuleTested || 'N/A'}</p>
-                <p><strong>Score:</strong> <span class="${historyData.IsPass ? 'text-green-600' : 'text-red-600'}">${historyData.Score || 0} / ${historyData.TotalQuestions || 0}</span></p>
-                <p><strong>Username:</strong> ${historyData.UserLoginUsername || 'N/A'}</p>
-                <p class="text-gray-700 text-lg mt-6"><strong>Questions & Answers:</strong></p>
+            // Constructing individual info items within the grid layout
+            let itemsHtml = `
+                <div class="info-item">
+                    <strong>Module Tested:</strong>
+                    <span>${historyData.ModuleTested || 'N/A'}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Date of Attempt:</strong>
+                    <span>${new Date(historyData.AttemptDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Score:</strong>
+                    <span class="score-display ${historyData.IsPass ? 'pass-status' : 'fail-status'}">
+                        ${historyData.Score || 0} / ${historyData.TotalQuestions || 0}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <strong>Status:</strong>
+                    <span class="${historyData.IsPass ? 'pass-status' : 'fail-status'}">
+                        ${historyData.IsPass ? 'PASSED' : 'FAILED'}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <strong>Username:</strong>
+                    <span>${historyData.UserLoginUsername || 'N/A'}</span>
+                </div>
             `;
 
-            // Display individual question details
-            // Your current DynamoDB item does NOT contain a 'questions' array.
-            // Therefore, this section will always show 'No question-level details available'.
-            // If you need question-level details, you must store them in your TestAttempts table,
-            // perhaps as a complex attribute (list of maps) or fetch from another table.
-            if (historyData.questions && historyData.questions.length > 0) {
-                historyData.questions.forEach((q, index) => {
-                    historyDetailsDiv.innerHTML += `
-                        <div class="question-item">
-                            <p class="font-semibold text-gray-800">Q${index + 1}: ${q.questionText}</p>
-                            <p class="text-sm text-gray-600 ml-4">Your Answer: <span class="${q.isCorrect ? 'correct-answer' : 'incorrect-answer'}">${q.studentAnswer || 'Not answered'}</span></p>
-                            <p class="text-sm text-gray-600 ml-4">Correct Answer: <span class="correct-answer">${q.correctAnswer}</span></p>
-                            ${q.explanation ? `<p class="text-xs text-gray-500 ml-4">Explanation: ${q.explanation}</p>` : ''}
-                        </div>
-                    `;
-                });
-            } else {
-                historyDetailsDiv.innerHTML += '<p class="text-center text-gray-500 mt-4">No question-level details available for this test.</p>';
+            if (historyData.CollegeName) {
+                itemsHtml += `
+                    <div class="info-item">
+                        <strong>College:</strong>
+                        <span>${historyData.CollegeName}</span>
+                    </div>
+                `;
             }
+
+            historyDetailsDiv.innerHTML = `<div class="info-grid">${itemsHtml}</div>`;
+            historyDetailsDiv.innerHTML += '<p class="subtle-text">Individual question details are not available on this page.</p>';
         }
 
-        function formatDuration(seconds) {
-            if (seconds < 60) return `${seconds} seconds`;
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = seconds % 60;
-            if (remainingSeconds === 0) return `${minutes} minutes`;
-            return `${minutes} minutes ${remainingSeconds} seconds`;
+        function triggerCelebration() {
+            const confettiContainer = document.createElement('div');
+            confettiContainer.className = 'confetti-container';
+            document.body.appendChild(confettiContainer);
+
+            const numConfetti = 80; // Number of confetti pieces
+            for (let i = 0; i < numConfetti; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}vw`; // Random horizontal position
+                confetti.style.animationDelay = `${Math.random() * 1}s`; // Stagger animation start
+                confetti.style.setProperty('--translateX', `${(Math.random() - 0.5) * 400}px`); // Random horizontal drift
+                confetti.style.setProperty('--rotate', `${Math.random() * 720}deg`); // Random rotation
+                confettiContainer.appendChild(confetti);
+            }
+
+            // Remove confetti after animation completes
+            setTimeout(() => {
+                confettiContainer.remove();
+            }, 3000); // Matches animation duration
         }
     </script>
 </body>
