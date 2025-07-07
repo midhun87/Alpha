@@ -223,6 +223,9 @@
         <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-blue-700 text-center sm:text-left">
             AWS Cloud Practitioner Mock Test
         </h1>
+        <div id="timer-display" class="ml-auto text-lg sm:text-xl font-bold text-red-600 px-3 py-1 bg-red-100 rounded-md shadow-inner hidden">
+            Time Left: <span id="time-remaining">30:00</span>
+        </div>
     </header>
 
     <div class="bg-white rounded-xl shadow-2xl p-4 sm:p-8 max-w-5xl w-full flex flex-col flex-grow items-center justify-center">
@@ -382,6 +385,7 @@
     <script>
         const API_BASE_URL = window.location.origin; // Dynamically get base URL
         const NUMBER_OF_QUESTIONS_PER_TEST = 25; // Define the number of questions per test
+        const QUIZ_DURATION_MINUTES = 30; // Set quiz duration to 30 minutes
 
         // Global state variables
         let questions = []; // This will hold the 25 randomly selected questions
@@ -394,9 +398,12 @@
         let selectedModule = ''; // NEW: To store the user's selected module
         let quizViolationDetected = false; // Flag to indicate if a violation occurred
 
+        // Timer variables
+        let timerInterval;
+        let timeRemainingSeconds;
+
         // Get DOM elements
         const startScreen = document.getElementById('start-screen');
-        // const collegeSelect = document.getElementById('college-select'); // Removed
         const moduleSelect = document.getElementById('module-select'); // NEW: Get module select element
         const startQuizButton = document.getElementById('start-quiz-button');
 
@@ -419,15 +426,17 @@
         const messageBoxContent = document.getElementById('message-box-content');
         const messageBoxCloseBtn = document.getElementById('message-box-close-btn');
         
-        // Get the quiz stopped overlay elements
         const quizStoppedOverlay = document.getElementById('quiz-stopped-overlay');
         const quizStoppedRestartButton = document.getElementById('quiz-stopped-restart-button');
 
-        // NEW: Get Review Results elements
         const reviewResultsContainer = document.getElementById('review-results-container');
         const finalScoreDisplay = document.getElementById('final-score-display');
         const questionsReviewArea = document.getElementById('questions-review-area');
         const returnHomeButton = document.getElementById('return-home-button');
+
+        // Timer specific elements
+        const timerDisplay = document.getElementById('timer-display');
+        const timeRemainingSpan = document.getElementById('time-remaining');
 
 
         /**
@@ -510,12 +519,14 @@
             }
 
             quizViolationDetected = true;
+            clearInterval(timerInterval); // Stop the timer on violation
             exitFullScreen(); // Try to exit full screen if still in it
 
             // Hide the main quiz container and show the "quiz stopped" overlay
             quizContainer.classList.add('hidden');
             fullscreenExitOverlay.classList.remove('show'); // Hide the other overlay if it was showing
             reviewResultsContainer.classList.add('hidden'); // Ensure review screen is hidden
+            timerDisplay.classList.add('hidden'); // Hide the timer
             quizStoppedOverlay.classList.add('show'); // Show the violation overlay
 
             // Disable all interactive elements within the quiz container
@@ -603,6 +614,9 @@
                     questions = data.questions;
                     userSelections = Array(questions.length).fill(null); // Initialize selections for new test
                     markedForReview = Array(questions.length).fill(false); // Initialize marked for review
+                    
+                    startTimer(QUIZ_DURATION_MINUTES * 60); // Start the timer when quiz initializes
+                    timerDisplay.classList.remove('hidden'); // Show the timer display
                     renderQuestion(); // Render the first question
                 } else if (response.status === 401) {
                     showCustomMessage('Your session has expired. Please log in again.', () => {
@@ -612,7 +626,7 @@
                 } else {
                     const errorData = await response.json();
                     showCustomMessage(`Failed to load questions: ${errorData.message || response.statusText}`, () => {
-                        window.location.href = '/home';
+                        window.location.href = '/Home.html';
                     });
                 }
             } catch (error) {
@@ -836,6 +850,8 @@
                 });
                 return;
             }
+            
+            clearInterval(timerInterval); // Stop the timer when quiz is finalized
 
             score = 0; // Reset score before final calculation
             questions.forEach((q, index) => {
@@ -845,7 +861,8 @@
             });
 
             const totalQuestions = questions.length;
-            const isPass = score > 17; // Pass if score is greater than 17 (Adjust as needed for 25 questions)
+            // Assuming 70% passing score: 0.70 * 25 = 17.5. So score > 17 means 18 or more.
+            const isPass = score >= Math.ceil(0.70 * totalQuestions); 
 
             const jwtToken = localStorage.getItem('jwtToken');
             if (!jwtToken) {
@@ -883,6 +900,7 @@
                     
                     quizContainer.classList.add('hidden');
                     startScreen.classList.add('hidden'); 
+                    timerDisplay.classList.add('hidden'); // Hide timer after submission
                     reviewResultsContainer.classList.remove('hidden'); 
                     displayQuizReview(); 
 
@@ -965,6 +983,7 @@
 
         function handleRestartQuiz() {
             
+            clearInterval(timerInterval); // Stop timer on restart
             exitFullScreen();
             currentQuestionIndex = 0;
             score = 0;
@@ -985,6 +1004,42 @@
             }
         }
 
+        /**
+         * Starts the quiz timer.
+         * @param {number} durationInSeconds - The total duration of the quiz in seconds.
+         */
+        function startTimer(durationInSeconds) {
+            timeRemainingSeconds = durationInSeconds;
+            updateTimerDisplay(); // Initial display
+            timerInterval = setInterval(() => {
+                timeRemainingSeconds--;
+                updateTimerDisplay();
+                if (timeRemainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    showCustomMessage('Time is up! Your quiz will now be submitted.', finalizeQuiz);
+                }
+            }, 1000);
+        }
+
+        /**
+         * Updates the timer display (MM:SS format).
+         */
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemainingSeconds / 60);
+            const seconds = timeRemainingSeconds % 60;
+            timeRemainingSpan.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            // Optional: Change timer color when low on time
+            if (timeRemainingSeconds <= 60) { // 1 minute left
+                timerDisplay.classList.add('bg-red-600', 'text-white');
+                timerDisplay.classList.remove('bg-red-100', 'text-red-600');
+            } else {
+                timerDisplay.classList.remove('bg-red-600', 'text-white');
+                timerDisplay.classList.add('bg-red-100', 'text-red-600');
+            }
+        }
+
+
         document.addEventListener('DOMContentLoaded', () => {
             const jwtTokenOnLoad = localStorage.getItem('jwtToken');
             if (!jwtTokenOnLoad) {
@@ -993,10 +1048,8 @@
             }
 
             startQuizButton.addEventListener('click', () => {
-                // userName = collegeSelect.value; // Removed this line
                 selectedModule = moduleSelect.value; 
 
-                // Removed college selection validation
                 if (!selectedModule) { 
                     showCustomMessage('Please select a module to start the quiz.');
                     return;
@@ -1013,7 +1066,7 @@
             clearResponseButton.addEventListener('click', handleClearResponse);
             markForReviewButton.addEventListener('click', handleMarkForReview);
             finalSubmitButton.addEventListener('click', () => {
-                showCustomMessage('Are you sure you want to submit the test?', finalizeQuiz, true, () => {
+                showCustomMessage('Are you sure you want to submit the test?, after clicking on ok please wait for few Minutes', finalizeQuiz, true, () => {
                     console.log("Submission cancelled.");
                 });
             });
