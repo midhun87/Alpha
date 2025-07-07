@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Certificates - AWSPrepZone</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
   <style>
+    /* ... (your existing CSS for print and general layout) ... */
     @media print {
       .no-print {
         display: none;
@@ -30,20 +32,28 @@
         border-radius: 1rem !important;
         margin: 0 auto;
         page-break-inside: avoid;
+        position: relative; /* Ensure position for absolute QR */
+      }
+      /* Ensure QR code is visible when printed */
+      #qrcodeCanvas {
+          display: block !important; /* Override no-print if it was accidentally applied */
+          position: absolute; /* Position it on the certificate */
+          bottom: 2cm; /* Adjust as needed */
+          right: 2cm; /* Adjust as needed */
+          width: 80px; /* Adjust size for print */
+          height: 80px; /* Adjust size for print */
       }
     }
   </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-white min-h-screen flex flex-col md:flex-row py-10 px-4 font-serif">
 
-  <!-- Left Sidebar -->
   <div class="w-full md:w-1/4 bg-white rounded-xl shadow-2xl p-6 md:p-8 space-y-4 mb-8 md:mb-0 md:mr-8 no-print max-h-[90vh] overflow-y-auto">
     <h2 class="text-2xl font-bold text-blue-800 mb-4">Your Certificates</h2>
     <div id="certificateList" class="space-y-4">
       <p class="text-center text-gray-500" id="loadingMessage">Loading certificates...</p>
     </div>
 
-    <!-- Back Button below module list -->
     <div class="mt-6 text-center no-print">
       <a href="/Home.html" class="inline-block bg-gray-200 hover:bg-gray-300 text-blue-800 font-medium px-5 py-2 rounded-md transition">
         ⬅ Back to Home
@@ -51,7 +61,6 @@
     </div>
   </div>
 
-  <!-- Certificate Preview -->
   <div class="w-full md:w-[90%] bg-white rounded-xl shadow-2xl text-center p-8 space-y-4 relative certificate-container">
 
     <div class="absolute top-[-50px] left-1/2 transform -translate-x-1/2">
@@ -79,6 +88,12 @@
         <p id="dateIssued" class="text-md">N/A</p>
       </div>
     </div>
+
+    <div class="mt-6 flex justify-center no-print">
+        <canvas id="qrcodeCanvas" class="w-24 h-24 border border-gray-300 rounded-md shadow-inner"></canvas>
+    </div>
+    <p class="text-xs text-gray-500 mt-2 no-print">Scan to verify certificate & view test history</p>
+
 
     <button onclick="window.print()" class="no-print mt-6 bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-2 rounded-lg shadow transition">
       Print / Download PDF
@@ -119,7 +134,7 @@
           if (allCertificates.length > 0) {
             loadingMessage.style.display = 'none';
             renderCertificateList(allCertificates);
-            displayCertificate(allCertificates[0]);
+            displayCertificate(allCertificates[0]); // Display first certificate by default
           } else {
             loadingMessage.textContent = 'No passing certificates found.';
             displayNoCertificateState('No passing test results found for your account.');
@@ -130,7 +145,7 @@
           displayErrorState(data.message);
           if (response.status === 401 || response.status === 403) {
             alert(data.message || 'Authentication required. Redirecting to login.');
-            window.location.href = '/login.html';
+            window.location.href = '/Login.html';
           } else if (response.status === 404) {
             displayNoCertificateState(data.message);
           } else {
@@ -166,6 +181,9 @@
       document.getElementById('scoreDisplay').textContent = `${cert.studentScore || 0} / ${cert.totalQuestions || 0}`;
       document.getElementById('dateIssued').textContent = cert.testDate ? new Date(cert.testDate).toLocaleDateString() : 'N/A';
       document.getElementById('moduleTestedDisplay').textContent = cert.moduleTested ? `AWSPrepZone Mock Test - ${cert.moduleTested}` : 'AWSPrepZone Mock Test - All Modules';
+
+      // Generate QR Code for the certificate
+      generateQRCode(cert);
     }
 
     function displayNoCertificateState(message) {
@@ -173,6 +191,7 @@
       document.getElementById('scoreDisplay').textContent = 'N/A';
       document.getElementById('dateIssued').textContent = 'N/A';
       document.getElementById('moduleTestedDisplay').textContent = message;
+      document.getElementById('qrcodeCanvas').style.display = 'none'; // Hide QR if no cert
     }
 
     function displayErrorState(message) {
@@ -180,7 +199,33 @@
       document.getElementById('scoreDisplay').textContent = 'N/A';
       document.getElementById('dateIssued').textContent = 'N/A';
       document.getElementById('moduleTestedDisplay').textContent = message;
+      document.getElementById('qrcodeCanvas').style.display = 'none'; // Hide QR on error
     }
+
+    // New QR Code Generation Function
+    function generateQRCode(cert) {
+        const canvas = document.getElementById('qrcodeCanvas');
+        canvas.style.display = 'block'; // Ensure canvas is visible
+
+        // Construct the URL for the test history page.
+        // This URL should include parameters to uniquely identify the test result.
+        // You might use a certificate ID, test ID, or a combination of userId and testDate/module.
+        // For simplicity, let's assume `cert.testResultId` is a unique ID from your backend.
+        // Example: If your history page is at /TestHistory.html and expects an ID:
+        const historyUrl = `${window.location.origin}/TestHistory.html?testResultId=${cert.testResultId || cert._id}`; // Using _id as a fallback
+        // Or if you need more data for validation:
+        // const historyUrl = `${window.location.origin}/TestHistory.html?userId=${cert.userId}&module=${encodeURIComponent(cert.moduleTested)}&date=${new Date(cert.testDate).toISOString().split('T')[0]}`;
+
+        new QRious({
+            element: canvas,
+            value: historyUrl,
+            size: 150, // Adjust size as needed
+            padding: 10,
+            foreground: '#1e40af', // Blue color for QR code
+            background: 'white'
+        });
+    }
+
   </script>
 </body>
 </html>
