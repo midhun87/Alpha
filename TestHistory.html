@@ -254,9 +254,19 @@
 
             // Constructing individual info items within the grid layout
             let itemsHtml = `
+              <div class="info-item">
+                    <strong>Username:</strong>
+                    <span>${historyData.UserLoginUsername || 'N/A'}</span>
+                </div>
                 <div class="info-item">
                     <strong>Module Tested:</strong>
                     <span>${historyData.ModuleTested || 'N/A'}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Status:</strong>
+                    <span class="${historyData.IsPass ? 'pass-status' : 'fail-status'}">
+                        ${historyData.IsPass ? 'PASSED' : 'FAILED'}
+                    </span>
                 </div>
                 <div class="info-item">
                     <strong>Date of Attempt:</strong>
@@ -268,16 +278,8 @@
                         ${historyData.Score || 0} / ${historyData.TotalQuestions || 0}
                     </span>
                 </div>
-                <div class="info-item">
-                    <strong>Status:</strong>
-                    <span class="${historyData.IsPass ? 'pass-status' : 'fail-status'}">
-                        ${historyData.IsPass ? 'PASSED' : 'FAILED'}
-                    </span>
-                </div>
-                <div class="info-item">
-                    <strong>Username:</strong>
-                    <span>${historyData.UserLoginUsername || 'N/A'}</span>
-                </div>
+                
+              
             `;
 
             if (historyData.CollegeName) {
