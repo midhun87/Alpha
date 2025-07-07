@@ -203,29 +203,26 @@
     }
 
     // New QR Code Generation Function
-    function generateQRCode(cert) {
-        const canvas = document.getElementById('qrcodeCanvas');
-        canvas.style.display = 'block'; // Ensure canvas is visible
+    <!-- In your Certificate.html file, find the generateQRCode function -->
 
-        // Construct the URL for the test history page.
-        // This URL should include parameters to uniquely identify the test result.
-        // You might use a certificate ID, test ID, or a combination of userId and testDate/module.
-        // For simplicity, let's assume `cert.testResultId` is a unique ID from your backend.
-        // Example: If your history page is at /TestHistory.html and expects an ID:
-        const historyUrl = `${window.location.origin}/TestHistory.html?testResultId=${cert.testResultId || cert._id}`; // Using _id as a fallback
-        // Or if you need more data for validation:
-        // const historyUrl = `${window.location.origin}/TestHistory.html?userId=${cert.userId}&module=${encodeURIComponent(cert.moduleTested)}&date=${new Date(cert.testDate).toISOString().split('T')[0]}`;
+function generateQRCode(cert) {
+    console.log("DEBUG: Certificate object received by generateQRCode:", cert); // Keep this for debugging!
+    const canvas = document.getElementById('qrcodeCanvas');
+    canvas.style.display = 'block';
 
-        new QRious({
-            element: canvas,
-            value: historyUrl,
-            size: 150, // Adjust size as needed
-            padding: 10,
-            foreground: '#1e40af', // Blue color for QR code
-            background: 'white'
-        });
-    }
+    // Now, both cert.userId and cert.testResultId should be available
+    const historyUrl = `${window.location.origin}/TestHistory.html?userId=${cert.userId}&testResultId=${cert.testResultId}`;
+    console.log("DEBUG: Generated history URL:", historyUrl); // Add this to see the final URL
 
+    new QRious({
+        element: canvas,
+        value: historyUrl,
+        size: 150,
+        padding: 10,
+        foreground: '#1e40af',
+        background: 'white'
+    });
+}
   </script>
 </body>
 </html>
