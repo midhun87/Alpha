@@ -1345,47 +1345,41 @@ async function fetchTestSummary() {
 // In your backend.js file, replace your current /get-test-history-by-id endpoint with this:
 
 app.get('/get-test-history-by-id', async (req, res) => {
-    // We expect both userId and testResultId (which maps to TestAttemptId)
-    const userId = req.query.userId;
-    const testAttemptId = req.query.testAttemptId; // Frontend sends 'testResultId', use it as TestAttemptId
-
-    // --- DEBUG LOGS START ---
+    // These debug logs are helpful for verifying what the server receives
     console.log(`SERVER DEBUG: Received request for /get-test-history-by-id`);
-    console.log(`SERVER DEBUG: UserId from query param: "${userId}"`);
-    console.log(`SERVER DEBUG: TestAttemptId (from testAttemptId) from query param: "${testAttemptId}"`);
-    // --- DEBUG LOGS END ---
+    console.log(`SERVER DEBUG: UserId from query param: "${req.query.userId}"`);
+    console.log(`SERVER DEBUG: TestResultId from query param: "${req.query.testResultId}"`); // Notice it's testResultId here
 
-    if (!userId || !testAttemptId) {
-        console.warn('SERVER DEBUG: UserId or TestAttemptId is missing. Returning 400.');
+    const userId = req.query.userId;
+    const testResultId = req.query.testResultId; // This is the variable name used by frontend
+
+    if (!userId || !testResultId) {
+        console.warn('SERVER DEBUG: UserId or TestResultId is missing. Returning 400.');
         return res.status(400).json({ message: 'User ID and Test Attempt ID are required.' });
     }
 
     try {
-        // Use dynamodb.get() for fetching a single item by its composite primary key
         const params = {
-            TableName: 'TestAttempts', // Your table name
-            Key: {
-                UserId: userId,         // Partition Key
-                TestAttemptId: testAttemptId // Sort Key
+            TableName: 'TestAttempts',
+            IndexName: 'TestResultIdIndex', // <--- Ensure this GSI name is correct in DynamoDB
+            KeyConditionExpression: 'TestResultId = :id', // Querying the GSI by its partition key
+            ExpressionAttributeValues: {
+                ':id': testResultId
             }
         };
 
-        // --- DEBUG LOGS START ---
-        console.log('SERVER DEBUG: DynamoDB GetItem Params:', JSON.stringify(params, null, 2));
-        // --- DEBUG LOGS END ---
+        console.log('SERVER DEBUG: DynamoDB Query Params:', JSON.stringify(params, null, 2));
 
-        const result = await dynamodb.get(params).promise(); // Execute the GetItem operation
+        const result = await dynamodb.query(params).promise();
 
-        // --- DEBUG LOGS START ---
-        console.log('SERVER DEBUG: DynamoDB GetItem Result:', JSON.stringify(result, null, 2));
-        // --- DEBUG LOGS END ---
+        console.log('SERVER DEBUG: DynamoDB Query Result:', JSON.stringify(result, null, 2));
 
-        if (result.Item) { // For GetItem, the result is in 'Item' (singular)
-            const testHistory = result.Item;
+        if (result.Items && result.Items.length > 0) {
+            const testHistory = result.Items[0];
             console.log('SERVER DEBUG: Test history found. Sending 200 OK.');
             res.status(200).json(testHistory);
         } else {
-            console.warn(`SERVER DEBUG: No test history found for User ID "${userId}" and Test Attempt ID "${testAttemptId}". Sending 404 Not Found.`);
+            console.warn(`SERVER DEBUG: No test history found for User ID "${userId}" and Test Result ID "${testResultId}". Sending 404 Not Found.`);
             res.status(404).json({ message: 'Test history not found for this ID.' });
         }
     } catch (error) {
