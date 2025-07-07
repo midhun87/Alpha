@@ -34,33 +34,27 @@
             border-bottom: none;
         }
         .correct-answer {
-            color: #10B981; /* Green */
+            color: #16a34a; /* Tailwind green-600 */
             font-weight: 500;
         }
         .incorrect-answer {
-            color: #EF4444; /* Red */
+            color: #dc2626; /* Tailwind red-600 */
             font-weight: 500;
+        }
+        .loading-message {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-top: 2rem;
         }
     </style>
 </head>
 <body>
-    <header class="w-full flex items-center justify-center py-4 px-6 bg-white shadow-md rounded-xl max-w-6xl">
-        <div class="flex items-center gap-3">
-            <img src="./ChatGPT Image Jun 15, 2025, 03_58_04 PM.png" alt="AWS Logo" class="w-10 h-10 object-contain" />
-            <h1 class="text-xl font-bold text-blue-700">AWSPrepZone – Test History</h1>
-        </div>
-    </header>
-
     <div class="container">
-        <h2 class="text-3xl font-bold text-blue-800 mb-6 text-center">Test History Details</h2>
-        <div id="historyDetails" class="space-y-4">
-            <p class="text-center text-gray-600" id="loadingMessage">Loading test history...</p>
+        <h2 class="text-3xl font-bold text-center text-blue-800 mb-6">Test History Details</h2>
+        <div id="loadingMessage" class="loading-message">Loading test history...</div>
+        <div id="historyDetails" class="mt-6">
             </div>
-        <div class="mt-8 text-center">
-            <button onclick="window.history.back()" class="inline-block bg-gray-200 hover:bg-gray-300 text-blue-800 font-medium px-5 py-2 rounded-md transition">
-                ⬅ Go Back
-            </button>
-        </div>
     </div>
 
     <script>
@@ -68,22 +62,21 @@
 
         async function fetchTestHistory() {
             const urlParams = new URLSearchParams(window.location.search);
-            const testResultId = urlParams.get('testResultId'); // Get the ID from the URL
+            const testResultId = urlParams.get('testResultId');
+            const userId = urlParams.get('userId'); // Get the userId from the URL
+
             const historyDetailsDiv = document.getElementById('historyDetails');
             const loadingMessage = document.getElementById('loadingMessage');
 
-            if (!testResultId) {
-                loadingMessage.textContent = 'Error: No test result ID provided.';
+            if (!testResultId || !userId) {
+                loadingMessage.textContent = 'Error: Missing user ID or test result ID in URL.';
                 return;
             }
 
-            loadingMessage.textContent = `Loading history for Test ID: ${testResultId}...`;
+            loadingMessage.textContent = `Loading history for User ID: ${userId}, Test ID: ${testResultId}...`;
 
             try {
-                // IMPORTANT: This API endpoint needs to be PUBLICLY accessible or secured
-                // with a simple token/key for QR code verification.
-                // It should return the detailed test history for the given ID.
-                const response = await fetch(`/get-test-history-by-id?testResultId=${testResultId}`);
+                const response = await fetch(`/get-test-history-by-id?userId=${userId}&testResultId=${testResultId}`);
                 const data = await response.json();
 
                 if (response.ok) {
@@ -103,22 +96,28 @@
             const historyDetailsDiv = document.getElementById('historyDetails');
             historyDetailsDiv.innerHTML = ''; // Clear loading message
 
-            if (!historyData || !historyData.testName) { // Check if historyData is valid
-                historyDetailsDiv.innerHTML = '<p class="text-center text-red-600">No detailed history found for this test.</p>';
+            // We will now assume if historyData exists, we should try to render it.
+            // You can add a more specific check here if needed (e.g., if historyData.TestAttemptId is null).
+            if (!historyData) {
+                historyDetailsDiv.innerHTML = '<p class="text-center text-red-600">Error: Received no data for this test history.</p>';
                 return;
             }
 
-            // Display overall test details
+            // Display overall test details using the correct field names from your DynamoDB item
             historyDetailsDiv.innerHTML += `
-                <h3 class="text-2xl font-semibold text-blue-700 mb-4">${historyData.testName || 'Test Details'}</h3>
-                <p><strong>Date:</strong> ${new Date(historyData.testDate).toLocaleDateString()}</p>
-                <p><strong>Module:</strong> ${historyData.moduleTested || 'N/A'}</p>
-                <p><strong>Score:</strong> <span class="${historyData.passingScore && historyData.studentScore >= historyData.passingScore ? 'text-green-600' : 'text-red-600'}">${historyData.studentScore || 0} / ${historyData.totalQuestions || 0}</span></p>
-                <p><strong>Time Taken:</strong> ${formatDuration(historyData.timeTakenSeconds || 0)}</p>
+                <h3 class="text-2xl font-semibold text-blue-700 mb-4">${historyData.ModuleTested || 'Test Details'}</h3>
+                <p><strong>Date:</strong> ${new Date(historyData.AttemptDate).toLocaleDateString()}</p>
+                <p><strong>Module:</strong> ${historyData.ModuleTested || 'N/A'}</p>
+                <p><strong>Score:</strong> <span class="${historyData.IsPass ? 'text-green-600' : 'text-red-600'}">${historyData.Score || 0} / ${historyData.TotalQuestions || 0}</span></p>
+                <p><strong>Username:</strong> ${historyData.UserLoginUsername || 'N/A'}</p>
                 <p class="text-gray-700 text-lg mt-6"><strong>Questions & Answers:</strong></p>
             `;
 
             // Display individual question details
+            // Your current DynamoDB item does NOT contain a 'questions' array.
+            // Therefore, this section will always show 'No question-level details available'.
+            // If you need question-level details, you must store them in your TestAttempts table,
+            // perhaps as a complex attribute (list of maps) or fetch from another table.
             if (historyData.questions && historyData.questions.length > 0) {
                 historyData.questions.forEach((q, index) => {
                     historyDetailsDiv.innerHTML += `
