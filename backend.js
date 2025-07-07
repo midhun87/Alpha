@@ -1311,7 +1311,43 @@ app.post('/api/mark-topic-complete', authenticateUser, async (req, res) => {
         res.status(500).json({ message: 'Failed to mark topic complete.' });
     }
 });
+// In your backend.js
+// Make sure to place this route handler *before* any catch-all routes if you have them.
 
+app.get('/get-test-history-by-id', async (req, res) => {
+    const testResultId = req.query.testResultId;
+
+    if (!testResultId) {
+        return res.status(400).json({ message: 'Test Result ID is required.' });
+    }
+
+    try {
+        // --- Database Query Logic ---
+        // Replace this with your actual DynamoDB query or other database query
+        // Example for DynamoDB (assuming you have a 'TestResults' table):
+        const params = {
+            TableName: 'TestResults', // Your DynamoDB table for test results
+            KeyConditionExpression: 'TestResultId = :id', // Assuming TestResultId is your primary key
+            ExpressionAttributeValues: {
+                ':id': testResultId
+            }
+        };
+
+        const result = await dynamodb.query(params).promise();
+
+        if (result.Items && result.Items.length > 0) {
+            const testHistory = result.Items[0];
+            // IMPORTANT: You might want to format/filter the data here
+            // to only send necessary information and perhaps exclude sensitive user details
+            res.status(200).json(testHistory);
+        } else {
+            res.status(404).json({ message: 'Test history not found for this ID.' });
+        }
+    } catch (error) {
+        console.error('Error fetching test history:', error);
+        res.status(500).json({ message: 'Internal server error while fetching test history.' });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
