@@ -286,7 +286,7 @@
 
             if (response.ok) {
                 showCustomMessage('Account created successfully! Please log in.', () => {
-                    window.location.href = '/Login.html'; // Redirect to login page
+                    window.location.href = '/login.html'; // Redirect to login page
                 });
             } else {
                 showCustomMessage(data.message || 'OTP verification failed. Please try again.');
