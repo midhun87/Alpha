@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test History - AWSPrepZone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom right, #e0f2f7, #c1e4f4);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 2rem;
+        }
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            max-width: 800px;
+            width: 100%;
+            margin-top: 2rem;
+        }
+        .question-item {
+            border-bottom: 1px solid #eee;
+            padding: 1rem 0;
+        }
+        .question-item:last-child {
+            border-bottom: none;
+        }
+        .correct-answer {
+            color: #10B981; /* Green */
+            font-weight: 500;
+        }
+        .incorrect-answer {
+            color: #EF4444; /* Red */
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header class="w-full flex items-center justify-center py-4 px-6 bg-white shadow-md rounded-xl max-w-6xl">
+        <div class="flex items-center gap-3">
+            <img src="./ChatGPT Image Jun 15, 2025, 03_58_04 PM.png" alt="AWS Logo" class="w-10 h-10 object-contain" />
+            <h1 class="text-xl font-bold text-blue-700">AWSPrepZone – Test History</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <h2 class="text-3xl font-bold text-blue-800 mb-6 text-center">Test History Details</h2>
+        <div id="historyDetails" class="space-y-4">
+            <p class="text-center text-gray-600" id="loadingMessage">Loading test history...</p>
+            </div>
+        <div class="mt-8 text-center">
+            <button onclick="window.history.back()" class="inline-block bg-gray-200 hover:bg-gray-300 text-blue-800 font-medium px-5 py-2 rounded-md transition">
+                ⬅ Go Back
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchTestHistory);
+
+        async function fetchTestHistory() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const testResultId = urlParams.get('testResultId'); // Get the ID from the URL
+            const historyDetailsDiv = document.getElementById('historyDetails');
+            const loadingMessage = document.getElementById('loadingMessage');
+
+            if (!testResultId) {
+                loadingMessage.textContent = 'Error: No test result ID provided.';
+                return;
+            }
+
+            loadingMessage.textContent = `Loading history for Test ID: ${testResultId}...`;
+
+            try {
+                // IMPORTANT: This API endpoint needs to be PUBLICLY accessible or secured
+                // with a simple token/key for QR code verification.
+                // It should return the detailed test history for the given ID.
+                const response = await fetch(`/get-test-history-by-id?testResultId=${testResultId}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    loadingMessage.style.display = 'none';
+                    renderTestHistory(data);
+                } else {
+                    console.error('Failed to fetch test history:', data.message);
+                    loadingMessage.textContent = `Error: ${data.message || 'Failed to load test history.'}`;
+                }
+            } catch (error) {
+                console.error('Network or server error fetching test history:', error);
+                loadingMessage.textContent = 'Network error. Could not load test history. Please check your connection.';
+            }
+        }
+
+        function renderTestHistory(historyData) {
+            const historyDetailsDiv = document.getElementById('historyDetails');
+            historyDetailsDiv.innerHTML = ''; // Clear loading message
+
+            if (!historyData || !historyData.testName) { // Check if historyData is valid
+                historyDetailsDiv.innerHTML = '<p class="text-center text-red-600">No detailed history found for this test.</p>';
+                return;
+            }
+
+            // Display overall test details
+            historyDetailsDiv.innerHTML += `
+                <h3 class="text-2xl font-semibold text-blue-700 mb-4">${historyData.testName || 'Test Details'}</h3>
+                <p><strong>Date:</strong> ${new Date(historyData.testDate).toLocaleDateString()}</p>
+                <p><strong>Module:</strong> ${historyData.moduleTested || 'N/A'}</p>
+                <p><strong>Score:</strong> <span class="${historyData.passingScore && historyData.studentScore >= historyData.passingScore ? 'text-green-600' : 'text-red-600'}">${historyData.studentScore || 0} / ${historyData.totalQuestions || 0}</span></p>
+                <p><strong>Time Taken:</strong> ${formatDuration(historyData.timeTakenSeconds || 0)}</p>
+                <p class="text-gray-700 text-lg mt-6"><strong>Questions & Answers:</strong></p>
+            `;
+
+            // Display individual question details
+            if (historyData.questions && historyData.questions.length > 0) {
+                historyData.questions.forEach((q, index) => {
+                    historyDetailsDiv.innerHTML += `
+                        <div class="question-item">
+                            <p class="font-semibold text-gray-800">Q${index + 1}: ${q.questionText}</p>
+                            <p class="text-sm text-gray-600 ml-4">Your Answer: <span class="${q.isCorrect ? 'correct-answer' : 'incorrect-answer'}">${q.studentAnswer || 'Not answered'}</span></p>
+                            <p class="text-sm text-gray-600 ml-4">Correct Answer: <span class="correct-answer">${q.correctAnswer}</span></p>
+                            ${q.explanation ? `<p class="text-xs text-gray-500 ml-4">Explanation: ${q.explanation}</p>` : ''}
+                        </div>
+                    `;
+                });
+            } else {
+                historyDetailsDiv.innerHTML += '<p class="text-center text-gray-500 mt-4">No question-level details available for this test.</p>';
+            }
+        }
+
+        function formatDuration(seconds) {
+            if (seconds < 60) return `${seconds} seconds`;
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            if (remainingSeconds === 0) return `${minutes} minutes`;
+            return `${minutes} minutes ${remainingSeconds} seconds`;
+        }
+    </script>
+</body>
+</html>
