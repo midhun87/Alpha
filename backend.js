@@ -440,9 +440,9 @@ async function sendTestCompletionEmail(toEmail, username, score, totalQuestions,
             ${isPass ? '<p>Congratulations on passing! Keep up the great work.</p>' : '<p>Keep practicing! You can do it.</p>'}
             <p>You can view your complete test history on your dashboard.</p>
             <p>Regards,<br>AWSPrepZone-Team</p>
-            <p>Happy Learning! - Your Midhun Founder</p>
+            <p>Happy Learning! - Quizcom _ Team</p>
         `,
-        text: `Dear ${username},\n\nThis email is to confirm that you have completed a test on AWSPrepZone.\n\nModule Tested: ${module}\nYour Score: ${score} / ${totalQuestions}\nResult: ${passStatus}\n\n${isPass ? 'Congratulations on passing! Keep up the great work.' : 'Keep practicing! You can do it.'}\n\nYou can find your Certificate in Dashboard\n\nRegards,\nAWSPrepZone-Team\nHappy Learning! - Your Midhun Founder`,
+        text: `Dear ${username},\n\nThis email is to confirm that you have completed a test on AWSPrepZone.\n\nModule Tested: ${module}\nYour Score: ${score} / ${totalQuestions}\nResult: ${passStatus}\n\n${isPass ? 'Congratulations on passing! Keep up the great work.' : 'Keep practicing! You can do it.'}\n\nYou can find your Certificate in Dashboard\n\nRegards,\nAWSPrepZone-Team\nHappy Learning! - QuizCom Team`,
     };
 
     try {
@@ -765,7 +765,7 @@ async function sendPasswordResetEmail(toEmail, resetToken) {
             <p>This link will expire in ${PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES} minutes.</p>
             <p>If you did not request this, please ignore this email. If you seen this suspicious please report at craids22@gmail.com</p>
             <p>Regards,<br>AWSPrepZone-Team</p>
-            <p>Happy Learning!- Your Midhun Founder</p>
+            <p>Happy Learning!- QuizComTeam</p>
         `,
         text: `You requested a password reset for your account. Click the following link to reset your password: ${resetLink}. This link will expire in ${PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES} minutes. If you did not request this, please ignore this email. Regards, Your Website Team`,
     };
