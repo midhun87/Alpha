@@ -7,6 +7,21 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: 'Inter', sans-serif; }
+    /* Keyframe animations for the banner */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeOutUp {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-20px); }
+    }
+    .fade-in-down {
+      animation: fadeInDown 0.5s ease-out forwards;
+    }
+    .fade-out-up {
+      animation: fadeOutUp 0.5s ease-out forwards;
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex flex-col">
@@ -41,6 +56,17 @@
     </div>
   </header>
 
+  <div id="grandTestBanner" class="relative bg-blue-600 text-white p-4 text-center text-lg font-semibold shadow-lg z-40 hidden fade-in-down max-w-7xl mx-auto rounded-b-lg mb-8">
+    <a href="https://forms.gle/mGvqpNMaYCGTHkiE9" target="_blank" class="block w-full h-full relative group">
+        <img src="./Screenshot 2025-07-07 171132.png" alt="Free AWS Grand Test Banner" class="w-full h-auto object-cover rounded-md group-hover:opacity-80 transition-opacity duration-300"/>
+        <span class="absolute inset-0 flex items-center justify-center text-white text-3xl font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50 rounded-md">
+            Click to Participate!
+        </span>
+    </a>
+    <button onclick="dismissBanner()" class="absolute top-2 right-2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white rounded-full p-1.5 focus:outline-none focus:ring-2 focus:ring-white">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+  </div>
   <main class="flex-grow flex flex-col items-center justify-center p-6">
     <section class="text-center mb-10">
       <h2 class="text-5xl font-extrabold text-blue-800 mb-4 animate-fade-in-down">Welcome, <span id="usernameDisplay" class="text-blue-600">User</span>!</h2>
@@ -83,30 +109,32 @@
   </main>
 
   <div id="instructionsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-[100]">
-    <div class="bg-white rounded-lg shadow-xl p-8 m-4 max-w-3xl w-full">
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-2xl font-bold text-gray-800">Instructions for the Test</h3>
-        <button onclick="toggleModal('instructionsModal')" class="text-gray-500 hover:text-gray-700">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-      </div>
-      <div class="prose max-w-none text-gray-700">
-        <p>Welcome to the AWSPrepZone Test Portal. Please read the following instructions carefully before starting your test:</p>
-        <ul class="list-disc pl-5 space-y-2">
-          <li><strong>Test Format:</strong> Each module test consists of 25 multiple-choice questions. The "All Modules" test combines questions from all available modules.</li>
-          <li><strong>Passing Score:</strong> To pass a test, you must score at least 60%.</li>
-          <li><strong>Time Limit:</strong> There is no strict time limit per question, but the overall test duration is designed for efficient completion.</li>
-          <li><strong>Navigation:</strong> You can navigate between questions using the "Next" and "Previous" buttons.</li>
-          <li><strong>Review:</strong> Before submitting, you can review your answers.</li>
-          <li><strong>Submission:</strong> Once you click "Submit Test," your answers will be recorded, and your score will be displayed. You cannot retake the same test module until your previous attempt is processed.</li>
-          <li><strong>Academic Integrity:</strong> Any attempt to cheat, including but not limited to, opening new tabs, switching applications, or using external resources, will be recorded as a violation. Multiple violations may lead to disqualification.</li>
-          <li><strong>Certificate:</strong> Upon passing the "All Modules" test, you will be eligible for a completion certificate.</li>
-          <li><strong>Technical Issues:</strong> In case of any technical difficulties, please contact support immediately. Do not refresh the page during a test unless instructed.</li>
-        </ul>
-        <p class="mt-4">Good luck with your preparation!</p>
-      </div>
+  <div class="bg-white rounded-lg shadow-xl p-8 m-4 max-w-3xl w-full relative max-h-[90vh] flex flex-col">
+    <div class="flex justify-between items-center mb-6 flex-shrink-0">
+      <h3 class="text-2xl font-bold text-gray-800">Instructions for the Test</h3>
+      <button onclick="toggleModal('instructionsModal')" class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    <div class="prose max-w-none text-gray-700 flex-grow overflow-y-auto pr-2">
+      <p>Welcome to the AWSPrepZone Learn Portal. Please read the following instructions carefully before starting your test:</p>
+      <br>
+      <ul class="list-disc pl-5 space-y-2">
+        <li><strong>Test Format:</strong> Each module test consists of 25 multiple-choice questions. The "All Modules" test combines questions from all available modules.</li>
+        <li><strong>Passing Score:</strong> To pass a test, you must score at least 70%.</li>
+        <li><strong>Time Limit:</strong> There is no strict time limit per question, but the overall test duration is 30 Minutes for efficient completion.</li>
+        <li><strong>Navigation:</strong> You can navigate between questions using the "Next" and "Previous" buttons.</li>
+        <li><strong>Review:</strong> Before submitting, you can review your answers.</li>
+        <li><strong>Submission:</strong> Once you click "Submit Test," your answers will be recorded, and your score will be displayed.We had a great oppurtunity for AWS Aspirants that you can take tests multiple times, so that it will be a great practice </li>
+        <li><strong>Academic Integrity:</strong> Any attempt to cheat, including but not limited to, opening new tabs, switching applications, or using external resources, will be recorded as a violation. Automatically your test will be stopped & Admin will be informed regarding the Violation.</li>
+        <li><strong>Malpractice:</strong>If the Admin found Multiple Violations on your account, your account will be banned for 30 days.</li>
+        <li><strong>Certificate:</strong> You can Earn Certificate after clearing ecah & every module Test, You can share in social Media about your Achievement</li>
+        <li><strong>Technical Issues:</strong> In case of any technical difficulties, please contact support immediately. Do not refresh the page during a test unless instructed.</li>
+      </ul>
+      <p class="mt-4">Good luck with your preparation!</p>
     </div>
   </div>
+</div>
 
   <div id="progressModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-[100]">
     <div class="bg-white rounded-lg shadow-xl p-8 m-4 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -140,7 +168,7 @@
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-center md:text-left">
       <div class="mb-4 md:mb-0">
         <p>&copy; 2025 AWSPrepZone. All rights reserved.</p>
-        <p class="text-sm">Designed and Developed by QuizCom-Team</p>
+        <p class="text-sm">Designed and Developed by - QuizCom Team</p>
       </div>
       <div class="flex space-x-6">
         <a href="mailto:craids22@gmail.com" class="text-gray-400 hover:text-white transition">Support</a>
@@ -177,6 +205,7 @@
 
     function logout() {
       localStorage.clear();
+      sessionStorage.clear(); // Clear session storage as well
       alert('Logged out!');
       window.location.href = './welcome.html';
     }
@@ -342,6 +371,26 @@
       }
     }
 
+    // Banner specific JavaScript
+    function showBanner() {
+      const banner = document.getElementById('grandTestBanner');
+      // Only show if not dismissed in the current session
+      if (sessionStorage.getItem('grandTestBannerDismissed') !== 'true') {
+        banner.classList.remove('hidden');
+        banner.classList.add('fade-in-down');
+      }
+    }
+
+    function dismissBanner() {
+      const banner = document.getElementById('grandTestBanner');
+      banner.classList.remove('fade-in-down');
+      banner.classList.add('fade-out-up');
+      banner.addEventListener('animationend', () => {
+        banner.classList.add('hidden');
+        banner.classList.remove('fade-out-up');
+      }, { once: true });
+      sessionStorage.setItem('grandTestBannerDismissed', 'true'); // Dismiss for current session
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       const username = localStorage.getItem('username');
@@ -352,8 +401,10 @@
       }
       document.getElementById('usernameDisplay').textContent = username;
       document.getElementById('usernameDisplayHeader').textContent = username;
-      fetchTestSummary(); // Still fetch summary for dropdown stats on load
-      // fetchTestHistory() is now called only when the history modal is opened via openHistoryModal()
+      fetchTestSummary();
+
+      // Show the banner when the page loads
+      showBanner();
 
       // Add click event listener to the document
       document.addEventListener('click', (event) => {
